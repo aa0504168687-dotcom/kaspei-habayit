@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- אבטחה: חוסם כל חיבור לאינטרנט וכל טעינת קוד או קבצים מבחוץ. החריג היחיד: שרת הצ'אט שרץ במחשב הזה (127.0.0.1), שמעביר שאלות לשירות SAI -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; connect-src https://formsubmit.co; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; font-src data:; connect-src https://formsubmit.co; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; form-action 'none'; base-uri 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>כספי הבית</title>
@@ -221,6 +221,24 @@ tbody tr:hover{background:var(--primary-soft)}
 .guide-body .sub{margin:0 0 12px}
 .guide-card .btn{display:inline-flex;align-items:center;gap:6px;text-decoration:none}
 .guide-card .guide-dl{padding:8px 11px}
+/* צפייה במדריך בתוך האתר: חלון מעל הדשבורד (מתחת למסך הנעילה) */
+.gv{position:fixed;inset:0;z-index:25;display:flex;flex-direction:column;background:rgba(15,12,40,.95);color:#fff}
+.gv[hidden]{display:none}
+.gv-head{display:flex;align-items:center;gap:10px;padding:10px 16px;background:linear-gradient(135deg,#1e1b4b,#312e81)}
+.gv-head b{font-size:16px}
+.gv-cnt{color:#c7c9f5;font-size:14px;margin-inline-end:auto}
+.gv-ib{width:38px;height:38px;display:grid;place-items:center;border-radius:10px;background:rgba(255,255,255,.14);color:#fff;border:0;cursor:pointer;font-size:17px;text-decoration:none;font-family:Segoe UI Emoji,Segoe UI,Apple Color Emoji,sans-serif}
+.gv-ib:hover{background:rgba(255,255,255,.28)}
+.gv-stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;gap:14px;padding:14px}
+.gv-stage img{max-width:calc(100% - 130px);max-height:100%;border-radius:12px;box-shadow:0 14px 44px rgba(0,0,0,.5);background:#fff;object-fit:contain}
+.gv-arrow{flex:0 0 auto;width:50px;height:50px;border-radius:50%;border:0;background:rgba(255,255,255,.16);color:#fff;font-size:26px;line-height:1;cursor:pointer}
+.gv-arrow:hover:not(:disabled){background:var(--primary)}
+.gv-arrow:disabled{opacity:.25;cursor:default}
+.gv-dots{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:8px 14px 16px}
+.gv-dots button{width:32px;height:32px;border-radius:9px;border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;font-size:12px;font-weight:700;cursor:pointer}
+.gv-dots button:hover{background:rgba(255,255,255,.14)}
+.gv-dots button.on{background:var(--primary);border-color:var(--primary)}
+@media (max-width:640px){.gv-stage{gap:6px;padding:8px}.gv-stage img{max-width:calc(100% - 84px)}.gv-arrow{width:36px;height:36px;font-size:20px}.gv-head b{font-size:14px}.gv-dots button{width:26px;height:26px}}
 .legend li{padding:6px 0;border-bottom:1px solid var(--border)}
 .legend li:last-child{border-bottom:0}
 .empty{padding:28px 0}
@@ -892,7 +910,7 @@ VIEWS.dash = () => {
   (ui.guideClosed ? '' : `<section class="card guide-card"><div class="guide-ico">📘</div><div class="guide-body">
     <h2>מדריך למשתמש – כספי הבית</h2>
     <p class="sub">מצגת קצרה עם צילומי מסך: איך להתחיל, איך עובד כל מסך, ואיך שומרים על הנתונים. מומלץ לעבור עליה פעם אחת, ואפשר לשמור אותה כקובץ PDF.</p>
-    <div class="actions"><a class="btn primary" data-action="guideOpen" href="${GUIDE.page}" target="_blank" rel="noopener"><span style="font-family:Segoe UI Emoji,Segoe UI,Apple Color Emoji,sans-serif">👁️</span> צפייה במדריך</a><a class="btn guide-dl" data-action="guidePdf" href="${GUIDE_PDF()}" download="מדריך-למשתמש-כספי-הבית.pdf" rel="noopener" title="הורדת המדריך כקובץ PDF" aria-label="הורדת המדריך כקובץ PDF"><span style="font-family:Segoe UI Emoji,Segoe UI,Apple Color Emoji,sans-serif">⬇️</span></a><button class="btn" data-action="guideClose">הסתרה</button></div></div></section>`) +
+    <div class="actions"><button type="button" class="btn primary" data-action="guideOpen"><span style="font-family:Segoe UI Emoji,Segoe UI,Apple Color Emoji,sans-serif">👁️</span> צפייה במדריך</button><a class="btn guide-dl" data-action="guidePdf" href="${GUIDE_PDF()}" download="מדריך-למשתמש-כספי-הבית.pdf" rel="noopener" title="הורדת המדריך כקובץ PDF" aria-label="הורדת המדריך כקובץ PDF"><span style="font-family:Segoe UI Emoji,Segoe UI,Apple Color Emoji,sans-serif">⬇️</span></a><button class="btn" data-action="guideClose">הסתרה</button></div></div></section>`) +
   /* התזכורת "החזרי חוב לא סומנו" הוסרה לבקשת המשתמש: ההחזרים מתנהלים במסך ההתחייבויות בלבד ואינם נרשמים בהוצאות */
   `<div class="stats">
     <div class="stat s-flow s-hero"><div class="lbl">${year ? 'תזרים שנתי' : 'תזרים חודשי'}</div><div class="val ${flow >= 0 ? 'pos' : 'neg'}">${money(flow)}</div><div class="cmp">${cmpText(flow, pflow, true, prevLabel)}</div></div>
@@ -1646,7 +1664,7 @@ VIEWS.settings = () => topbar('הגדרות וגיבוי') + `<section class="ca
       <button class="btn" data-action="exportXlsx">📊 ייצוא לאקסל (כל הנתונים)</button>
       <button class="btn danger" data-action="clearAll">מחיקת כל הנתונים</button></div></section>
   <section class="card"><h2>מדריך למשתמש</h2><p class="sub">מצגת עם צילומי מסך של כל חלקי התוכנה. הכרטיס מוצג בדשבורד; משם אפשר להסתיר אותו.</p>
-    <div class="actions"><a class="btn primary" data-action="guideOpen" href="${GUIDE.page}" target="_blank" rel="noopener">👁 צפייה במדריך</a>
+    <div class="actions"><button type="button" class="btn primary" data-action="guideOpen">👁 צפייה במדריך</button>
       <a class="btn" data-action="guidePdf" href="${GUIDE_PDF()}" download="מדריך-למשתמש-כספי-הבית.pdf" rel="noopener">⬇️ הורדת המדריך כ-PDF</a>
       <button class="btn" data-action="guideShow">הצגת הכרטיס בדשבורד</button></div></section>`;
 BIND.settings = () => {
@@ -2212,6 +2230,11 @@ const ACTIONS = {
   guideClose: () => { ui.guideClosed = true; render(); toast('המדריך מוסתר. אפשר לפתוח אותו שוב בהגדרות וגיבוי'); },
   guideShow: () => { ui.guideClosed = false; ui.tab = 'dash'; render(); toast('המדריך חזר לדשבורד'); },
   guidePdf: el => guidePdfClick(el),
+  guideOpen: () => gvOpen(),
+  guideHide: () => gvClose(),
+  guidePrev: () => gvShow(gvIdx - 1),
+  guideNext: () => gvShow(gvIdx + 1),
+  guideGo: el => gvShow(Number(el.dataset.n)),
   dupDel: el => { if (!confirm('למחוק את העסקה הזו?')) return; deleteTxWithUndo([el.dataset.id], 'העסקה נמחקה', renderTxList); },
   undo: () => { const f = ui.undoFn; ui.undoFn = null; if (f) f(); },
   dupOk: el => { S.settings.notDup = [...(S.settings.notDup || []), el.dataset.key]; save(); renderTxList(); toast('סומן כלא כפול'); },
@@ -3311,17 +3334,72 @@ function render() {
   if (BIND[ui.tab]) { try { BIND[ui.tab](); } catch (e) { console.error('שגיאה בקישור המסך ' + ui.tab, e); } }
 }
 
-/* ---------- מדריך למשתמש: צפייה בעמוד נפרד (guide.html) + הורדת PDF ----------
-   הצפייה נעשית בעמוד "guide.html" ולא בתוך העמוד הזה, כי תוכנת ההצפנה של הדפדפן
-   לא מאשרת להציג תמונות מבחוץ בלי לפתוח נתונים אחרים. בעמוד המדריך
-   ההגנה נשארת הדוקה (רק תמונות מהאתר עצמו, בלי קוד מבחוץ ובלי חיבורים). */
+/* ---------- מדריך למשתמש: צפייה בתוך האתר + הורדת PDF ----------
+   השקופיות הן תמונות בתיקייה assets שליד הקובץ. מדיניות האבטחה מתירה תמונות רק מהאתר עצמו ('self'),
+   כך ששום דבר לא נטען מבחוץ. החלון נפתח מעל הדשבורד ומתחת למסך הנעילה. */
 const GUIDE = {
-  n: 15, page: 'guide.html', pdf: 'מדריך-למשתמש-כספי-הבית.pdf'
+  n: 15, pdf: 'מדריך-למשתמש-כספי-הבית.pdf',
+  img: k => 'assets/' + (k < 10 ? '0' : '') + k + '.jpg'
 };
 const GUIDE_PDF = () => GUIDE.pdf;
 function guidePdfClick(a) {
   if (a) a.href = GUIDE.pdf;
 }
+let gvIdx = 1, gvBackFocus = null;
+function gvEl() {
+  let el = document.getElementById('gv');
+  if (el) return el;
+  el = document.createElement('div');
+  el.id = 'gv'; el.className = 'gv'; el.hidden = true;
+  el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'מדריך למשתמש – כספי הבית');
+  let dots = '';
+  for (let k = 1; k <= GUIDE.n; k++) dots += `<button type="button" data-action="guideGo" data-n="${k}" aria-label="שקופית ${k}">${k}</button>`;
+  el.innerHTML = `<div class="gv-head"><b>📘 מדריך למשתמש – כספי הבית</b><span class="gv-cnt" id="gvCnt"></span>
+    <a class="gv-ib" href="${GUIDE.pdf}" download="${GUIDE.pdf}" title="הורדת המדריך כקובץ PDF" aria-label="הורדת המדריך כקובץ PDF">⬇️</a>
+    <button type="button" class="gv-ib" data-action="guideHide" title="סגירה (Esc)" aria-label="סגירת המדריך">✕</button></div>
+    <div class="gv-stage"><button type="button" class="gv-arrow" dir="ltr" data-action="guidePrev" aria-label="השקופית הקודמת">›</button>
+    <img id="gvImg" alt=""><button type="button" class="gv-arrow" dir="ltr" data-action="guideNext" aria-label="השקופית הבאה">‹</button></div>
+    <div class="gv-dots">${dots}</div>`;
+  document.body.appendChild(el);
+  return el;
+}
+function gvShow(k) {
+  const el = gvEl();
+  gvIdx = Math.min(GUIDE.n, Math.max(1, k || 1));
+  const img = el.querySelector('#gvImg');
+  img.src = GUIDE.img(gvIdx);
+  img.alt = 'שקופית ' + gvIdx + ' מתוך ' + GUIDE.n;
+  el.querySelector('#gvCnt').textContent = 'שקופית ' + gvIdx + ' מתוך ' + GUIDE.n;
+  el.querySelector('[data-action="guidePrev"]').disabled = gvIdx <= 1;
+  el.querySelector('[data-action="guideNext"]').disabled = gvIdx >= GUIDE.n;
+  el.querySelectorAll('.gv-dots button').forEach(b => b.classList.toggle('on', Number(b.dataset.n) === gvIdx));
+  if (gvIdx < GUIDE.n) new Image().src = GUIDE.img(gvIdx + 1); // השקופית הבאה מוכנה מראש
+}
+function gvOpen(k) {
+  const el = gvEl();
+  gvBackFocus = document.activeElement;
+  el.hidden = false;
+  document.body.style.overflow = 'hidden';
+  gvShow(k || gvIdx);
+  el.querySelector('[data-action="guideHide"]').focus();
+}
+function gvClose() {
+  const el = document.getElementById('gv');
+  if (!el || el.hidden) return;
+  el.hidden = true;
+  document.body.style.overflow = '';
+  if (gvBackFocus && gvBackFocus.focus) gvBackFocus.focus();
+}
+// מקלדת: חץ שמאלה = הבא, חץ ימינה = הקודם (כיוון קריאה מימין לשמאל), Esc סוגר
+document.addEventListener('keydown', e => {
+  const el = document.getElementById('gv');
+  if (!el || el.hidden || !$('#lock').hidden) return;
+  const go = { ArrowLeft: 1, PageDown: 1, ArrowRight: -1, PageUp: -1 }[e.key];
+  if (e.key === 'Escape') { e.preventDefault(); gvClose(); }
+  else if (go) { e.preventDefault(); gvShow(gvIdx + go); }
+  else if (e.key === 'Home') { e.preventDefault(); gvShow(1); }
+  else if (e.key === 'End') { e.preventDefault(); gvShow(GUIDE.n); }
+});
 
 // היתרה שנותר לחלק בפיצול מתעדכנת בזמן הקלדה
 document.addEventListener('input', e => { if (e.target.classList && e.target.classList.contains('sp-amt')) splitUpdate(); });
