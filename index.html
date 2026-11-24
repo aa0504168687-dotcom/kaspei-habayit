@@ -719,6 +719,39 @@ function applyRecurring() {
   return added;
 }
 
+// Records a recurring item in the months from..to (inclusive). Only in the chosen months and only through today.
+// Without duplicates: a month that already has a transaction from this recurring item, or an identical transaction, is skipped. dry=true only counts
+function backfillRecurring(r, from, to, dry) {
+  const now = new Date(), cur = monthKey(now); let n = 0, m = from;
+  while (m <= to && m <= cur) {
+    if (r.endMonth && m > r.endMonth) break;
+    const [y, mm] = m.split('-').map(Number);
+    const day = Math.min(r.day, new Date(y, mm, 0).getDate()), date = `${m}-${pad(day)}`;
+    if (m === cur && now.getDate() < day) break;
+    const exists = S.transactions.some(t => (t.recurringId === r.id && t.date.startsWith(m)) || (t.date === date && t.amount === r.amount && t.type === r.type && t.note === r.note));
+    if ((!r.months || r.months.includes(mm)) && !exists) {
+      if (!dry) S.transactions.push({ id: uid(), type: r.type, amount: r.amount, date, category: r.category, note: r.note, recurringId: r.id });
+      n++;
+    }
+    m = shiftMonth(m, 1);
+  }
+  return n;
+}
+// Recurring items expected in a month that have not been recorded yet (current month and onward only). Not counted in the actual totals
+function recExpected(k) {
+  const now = new Date(), cur = monthKey(now), out = { inc: 0, exp: 0 };
+  if (k < cur) return out;
+  const [y, mm] = k.split('-').map(Number), dim = new Date(y, mm, 0).getDate();
+  S.recurring.forEach(r => {
+    if (!r.active || (r.endMonth && r.endMonth < k) || (r.startMonth && r.startMonth > k)) return;
+    if (r.months && !r.months.includes(mm)) return;
+    if (k === cur && Math.min(r.day, dim) <= now.getDate()) return; // its day has already passed: it has already been recorded
+    if (S.transactions.some(t => t.recurringId === r.id && t.date.startsWith(k))) return;
+    out[r.type === 'income' ? 'inc' : 'exp'] += r.amount;
+  });
+  return out;
+}
+
 /* ---------- התחייבויות: הפחתת ההחזר החודשי מהיתרה ---------- */
 // לא נרשמת הוצאה. רק יתרת ההתחייבות יורדת, פעם אחת לכל חודש חדש.
 // חודש שסומן ידנית כ"שולם" (a.payments) לא מופחת שוב, כדי לא לספור את ההחזר פעמיים
@@ -808,19 +841,22 @@ function cmpText(cur, prev, goodWhenUp, label = 'חודש קודם') {
 }
 // טבלת סיכום של 12 חודשי השנה, עם סה״כ וממוצע. לחיצה על חודש פותחת אותו בתצוגה חודשית
 function yearSummary(year) {
-  let run = 0, ti = 0, te = 0, active = 0;
+  let run = 0, ti = 0, te = 0, active = 0, xi = 0, xe = 0;
+  const xs = v => `<div class="sub" style="margin:2px 0 0;font-size:.78em" title="קבועות שעוד לא נרשמו">צפוי ${money(v)}</div>`;
   const rows = MONTHS.map((n, i) => {
-    const k = `${year}-${pad(i + 1)}`, inc = sumMonth(k, 'income'), exp = sumMonth(k, 'expense'), bal = inc - exp;
-    run += bal; ti += inc; te += exp; if (inc || exp) active++;
+    const k = `${year}-${pad(i + 1)}`, inc = sumMonth(k, 'income'), exp = sumMonth(k, 'expense'), bal = inc - exp, x = recExpected(k);
+    run += bal; ti += inc; te += exp; xi += x.inc; xe += x.exp; if (inc || exp) active++;
     const cur = ui.period !== 'year' && k === ui.month;
     return `<tr class="clickable${cur ? ' cur' : ''}" data-action="gotoMonth" data-m="${k}" title="מעבר לתצוגה של ${n}"><td>${n}</td>
-      <td class="pos">${inc ? money(inc) : '—'}</td><td class="neg">${exp ? money(exp) : '—'}</td>
+      <td class="pos">${inc ? money(inc) : x.inc ? '' : '—'}${x.inc ? xs(x.inc) : ''}</td><td class="neg">${exp ? money(exp) : x.exp ? '' : '—'}${x.exp ? xs(x.exp) : ''}</td>
       <td class="${bal >= 0 ? 'pos' : 'neg'}">${inc || exp ? money(bal) : '—'}</td><td>${inc || exp ? money(run) : '—'}</td></tr>`;
   }).join('');
   const avg = v => active ? money(v / active) : '—';
   return `<div class="table-wrap"><table class="sum-table"><thead><tr><th>חודש</th><th>הכנסות</th><th>הוצאות</th><th>יתרה</th><th>יתרה מצטברת</th></tr></thead>
     <tbody>${rows}</tbody><tfoot><tr><td>סה״כ שנתי</td><td class="pos">${money(ti)}</td><td class="neg">${money(te)}</td><td class="${ti - te >= 0 ? 'pos' : 'neg'}">${money(ti - te)}</td><td></td></tr>
-    <tr><td>ממוצע לחודש פעיל</td><td>${avg(ti)}</td><td>${avg(te)}</td><td>${avg(ti - te)}</td><td></td></tr></tfoot></table></div>`;
+    <tr><td>ממוצע לחודש פעיל</td><td>${avg(ti)}</td><td>${avg(te)}</td><td>${avg(ti - te)}</td><td></td></tr>
+    ${xi || xe ? `<tr title="מה שנרשם בפועל, ועוד הקבועות שצפויות עד סוף השנה"><td>צפי לסוף השנה (כולל קבועות צפויות)</td><td class="pos">${money(ti + xi)}</td><td class="neg">${money(te + xe)}</td><td class="${ti + xi - te - xe >= 0 ? 'pos' : 'neg'}">${money(ti + xi - te - xe)}</td><td></td></tr>` : ''}</tfoot></table></div>
+    ${xi || xe ? '<p class="sub" style="margin-top:8px">"צפוי" = קבועות שעוד לא נרשמו (חודשים שעוד לא הגיעו). הן נרשמות אוטומטית כשמגיע היום שלהן, ולא נכללות בסה״כ עד אז.</p>' : ''}`;
 }
 VIEWS.dash = () => {
   const year = ui.period === 'year', Y = ui.month.slice(0, 4);
@@ -855,7 +891,8 @@ VIEWS.dash = () => {
   <div class="row">
     <section class="card"><div class="topbar" style="margin:0 0 10px"><div><h2>פילוח ${word}</h2></div>
       <div class="seg"><button data-action="pie" data-v="expense" class="${ui.pie === 'expense' ? 'on' : ''}">הוצאות</button><button data-action="pie" data-v="income" class="${ui.pie === 'income' ? 'on' : ''}">הכנסות</button></div></div>
-      ${donut(m, ui.pie)}</section>
+      ${donut(m, ui.pie)}${(() => { if (!year) return ''; let s = 0; for (let i = 1; i <= 12; i++) { const x = recExpected(`${Y}-${pad(i)}`); s += ui.pie === 'income' ? x.inc : x.exp; }
+        return s ? `<p class="sub" style="margin-top:8px">בנוסף צפויות עד סוף השנה ${ui.pie === 'income' ? 'הכנסות' : 'הוצאות'} קבועות של ${money(s)} שעוד לא נרשמו</p>` : ''; })()}</section>
     <section class="card"><h2>תקציבים</h2><p class="sub">${year ? 'ניצול התקציב השנתי (התקציב החודשי × 12)' : 'ניצול התקציב החודשי'} לפי קטגוריה, לא כולל הלוואות</p>${budgetBars(m, 6, year ? 12 : 1)}</section>
   </div>
   <section class="card"><h2>הכנסות מול הוצאות</h2><p class="sub">${year ? `חודשי שנת ${Y}` : `12 החודשים האחרונים עד ${monthName(ui.month)}`}</p>${barChart(year ? `${Y}-12` : ui.month)}
@@ -1158,6 +1195,7 @@ VIEWS.rec = () => {
     <label>קטגוריה${catField(type, ed && ed.category)}</label>
     <label>יום בחודש<input name="day" type="number" min="1" max="31" value="${ed ? ed.day : 1}" required></label>
     <label class="wide">תיאור<input name="note" maxlength="120" value="${ed ? esc(ed.note) : ''}" placeholder="למשל: שכר לימוד תלמוד תורה"></label>
+    <label>רישום מחודש<input name="fromMonth" type="month" value="${ed ? (ed.startMonth || '') : monthKey(new Date())}" title="אפשר לבחור חודש שעבר: הקבועה תירשם גם בחודשים הקודמים, בלי כפילויות"></label>
     <label>עד חודש (לא חובה)<input name="endMonth" type="month" value="${ed && ed.endMonth ? ed.endMonth : ''}" title="למשל הלוואה שמסתיימת. אחרי החודש הזה הקבועה לא תירשם יותר"></label>
     ${monthsPicker(ed && ed.months, 'recMonths')}
     <div class="actions"><button class="btn primary">${ed ? 'שמירה' : 'הוספה'}</button>${ed ? '<button type="button" class="btn" data-action="cancelRec">ביטול</button>' : ''}</div>
@@ -1229,13 +1267,26 @@ BIND.rec = () => {
       simRec.map(r => `• ${r.note || r.category}${r.active ? '' : ' (מושהית)'}`).join('\n') + '\n\nלשמור בכל זאת?')) return;
     if (ui.editRec) {
       // השינוי חל מעכשיו והלאה; עסקאות שכבר נרשמו לא משתנות
-      Object.assign(S.recurring.find(r => r.id === ui.editRec), data); ui.editRec = null;
-      save(); render(); toast('הקבועה עודכנה');
+      const r = S.recurring.find(x => x.id === ui.editRec), oldStart = r.startMonth, cur = monthKey(new Date());
+      const from = form.elements.fromMonth.value || oldStart || cur;
+      // A start month earlier than before: record the months that were missing. Months that were already handled are not touched
+      const to = r.lastApplied ? (oldStart && oldStart <= r.lastApplied ? shiftMonth(oldStart, -1) : r.lastApplied) : shiftMonth(cur, -1);
+      const back = !oldStart || from < oldStart ? backfillRecurring({ ...r, ...data }, from, to, true) : 0;
+      if (back && !confirm(`הקבועה תירשם גם ל-${back} חודשים קודמים (מ${monthName(from)}). להמשיך?`)) return;
+      Object.assign(r, data); ui.editRec = null;
+      const n = back ? backfillRecurring(r, from, to) : 0;
+      if (!oldStart || from < oldStart || !r.lastApplied) r.startMonth = from;
+      const m = applyRecurring(); save(); render();
+      toast(n + m ? `הקבועה עודכנה ונרשמה ל-${n + m} חודשים` : 'הקבועה עודכנה');
       return;
     }
-    S.recurring.push({ id: uid(), ...data, active: true, startMonth: monthKey(new Date()), lastApplied: null });
+    const cur = monthKey(new Date()), from = form.elements.fromMonth.value || cur;
+    const newRec = { id: uid(), ...data, active: true, startMonth: from, lastApplied: null };
+    const back = from < cur ? backfillRecurring(newRec, from, shiftMonth(cur, -1), true) : 0;
+    if (back && !confirm(`הקבועה תירשם גם ל-${back} חודשים קודמים (מ${monthName(from)}). להמשיך?`)) return;
+    S.recurring.push(newRec);
     const n = applyRecurring(); save(); render();
-    toast(n ? 'הקבועה נוספה ונרשמה גם לחודש הנוכחי' : 'הקבועה נוספה');
+    toast(n > 1 ? `הקבועה נוספה ונרשמה ל-${n} חודשים` : n ? 'הקבועה נוספה ונרשמה גם לחודש הנוכחי' : from > cur ? `הקבועה נוספה ותתחיל להירשם מ${monthName(from)}` : 'הקבועה נוספה');
   });
 };
 
