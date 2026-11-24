@@ -213,6 +213,13 @@ tbody tr:hover{background:var(--primary-soft)}
 .seg{background:var(--bg);border:0;padding:4px;border-radius:13px}
 .seg button{border-radius:10px;font-weight:600;color:var(--muted)}
 .seg button.on{background:var(--card);color:var(--primary);box-shadow:0 2px 8px rgba(20,24,60,.1)}
+/* מדריך למשתמש – כרטיס בדשבורד */
+.guide-card{display:flex;gap:18px;align-items:center;flex-wrap:wrap;background:linear-gradient(135deg,var(--primary-soft),var(--card) 60%);border:1px solid var(--border)}
+.guide-ico{flex:0 0 auto;width:58px;height:58px;border-radius:16px;display:grid;place-items:center;font-size:30px;background:linear-gradient(135deg,var(--primary),var(--primary-2));box-shadow:0 6px 16px rgba(79,70,229,.28)}
+.guide-body{flex:1 1 320px;min-width:0}
+.guide-body h2{margin:0 0 4px}
+.guide-body .sub{margin:0 0 12px}
+.guide-card .btn{display:inline-flex;align-items:center;gap:6px;text-decoration:none}
 .legend li{padding:6px 0;border-bottom:1px solid var(--border)}
 .legend li:last-child{border-bottom:0}
 .empty{padding:28px 0}
@@ -881,6 +888,10 @@ VIEWS.dash = () => {
     <div class="actions"><button class="btn primary" data-action="goImport">ייבוא קובץ אקסל</button><button class="btn" data-tab="tx">הוספת עסקה</button><button class="btn" data-tab="rec">הוספת קבועה</button></div></div>` : '') +
   (dupCount ? `<div class="dup-alert"><div class="dup-head"><b>⚠️ ${dupCount} חשדות לכפילות</b><span class="sub" style="margin:0">ייתכן שעסקאות נרשמו פעמיים, למשל גם כקבועה וגם מייבוא מהבנק</span>
     <button class="btn sm primary" data-action="dupShow">בדיקה</button></div></div>` : '') +
+  (ui.guideClosed ? '' : `<section class="card guide-card"><div class="guide-ico">📘</div><div class="guide-body">
+    <h2>מדריך למשתמש – כספי הבית</h2>
+    <p class="sub">מצגת קצרה עם צילומי מסך: איך להתחיל, איך עובד כל מסך, ואיך שומרים על הנתונים. מומלץ לעבור עליה פעם אחת, ואפשר לשמור אותה כקובץ PDF.</p>
+    <div class="actions"><a class="btn primary" href="מדריך-למשתמש-כספי-הבית.pdf" download="מדריך-למשתמש-כספי-הבית.pdf" target="_blank" rel="noopener"><span style="font-family:Segoe UI Emoji,Segoe UI,Apple Color Emoji,sans-serif">⬇️</span> הורדת המדריך כ-PDF</a><button class="btn" data-action="guideClose">הסתרה</button></div></div></section>`) +
   /* התזכורת "החזרי חוב לא סומנו" הוסרה לבקשת המשתמש: ההחזרים מתנהלים במסך ההתחייבויות בלבד ואינם נרשמים בהוצאות */
   `<div class="stats">
     <div class="stat s-flow s-hero"><div class="lbl">${year ? 'תזרים שנתי' : 'תזרים חודשי'}</div><div class="val ${flow >= 0 ? 'pos' : 'neg'}">${money(flow)}</div><div class="cmp">${cmpText(flow, pflow, true, prevLabel)}</div></div>
@@ -1632,7 +1643,10 @@ VIEWS.settings = () => topbar('הגדרות וגיבוי') + `<section class="ca
     <div class="actions"><button class="btn primary" data-action="backup">שמירת קובץ גיבוי</button>
       <label class="btn" style="flex-direction:row;color:var(--text)">שחזור מגיבוי<input type="file" id="restoreFile" accept=".json" hidden></label>
       <button class="btn" data-action="exportXlsx">📊 ייצוא לאקסל (כל הנתונים)</button>
-      <button class="btn danger" data-action="clearAll">מחיקת כל הנתונים</button></div></section>`;
+      <button class="btn danger" data-action="clearAll">מחיקת כל הנתונים</button></div></section>
+  <section class="card"><h2>מדריך למשתמש</h2><p class="sub">מצגת עם צילומי מסך של כל חלקי התוכנה. הכרטיס מוצג בדשבורד; משם אפשר להסתיר אותו.</p>
+    <div class="actions"><a class="btn primary" href="מדריך-למשתמש-כספי-הבית.pdf" download="מדריך-למשתמש-כספי-הבית.pdf" target="_blank" rel="noopener"><span style="font-family:Segoe UI Emoji,Segoe UI,Apple Color Emoji,sans-serif">⬇️</span> הורדת המדריך כ-PDF</a>
+      <button class="btn" data-action="guideShow">הצגת הכרטיס בדשבורד</button></div></section>`;
 BIND.settings = () => {
   $('#mPct').addEventListener('change', e => { S.settings.maaserPct = Number(e.target.value); save(); toast('נשמר'); });
   $('#mCat').addEventListener('change', e => { S.settings.maaserCategory = e.target.value; save(); toast('נשמר'); });
@@ -2193,6 +2207,8 @@ const ACTIONS = {
   goImport: () => { ui.tab = 'settings'; render(); $('#importCard').scrollIntoView({ behavior: 'smooth' }); $('#csvFile').click(); },
   dupToggle: () => { ui.dupOpen = !ui.dupOpen; renderTxList(); },
   dupShow: () => { ui.tab = 'tx'; ui.dupOpen = true; render(); },
+  guideClose: () => { ui.guideClosed = true; render(); toast('המדריך מוסתר. אפשר לפתוח אותו שוב בהגדרות וגיבוי'); },
+  guideShow: () => { ui.guideClosed = false; ui.tab = 'dash'; render(); toast('המדריך חזר לדשבורד'); },
   dupDel: el => { if (!confirm('למחוק את העסקה הזו?')) return; deleteTxWithUndo([el.dataset.id], 'העסקה נמחקה', renderTxList); },
   undo: () => { const f = ui.undoFn; ui.undoFn = null; if (f) f(); },
   dupOk: el => { S.settings.notDup = [...(S.settings.notDup || []), el.dataset.key]; save(); renderTxList(); toast('סומן כלא כפול'); },
