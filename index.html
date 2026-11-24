@@ -220,6 +220,7 @@ tbody tr:hover{background:var(--primary-soft)}
 .guide-body h2{margin:0 0 4px}
 .guide-body .sub{margin:0 0 12px}
 .guide-card .btn{display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+.guide-card .guide-dl{padding:8px 11px}
 .legend li{padding:6px 0;border-bottom:1px solid var(--border)}
 .legend li:last-child{border-bottom:0}
 .empty{padding:28px 0}
@@ -891,7 +892,7 @@ VIEWS.dash = () => {
   (ui.guideClosed ? '' : `<section class="card guide-card"><div class="guide-ico">📘</div><div class="guide-body">
     <h2>מדריך למשתמש – כספי הבית</h2>
     <p class="sub">מצגת קצרה עם צילומי מסך: איך להתחיל, איך עובד כל מסך, ואיך שומרים על הנתונים. מומלץ לעבור עליה פעם אחת, ואפשר לשמור אותה כקובץ PDF.</p>
-    <div class="actions"><a class="btn primary" href="מדריך-למשתמש-כספי-הבית.pdf" download="מדריך-למשתמש-כספי-הבית.pdf" target="_blank" rel="noopener"><span style="font-family:Segoe UI Emoji,Segoe UI,Apple Color Emoji,sans-serif">⬇️</span> הורדת המדריך כ-PDF</a><button class="btn" data-action="guideClose">הסתרה</button></div></div></section>`) +
+    <div class="actions"><a class="btn primary" data-action="guideOpen" href="${GUIDE.page}" target="_blank" rel="noopener"><span style="font-family:Segoe UI Emoji,Segoe UI,Apple Color Emoji,sans-serif">👁️</span> צפייה במדריך</a><a class="btn guide-dl" data-action="guidePdf" href="${GUIDE_PDF()}" download="מדריך-למשתמש-כספי-הבית.pdf" rel="noopener" title="הורדת המדריך כקובץ PDF" aria-label="הורדת המדריך כקובץ PDF"><span style="font-family:Segoe UI Emoji,Segoe UI,Apple Color Emoji,sans-serif">⬇️</span></a><button class="btn" data-action="guideClose">הסתרה</button></div></div></section>`) +
   /* התזכורת "החזרי חוב לא סומנו" הוסרה לבקשת המשתמש: ההחזרים מתנהלים במסך ההתחייבויות בלבד ואינם נרשמים בהוצאות */
   `<div class="stats">
     <div class="stat s-flow s-hero"><div class="lbl">${year ? 'תזרים שנתי' : 'תזרים חודשי'}</div><div class="val ${flow >= 0 ? 'pos' : 'neg'}">${money(flow)}</div><div class="cmp">${cmpText(flow, pflow, true, prevLabel)}</div></div>
@@ -1645,7 +1646,8 @@ VIEWS.settings = () => topbar('הגדרות וגיבוי') + `<section class="ca
       <button class="btn" data-action="exportXlsx">📊 ייצוא לאקסל (כל הנתונים)</button>
       <button class="btn danger" data-action="clearAll">מחיקת כל הנתונים</button></div></section>
   <section class="card"><h2>מדריך למשתמש</h2><p class="sub">מצגת עם צילומי מסך של כל חלקי התוכנה. הכרטיס מוצג בדשבורד; משם אפשר להסתיר אותו.</p>
-    <div class="actions"><a class="btn primary" href="מדריך-למשתמש-כספי-הבית.pdf" download="מדריך-למשתמש-כספי-הבית.pdf" target="_blank" rel="noopener"><span style="font-family:Segoe UI Emoji,Segoe UI,Apple Color Emoji,sans-serif">⬇️</span> הורדת המדריך כ-PDF</a>
+    <div class="actions"><a class="btn primary" data-action="guideOpen" href="${GUIDE.page}" target="_blank" rel="noopener">👁 צפייה במדריך</a>
+      <a class="btn" data-action="guidePdf" href="${GUIDE_PDF()}" download="מדריך-למשתמש-כספי-הבית.pdf" rel="noopener">⬇️ הורדת המדריך כ-PDF</a>
       <button class="btn" data-action="guideShow">הצגת הכרטיס בדשבורד</button></div></section>`;
 BIND.settings = () => {
   $('#mPct').addEventListener('change', e => { S.settings.maaserPct = Number(e.target.value); save(); toast('נשמר'); });
@@ -2209,6 +2211,7 @@ const ACTIONS = {
   dupShow: () => { ui.tab = 'tx'; ui.dupOpen = true; render(); },
   guideClose: () => { ui.guideClosed = true; render(); toast('המדריך מוסתר. אפשר לפתוח אותו שוב בהגדרות וגיבוי'); },
   guideShow: () => { ui.guideClosed = false; ui.tab = 'dash'; render(); toast('המדריך חזר לדשבורד'); },
+  guidePdf: el => guidePdfClick(el),
   dupDel: el => { if (!confirm('למחוק את העסקה הזו?')) return; deleteTxWithUndo([el.dataset.id], 'העסקה נמחקה', renderTxList); },
   undo: () => { const f = ui.undoFn; ui.undoFn = null; if (f) f(); },
   dupOk: el => { S.settings.notDup = [...(S.settings.notDup || []), el.dataset.key]; save(); renderTxList(); toast('סומן כלא כפול'); },
@@ -3306,6 +3309,18 @@ function render() {
   $('#view').innerHTML = html;
   // קריסה של מאזין אחד לא מונעת רישום של האחרים: כל צירוף עטוף בנפרד
   if (BIND[ui.tab]) { try { BIND[ui.tab](); } catch (e) { console.error('שגיאה בקישור המסך ' + ui.tab, e); } }
+}
+
+/* ---------- מדריך למשתמש: צפייה בעמוד נפרד (guide.html) + הורדת PDF ----------
+   הצפייה נעשית בעמוד "guide.html" ולא בתוך העמוד הזה, כי תוכנת ההצפנה של הדפדפן
+   לא מאשרת להציג תמונות מבחוץ בלי לפתוח נתונים אחרים. בעמוד המדריך
+   ההגנה נשארת הדוקה (רק תמונות מהאתר עצמו, בלי קוד מבחוץ ובלי חיבורים). */
+const GUIDE = {
+  n: 15, page: 'guide.html', pdf: 'מדריך-למשתמש-כספי-הבית.pdf'
+};
+const GUIDE_PDF = () => GUIDE.pdf;
+function guidePdfClick(a) {
+  if (a) a.href = GUIDE.pdf;
 }
 
 // היתרה שנותר לחלק בפיצול מתעדכנת בזמן הקלדה
