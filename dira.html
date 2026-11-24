@@ -5102,7 +5102,7 @@ function safeStart() {
       if (!data.name || !data.message) return msg('צריך לכתוב שם והודעה', true);
       btn.disabled = true; btn.textContent = 'שולח…';
       try {
-        const r = await fetch('https://formsubmit.co/ajax/' + TO, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        const r = await fetch('https://formsubmit.co/ajax/' + TO, { method: 'POST', referrerPolicy: 'origin', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
           body: JSON.stringify({ 'שם': data.name, 'פרטי קשר': data.contact || '—', 'הודעה': data.message, _subject: 'פנייה לשדרוג – דירה חדשה', _template: 'table', _captcha: 'false' }) });
         const d = await r.json().catch(() => ({}));
         if (!r.ok || String(d.success) === 'false') throw new Error(d.message || 'failed');
