@@ -498,7 +498,7 @@ button.credit-req{font:inherit;cursor:pointer}
     </svg>
     <span><b>ישעיה גליק</b><small>בטוח בשבילך</small></span>
   </span>
-  <button type="button" class="credit-req" id="reqOpen">💬 פנייה לשדרוג או הצעה</button>
+  <button type="button" class="credit-req" id="reqOpen">💬 שאלות, בקשות והצעות</button>
 </footer>
 <div id="toast"></div>
 <div id="lock" class="auth" hidden></div>
@@ -3264,6 +3264,253 @@ function safeStart() {
     try { render(); resetIdle(); return true; } catch (e2) { console.error(e2); return false; }
   }
 }
+/* ---------- Link version: mandatory password + two-factor authentication with an authenticator app (TOTP) ----------
+   • On first open you must choose a password. It encrypts the data, and in the link version the lock can't be turned off.
+   • Two-factor authentication (optional, in settings): after the password, a 6-digit code from an app such as Google Authenticator.
+     The secret key is stored inside the encrypted data, so nothing is sent to any server.
+   • A one-time recovery code, in case the phone is lost. */
+const TFA = (() => {
+  const B32 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  const b32enc = u8 => { let bits = 0, val = 0, out = ''; for (const b of u8) { val = (val << 8) | b; bits += 8; while (bits >= 5) { out += B32[(val >>> (bits - 5)) & 31]; bits -= 5; } } if (bits > 0) out += B32[(val << (5 - bits)) & 31]; return out; };
+  const b32dec = s => { s = String(s).toUpperCase().replace(/[^A-Z2-7]/g, ''); let bits = 0, val = 0; const out = []; for (const c of s) { val = (val << 5) | B32.indexOf(c); bits += 5; if (bits >= 8) { out.push((val >>> (bits - 8)) & 255); bits -= 8; } } return new Uint8Array(out); };
+  async function code(secretB32, counter) {
+    const key = await crypto.subtle.importKey('raw', b32dec(secretB32), { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']);
+    const msg = new Uint8Array(8); let c = counter; for (let i = 7; i >= 0; i--) { msg[i] = c & 255; c = Math.floor(c / 256); }
+    const h = new Uint8Array(await crypto.subtle.sign('HMAC', key, msg)), o = h[h.length - 1] & 15;
+    const n = ((h[o] & 127) << 24 | h[o + 1] << 16 | h[o + 2] << 8 | h[o + 3]) % 1000000;
+    return String(n).padStart(6, '0');
+  }
+  // allows a 30-second offset in each direction (if the phone's clock is slightly off)
+  async function verify(secretB32, input, now = Date.now()) {
+    const v = String(input || '').replace(/\D/g, ''); if (v.length !== 6) return false;
+    const t = Math.floor(now / 1000 / 30);
+    for (const d of [0, -1, 1]) if (await code(secretB32, t + d) === v) return true;
+    return false;
+  }
+  const sha = async s => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)))].map(b => b.toString(16).padStart(2, '0')).join('');
+  const normRec = s => String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  function newRecovery() { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', r = crypto.getRandomValues(new Uint8Array(12)); const s = [...r].map(b => A[b % A.length]).join(''); return s.slice(0, 4) + '-' + s.slice(4, 8) + '-' + s.slice(8); }
+  return { b32enc, b32dec, code, verify, sha, normRec, newRecovery };
+})();
+
+/* ---- QR code (byte mode, error correction M, versions 1–10), drawn as SVG – no external library ---- */
+const QR = (() => {
+  const ECC_M = [0, 10, 16, 26, 18, 24, 16, 18, 22, 22, 26], BLK_M = [0, 1, 1, 1, 2, 2, 4, 4, 4, 5, 5];
+  const rawModules = v => { let r = (16 * v + 128) * v + 64; if (v >= 2) { const n = Math.floor(v / 7) + 2; r -= (25 * n - 10) * n - 55; if (v >= 7) r -= 36; } return r; };
+  const dataCw = v => Math.floor(rawModules(v) / 8) - ECC_M[v] * BLK_M[v];
+  const mul = (x, y) => { let z = 0; for (let i = 7; i >= 0; i--) { z = (z << 1) ^ ((z >>> 7) * 0x11D); z ^= ((y >>> i) & 1) * x; } return z & 255; };
+  function divisor(deg) { const r = []; for (let i = 0; i < deg - 1; i++) r.push(0); r.push(1); let root = 1; for (let i = 0; i < deg; i++) { for (let j = 0; j < r.length; j++) { r[j] = mul(r[j], root); if (j + 1 < r.length) r[j] ^= r[j + 1]; } root = mul(root, 2); } return r; }
+  function remainder(data, div) { const r = div.map(() => 0); for (const b of data) { const f = b ^ r.shift(); r.push(0); div.forEach((c, i) => { r[i] ^= mul(c, f); }); } return r; }
+  function alignPos(v) { if (v === 1) return []; const n = Math.floor(v / 7) + 2, size = v * 4 + 17, step = Math.ceil((v * 4 + 4) / (n * 2 - 2)) * 2; const r = [6]; for (let p = size - 7; r.length < n; p -= step) r.splice(1, 0, p); return r; }
+  function encode(text) {
+    const bytes = [...new TextEncoder().encode(text)];
+    let v = 1; for (; v <= 10; v++) if (4 + (v < 10 ? 8 : 16) + 8 * bytes.length <= dataCw(v) * 8) break;
+    if (v > 10) throw new Error('QR: text too long');
+    const bits = []; const put = (val, n) => { for (let i = n - 1; i >= 0; i--) bits.push((val >>> i) & 1); };
+    put(4, 4); put(bytes.length, v < 10 ? 8 : 16); bytes.forEach(b => put(b, 8));
+    const cap = dataCw(v) * 8; put(0, Math.min(4, cap - bits.length)); put(0, (8 - bits.length % 8) % 8);
+    for (let p = 0xEC; bits.length < cap; p ^= 0xEC ^ 0x11) put(p, 8);
+    const data = []; for (let i = 0; i < bits.length; i += 8) data.push(parseInt(bits.slice(i, i + 8).join(''), 2));
+    // ECC and interleaving
+    const nb = BLK_M[v], el = ECC_M[v], raw = Math.floor(rawModules(v) / 8), nShort = nb - raw % nb, shortLen = Math.floor(raw / nb), div = divisor(el);
+    const blocks = []; for (let i = 0, k = 0; i < nb; i++) { const d = data.slice(k, k + shortLen - el + (i < nShort ? 0 : 1)); k += d.length; const e = remainder(d, div); if (i < nShort) d.push(0); blocks.push(d.concat(e)); }
+    const cw = []; for (let i = 0; i < blocks[0].length; i++) blocks.forEach((b, j) => { if (i !== shortLen - el || j >= nShort) cw.push(b[i]); });
+    // the grid
+    const size = v * 4 + 17, M = [...Array(size)].map(() => Array(size).fill(false)), F = [...Array(size)].map(() => Array(size).fill(false));
+    const set = (x, y, d) => { M[y][x] = d; F[y][x] = true; };
+    for (let i = 0; i < size; i++) { set(6, i, i % 2 === 0); set(i, 6, i % 2 === 0); }
+    const finder = (x, y) => { for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) { const xx = x + dx, yy = y + dy, d = Math.max(Math.abs(dx), Math.abs(dy)); if (xx >= 0 && xx < size && yy >= 0 && yy < size) set(xx, yy, d !== 2 && d !== 4); } };
+    finder(3, 3); finder(size - 4, 3); finder(3, size - 4);
+    const ap = alignPos(v), last = ap.length - 1;
+    ap.forEach((a, i) => ap.forEach((b, j) => { if ((i === 0 && j === 0) || (i === 0 && j === last) || (i === last && j === 0)) return; for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) set(a + dx, b + dy, Math.max(Math.abs(dx), Math.abs(dy)) !== 1); }));
+    const drawFormat = mask => {
+      const d = (0 << 3) | mask; let r = d; for (let i = 0; i < 10; i++) r = (r << 1) ^ ((r >>> 9) * 0x537);
+      const b = ((d << 10) | r) ^ 0x5412, g = i => ((b >>> i) & 1) === 1;
+      for (let i = 0; i <= 5; i++) set(8, i, g(i));
+      set(8, 7, g(6)); set(8, 8, g(7)); set(7, 8, g(8));
+      for (let i = 9; i < 15; i++) set(14 - i, 8, g(i));
+      for (let i = 0; i < 8; i++) set(size - 1 - i, 8, g(i));
+      for (let i = 8; i < 15; i++) set(8, size - 15 + i, g(i));
+      set(8, size - 8, true);
+    };
+    drawFormat(0);
+    if (v >= 7) { let r = v; for (let i = 0; i < 12; i++) r = (r << 1) ^ ((r >>> 11) * 0x1F25); const b = (v << 12) | r; for (let i = 0; i < 18; i++) { const bit = ((b >>> i) & 1) === 1, a = size - 11 + i % 3, c = Math.floor(i / 3); set(a, c, bit); set(c, a, bit); } }
+    let i = 0;
+    for (let right = size - 1; right >= 1; right -= 2) {
+      if (right === 6) right = 5;
+      for (let vert = 0; vert < size; vert++) for (let j = 0; j < 2; j++) {
+        const x = right - j, up = ((right + 1) & 2) === 0, y = up ? size - 1 - vert : vert;
+        if (!F[y][x] && i < cw.length * 8) { M[y][x] = ((cw[i >>> 3] >>> (7 - (i & 7))) & 1) === 1; i++; }
+      }
+    }
+    const maskFn = [(x, y) => (x + y) % 2 === 0, (x, y) => y % 2 === 0, (x, y) => x % 3 === 0, (x, y) => (x + y) % 3 === 0,
+      (x, y) => (Math.floor(x / 3) + Math.floor(y / 2)) % 2 === 0, (x, y) => x * y % 2 + x * y % 3 === 0,
+      (x, y) => (x * y % 2 + x * y % 3) % 2 === 0, (x, y) => ((x + y) % 2 + x * y % 3) % 2 === 0];
+    const apply = m => { for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) if (!F[y][x] && maskFn[m](x, y)) M[y][x] = !M[y][x]; };
+    const penalty = () => {
+      let p = 0, dark = 0;
+      for (let a = 0; a < size; a++) for (const horiz of [true, false]) { let run = 1; for (let b = 1; b <= size; b++) { const cur = b < size ? (horiz ? M[a][b] : M[b][a]) : null, prev = horiz ? M[a][b - 1] : M[b - 1][a]; if (cur === prev) run++; else { if (run >= 5) p += run - 2; run = 1; } } }
+      for (let y = 0; y < size - 1; y++) for (let x = 0; x < size - 1; x++) { const c = M[y][x]; if (c === M[y][x + 1] && c === M[y + 1][x] && c === M[y + 1][x + 1]) p += 3; }
+      for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) if (M[y][x]) dark++;
+      return p + Math.floor(Math.abs(dark * 20 - size * size * 10) / (size * size)) * 10;
+    };
+    let best = 0, bestP = Infinity;
+    for (let m = 0; m < 8; m++) { apply(m); drawFormat(m); const p = penalty(); if (p < bestP) { bestP = p; best = m; } apply(m); }
+    apply(best); drawFormat(best);
+    return { size, modules: M, version: v, mask: best };
+  }
+  function svg(text, px = 220) {
+    const q = encode(text), n = q.size + 8; let d = '';
+    q.modules.forEach((row, y) => row.forEach((on, x) => { if (on) d += `M${x + 4} ${y + 4}h1v1h-1z`; }));
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n} ${n}" width="${px}" height="${px}" shape-rendering="crispEdges" role="img" aria-label="QR code"><rect width="${n}" height="${n}" fill="#fff"/><path d="${d}" fill="#000"/></svg>`;
+  }
+  return { encode, svg };
+})();
+
+(function webAuth() {
+  const APP = (document.title || 'התוכנה').trim();
+  const card = inner => `<div class="auth-card">${(document.querySelector('#lock .auth-logo') || {}).outerHTML || `<div class="logo auth-logo">${esc(APP)}</div>`}${inner}</div>`;
+  const logoHtml = () => { const t = document.querySelector('aside .logo'); return t ? `<div class="logo auth-logo">${t.innerHTML}</div>` : `<div class="logo auth-logo">${esc(APP)}</div>`; };
+
+  /* 1. Mandatory password: if the data isn't encrypted, a password must be chosen before working */
+  function setupPassword() {
+    const el = $('#lock'); el.hidden = false;
+    el.innerHTML = `<div class="auth-card">${logoHtml()}<form id="pwSetup"><h2>🔐 בחירת סיסמה</h2>
+      <p class="sub" style="text-align:center;margin:0">הסיסמה מצפינה את הנתונים שלכם, ובלעדיה אי אפשר לקרוא אותם. <b>אם שוכחים אותה – אין דרך לשחזר את הנתונים</b>, לכן כדאי לרשום אותה במקום בטוח.</p>
+      <label>סיסמה (לפחות 8 תווים)<input name="p1" type="password" required minlength="8" autocomplete="new-password"></label>
+      <label>אימות הסיסמה<input name="p2" type="password" required minlength="8" autocomplete="new-password"></label>
+      <div class="auth-msg err" id="pwMsg" hidden></div><button class="btn primary">שמירת הסיסמה והמשך</button></form></div>`;
+    const f = $('#pwSetup'), msg = t => { const m = $('#pwMsg'); m.hidden = false; m.textContent = t; };
+    f.addEventListener('submit', async e => {
+      e.preventDefault();
+      if (f.p1.value.length < 8) return msg('הסיסמה צריכה להכיל לפחות 8 תווים');
+      if (f.p1.value !== f.p2.value) return msg('הסיסמאות לא זהות');
+      const salt = crypto.getRandomValues(new Uint8Array(16));
+      CRYPT = { key: await deriveKey(f.p1.value, salt), salt };
+      persist(); await encChain; await rememberKey();
+      el.hidden = true; el.innerHTML = ''; resetIdle(); render();
+      toast('הסיסמה נשמרה והנתונים מוצפנים. מומלץ להפעיל גם אימות כפול בהגדרות');
+    });
+    setTimeout(() => f.p1.focus(), 50);
+  }
+  const _safeStart = safeStart;
+  safeStart = function () { const ok = _safeStart(); if (!CRYPT) setupPassword(); return ok; };
+  ACTIONS.lockOff = () => toast('בגרסת הקישור הסיסמה היא חובה. אפשר להחליף אותה, אבל לא לבטל.');
+
+  /* 2. Unlock: password, then (if enabled) a code from the authenticator app */
+  const _lockScreen = lockScreen;
+  lockScreen = function (m) {
+    _lockScreen(m);
+    const old = $('#unlockForm'); if (!old) return;
+    const f = old.cloneNode(true); old.replaceWith(f);
+    f.addEventListener('submit', async e => {
+      e.preventDefault(); const btn = f.querySelector('button'); btn.disabled = true; btn.textContent = 'פותח…';
+      let data;
+      try { data = normalize(await decryptState(FILE.raw, f.p.value)); } catch (err) { lockScreen('סיסמה שגויה'); return; }
+      const t = data.settings && data.settings.twofa;
+      if (t && t.secret) { const ok = await codeStep(t, data); if (!ok) return; }
+      openWith(data);
+    });
+    setTimeout(() => { const i = f.querySelector('input'); if (i) i.focus(); }, 50);
+  };
+  function openWith(data) {
+    const el = $('#lock'); S = data; el.hidden = true; el.innerHTML = ''; rememberKey();
+    try { startApp(); resetIdle(); } catch (err) { console.error(err); try { render(); } catch (e2) { console.error(e2); } }
+  }
+  function codeStep(t, data) {
+    return new Promise(resolve => {
+      const el = $('#lock');
+      el.innerHTML = `<div class="auth-card">${logoHtml()}<form id="tfaForm"><h2>🔐 אימות כפול</h2>
+        <p class="sub" style="text-align:center;margin:0">הזינו את הקוד בן 6 הספרות מאפליקציית האימות בטלפון</p>
+        <label>קוד מהאפליקציה<input name="c" inputmode="numeric" autocomplete="one-time-code" maxlength="6" dir="ltr" style="text-align:center;font-size:22px;letter-spacing:6px" required></label>
+        <div class="auth-msg err" id="tfaMsg" hidden></div><button class="btn primary">כניסה</button>
+        <details style="margin-top:6px"><summary class="sub" style="cursor:pointer">אין לי גישה לטלפון</summary>
+          <label>קוד שחזור (נשמר כשהפעלתם את האימות הכפול)<input name="r" dir="ltr" autocomplete="off" placeholder="XXXX-XXXX-XXXX"></label>
+          <button type="button" class="btn" id="tfaRec">כניסה עם קוד שחזור</button>
+          <p class="sub" style="margin:4px 0 0;font-size:12px">אחרי כניסה עם קוד שחזור, האימות הכפול יבוטל, ותוכלו להפעיל אותו מחדש בהגדרות.</p></details>
+        <button type="button" class="btn" id="tfaBack">חזרה</button></form></div>`;
+      const f = $('#tfaForm'), msg = s => { const m = $('#tfaMsg'); m.hidden = false; m.textContent = s; };
+      let tries = 0;
+      f.addEventListener('submit', async e => {
+        e.preventDefault();
+        if (await TFA.verify(t.secret, f.c.value)) return resolve(true);
+        tries++; f.c.value = '';
+        msg(tries >= 5 ? 'יותר מדי ניסיונות שגויים. בדקו שהשעה בטלפון מדויקת, ונסו שוב בעוד דקה.' : 'הקוד שגוי או שפג תוקפו. נסו את הקוד שמופיע עכשיו באפליקציה.');
+        if (tries >= 5) { f.querySelector('button.primary').disabled = true; setTimeout(() => { tries = 0; f.querySelector('button.primary').disabled = false; }, 60000); }
+      });
+      $('#tfaRec').addEventListener('click', async () => {
+        const r = TFA.normRec(f.r.value); if (!r) return msg('הזינו קוד שחזור');
+        if (t.rec && await TFA.sha(r) === t.rec) {
+          delete data.settings.twofa; S = data; persist();
+          toast('נכנסתם עם קוד השחזור. האימות הכפול בוטל, ואפשר להפעיל אותו מחדש בהגדרות');
+          return resolve(true);
+        }
+        msg('קוד השחזור שגוי');
+      });
+      $('#tfaBack').addEventListener('click', () => { CRYPT = null; resolve(false); lockScreen(); });
+      setTimeout(() => f.c.focus(), 50);
+    });
+  }
+
+  /* 3. Two-factor authentication in settings */
+  let pending = null; // { secret, rec } while being set up
+  function tfaSection() {
+    const t = S.settings.twofa;
+    if (t && t.secret) return `<section class="card" id="tfaCard"><h2>🔐 אימות כפול</h2>
+      <p class="sub">✅ <b>האימות הכפול פעיל</b> (מאז ${esc(gregDate(t.at || today()))}). בכל כניסה עם סיסמה מבקשים גם קוד מאפליקציית האימות בטלפון. בדפדפן שכבר נפתח בשעתיים האחרונות לא מבקשים שוב.</p>
+      <form id="tfaOff" class="grid-form"><label>לביטול – קוד מהאפליקציה<input name="c" inputmode="numeric" maxlength="6" dir="ltr" required></label>
+      <div class="actions"><button class="btn danger">ביטול האימות הכפול</button></div></form></section>`;
+    if (pending) {
+      const uri = `otpauth://totp/${encodeURIComponent(APP)}?secret=${pending.secret}&issuer=${encodeURIComponent(APP)}`;
+      let qr = ''; try { qr = QR.svg(uri, 260); } catch (e) { qr = ''; }
+      return `<section class="card" id="tfaCard"><h2>🔐 הפעלת אימות כפול</h2>
+        <ol class="sub" style="margin:0 0 10px;padding-inline-start:20px;line-height:1.9">
+          <li>מתקינים בטלפון אפליקציית אימות: <b>Google Authenticator</b> או <b>Microsoft Authenticator</b> (חינם).</li>
+          <li>באפליקציה לוחצים "+" ← "סריקת קוד QR", וסורקים את הקוד כאן. אפשר גם לבחור "הזנת מפתח" ולהקליד את המפתח שמתחת לקוד.</li>
+          <li>מקלידים כאן את 6 הספרות שהאפליקציה מציגה.</li></ol>
+        <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center">
+          <div style="background:#fff;padding:6px;border-radius:8px;line-height:0">${qr}</div>
+          <div><div class="sub" style="margin:0">המפתח (להקלדה ידנית):</div><code dir="ltr" style="font-size:15px;letter-spacing:1px;user-select:all">${pending.secret.replace(/(.{4})/g, '$1 ').trim()}</code>
+          <div class="sub" style="margin:10px 0 0">🛟 <b>קוד שחזור</b> – רשמו אותו ושמרו במקום בטוח. הוא מאפשר להיכנס אם הטלפון אבד:</div>
+          <code dir="ltr" style="font-size:18px;letter-spacing:2px;user-select:all">${pending.rec}</code></div></div>
+        <form id="tfaOn" class="grid-form" style="margin-top:12px"><label>הקוד מהאפליקציה<input name="c" inputmode="numeric" maxlength="6" dir="ltr" required autocomplete="one-time-code"></label>
+          <label style="align-self:center"><span><input type="checkbox" name="saved" required> רשמתי את קוד השחזור</span></label>
+          <div class="actions"><button class="btn primary">אישור והפעלה</button><button type="button" class="btn" id="tfaCancel">ביטול</button></div></form></section>`;
+    }
+    return `<section class="card" id="tfaCard"><h2>🔐 אימות כפול</h2>
+      <p class="sub">הגנה נוספת מעבר לסיסמה: בכל כניסה מבקשים גם קוד בן 6 ספרות מאפליקציית אימות בטלפון (Google Authenticator או Microsoft Authenticator). הקוד נוצר בטלפון עצמו, בלי SMS ובלי לשלוח שום פרט לשום מקום. מתאים לטלפון חכם.</p>
+      <div class="actions"><button type="button" class="btn primary" id="tfaStart">הפעלת אימות כפול</button></div></section>`;
+  }
+  function bindTfa() {
+    const st = $('#tfaStart'); if (st) st.addEventListener('click', () => { pending = { secret: TFA.b32enc(crypto.getRandomValues(new Uint8Array(20))), rec: TFA.newRecovery() }; render(); setTimeout(() => { const c = $('#tfaCard'); if (c) c.scrollIntoView({ block: 'center' }); }, 50); });
+    const cancel = $('#tfaCancel'); if (cancel) cancel.addEventListener('click', () => { pending = null; render(); });
+    const on = $('#tfaOn'); if (on) on.addEventListener('submit', async e => {
+      e.preventDefault();
+      if (!(await TFA.verify(pending.secret, on.c.value))) return toast('הקוד לא תואם. בדקו שסרקתם את הקוד שמופיע כאן, והקלידו את הקוד העדכני');
+      S.settings.twofa = { secret: pending.secret, rec: await TFA.sha(TFA.normRec(pending.rec)), at: today() };
+      pending = null; save(); render(); toast('האימות הכפול הופעל ✅');
+    });
+    const off = $('#tfaOff'); if (off) off.addEventListener('submit', async e => {
+      e.preventDefault();
+      if (!(await TFA.verify(S.settings.twofa.secret, off.c.value))) return toast('הקוד שגוי');
+      if (!confirm('לבטל את האימות הכפול? בכניסה תידרש רק הסיסמה.')) return;
+      delete S.settings.twofa; save(); render(); toast('האימות הכפול בוטל');
+    });
+  }
+  const _sv = VIEWS.settings, _sb = BIND.settings;
+  VIEWS.settings = () => {
+    let h = _sv();
+    h = h.replace('<button type="button" class="btn danger" data-action="lockOff">ביטול הנעילה</button>', '');
+    return h + tfaSection();
+  };
+  BIND.settings = () => { _sb(); bindTfa(); };
+  // דירה חדשה: מסך ההגדרות מוצג בתוך לשונית הבית, ושם החיבורים שלו לא הופעלו – מפעילים אותם כאן
+  if (VIEWS.homeSettings && BIND.homeSettings && BIND.home) {
+    const _bh = BIND.home;
+    BIND.home = () => { _bh(); if (ui.homeTab === 'settings') BIND.homeSettings(); };
+  }
+})();
+
 (async function boot() {
   // הנתונים נטענים מהקובץ במחשב דרך השרת. בלי השרת אין נתונים, ולכן מציגים הסבר במקום תוכנה ריקה
   try {
@@ -3306,15 +3553,15 @@ function safeStart() {
 /* ---------- פנייה לשדרוג או הצעה: חלון קטן ששולח הודעה למייל ---------- */
 (function () {
   const TO = 'aa0504168687@gmail.com';
-  const mailto = t => `mailto:${TO}?subject=${encodeURIComponent('פנייה לשדרוג – כספי הבית')}&body=${encodeURIComponent(t || '')}`;
+  const mailto = t => `mailto:${TO}?subject=${encodeURIComponent('שאלה או בקשה – כספי הבית')}&body=${encodeURIComponent(t || '')}`;
   function openReq() {
     if ($('#reqBox')) return;
     const el = document.createElement('div'); el.className = 'auth'; el.id = 'reqBox';
-    el.innerHTML = `<div class="auth-card"><form id="reqForm"><h2>💬 פנייה לשדרוג או הצעה</h2>
+    el.innerHTML = `<div class="auth-card"><form id="reqForm"><h2>💬 שאלות, בקשות והצעות</h2>
       <p class="sub" style="text-align:center;margin:0">ההודעה תגיע ישירות לישעיה גליק</p>
       <label>שם<input name="name" required maxlength="60" autocomplete="name"></label>
       <label>טלפון או מייל לחזרה (רשות)<input name="contact" maxlength="80" dir="ltr" autocomplete="email"></label>
-      <label>ההודעה<textarea name="message" required maxlength="2000" rows="5" placeholder="מה היית רוצה שיתווסף או ישתפר בתוכנה?"></textarea></label>
+      <label>ההודעה<textarea name="message" required maxlength="2000" rows="5" placeholder="מה תרצו לשאול, לבקש או להציע?"></textarea></label>
       <div class="auth-msg" id="reqMsg" hidden></div>
       <button class="btn primary">שליחה</button><button type="button" class="btn" data-x>סגירה</button></form></div>`;
     document.body.appendChild(el);
@@ -3330,7 +3577,7 @@ function safeStart() {
       btn.disabled = true; btn.textContent = 'שולח…';
       try {
         const r = await fetch('https://formsubmit.co/ajax/' + TO, { method: 'POST', referrerPolicy: 'origin', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({ 'שם': data.name, 'פרטי קשר': data.contact || '—', 'הודעה': data.message, _subject: 'פנייה לשדרוג – כספי הבית', _template: 'table', _captcha: 'false' }) });
+          body: JSON.stringify({ 'שם': data.name, 'פרטי קשר': data.contact || '—', 'הודעה': data.message, _subject: 'שאלה או בקשה – כספי הבית', _template: 'table', _captcha: 'false' }) });
         const d = await r.json().catch(() => ({}));
         if (!r.ok || String(d.success) === 'false') throw new Error(d.message || 'failed');
         el.querySelector('.auth-card').innerHTML = `<div class="req-done"><h2>✅ ההודעה נשלחה</h2><p>תודה ${esc(data.name)}! ההודעה הגיעה לישעיה גליק.</p><button class="btn primary" type="button">סגירה</button></div>`;
