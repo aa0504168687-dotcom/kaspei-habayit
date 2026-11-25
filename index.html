@@ -504,6 +504,45 @@ html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *:
 .look-mini{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
 .look-mini button{width:34px;height:34px;border-radius:50%;border:3px solid var(--card);box-shadow:0 0 0 1.5px var(--border);cursor:pointer;padding:0}
 .look-mini button.on{box-shadow:0 0 0 2.5px var(--primary)}
+/* שלב 1: תזכורות בדשבורד, צעדים ראשונים, טיפ השבוע, רישום מהיר ומה חדש */
+.nudge{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-inline-start:4px solid var(--primary);border-radius:14px;padding:12px 14px;margin-bottom:12px}
+.nudge.warn{border-inline-start-color:var(--warn);background:var(--warn-soft)}
+.nudge.good{border-inline-start-color:var(--inc)}
+.nudge.info{background:linear-gradient(135deg,var(--primary-soft),var(--card) 70%)}
+.nu-ico{font-size:22px;line-height:1.3;flex:none}
+.nu-body{flex:1;min-width:0;line-height:1.65}
+.nu-txt{font-size:14px}
+.nu-act{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.nu-x{border:0;background:transparent;color:var(--muted);font:inherit;font-size:15px;cursor:pointer;width:30px;height:30px;border-radius:8px;flex:none}
+.nu-x:hover{background:var(--bg);color:var(--text)}
+.first-steps .fs-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.first-steps .fs-head h2{margin:0}
+.first-steps .fs-head .nu-x{margin-inline-start:auto}
+.first-steps .bar{margin-top:10px}
+.fs-list{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:8px}
+.fs-list li{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;flex-wrap:wrap}
+.fs-list li.ok{opacity:.62}
+.fs-list li.ok b{text-decoration:line-through}
+.fs-ico{font-size:20px;flex:none}
+.fs-txt{flex:1;min-width:160px}
+.fs-btns{display:flex;gap:6px;flex-wrap:wrap}
+.tip-week{display:flex;gap:10px;align-items:center;padding:10px 14px;border-radius:12px;background:var(--card);border:1px dashed var(--border);margin:0 0 16px;line-height:1.6;font-size:14px}
+.tw-ico{font-size:20px;flex:none}
+.tw-body{flex:1;min-width:0}
+.legend .avg{display:block;font-size:11.5px;color:var(--muted);font-weight:500;text-align:end}
+.legend .avg.up{color:var(--exp);font-weight:700}
+.legend .avg.upg{color:var(--inc);font-weight:700}
+.qa{position:fixed;z-index:27;top:50%;left:50%;transform:translate(-50%,-50%);width:min(440px,94vw);max-height:92vh;overflow:auto;background:var(--card);color:var(--text);border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.35)}
+.qa .lk-head{border-radius:18px 18px 0 0}
+.qa-body{padding:14px 18px;display:grid;gap:12px}
+.qa-body label{display:grid;gap:5px;font-size:13.5px;color:var(--muted);font-weight:600}
+.qa-body .seg{justify-self:start}
+.cat-hint{display:block;font-size:12px;color:var(--primary);font-weight:600;margin-top:3px}
+.qa-full{border:0;background:none;color:var(--primary);font:inherit;font-size:13px;cursor:pointer;text-decoration:underline;padding:0}
+.wn-list{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.wn-list li{display:flex;gap:12px;align-items:flex-start;line-height:1.55}
+.wn-ico{font-size:22px;flex:none}
+.wn-list .sub{margin:0}
 @media print{
   html[data-mode]{--bg:#fff!important;--card:#fff!important;--text:#111!important;--muted:#555!important;--border:#ddd!important}
   html[data-mode] body{background:#fff!important}
@@ -1146,9 +1185,9 @@ VIEWS.dash = () => {
 function donut(m, type) {
   const map = {};
   S.transactions.filter(t => t.type === type && t.date.startsWith(m) && !(type === 'expense' && skipAsExpense(t))).forEach(t => map[t.category] = (map[t.category] || 0) + t.amount);
-  return donutFromMap(map, `אין ${type === 'expense' ? 'הוצאות' : 'הכנסות'} להצגה ${m.length === 4 ? 'בשנה זו' : 'בחודש זה'}`);
+  return donutFromMap(map, `אין ${type === 'expense' ? 'הוצאות' : 'הכנסות'} להצגה ${m.length === 4 ? 'בשנה זו' : 'בחודש זה'}`, m.length === 7 ? catAvg3(m, type) : null, type);
 }
-function donutFromMap(map, emptyMsg) {
+function donutFromMap(map, emptyMsg, avg, avgType) {
   const arr = Object.entries(map).filter(x => x[1] > 0).sort((a, b) => b[1] - a[1]), tot = arr.reduce((a, x) => a + x[1], 0);
   if (!tot) return `<p class="empty">${emptyMsg}</p>`;
   const r = 70, C = 2 * Math.PI * r; let off = 0, circles = '';
@@ -1161,7 +1200,7 @@ function donutFromMap(map, emptyMsg) {
     <g transform="rotate(-90 100 100)">${circles}</g>
     <text x="100" y="96" text-anchor="middle" style="font-size:12px">סה״כ</text>
     <text x="100" y="116" text-anchor="middle" style="font-size:15px;font-weight:700;fill:var(--text)">${money(tot)}</text></svg>
-    <ul class="legend">${arr.map(([c, v], i) => `<li><span class="dot" style="background:${COLORS[i % COLORS.length]}"></span>${esc(c)}<span class="v">${money(v)} · ${(v / tot * 100).toFixed(0)}%</span></li>`).join('')}</ul></div>`;
+    <ul class="legend">${arr.map(([c, v], i) => `<li><span class="dot" style="background:${COLORS[i % COLORS.length]}"></span>${esc(c)}<span class="v">${money(v)} · ${(v / tot * 100).toFixed(0)}%${avg ? avgNote(v, avg[c], avgType) : ''}</span></li>`).join('')}</ul></div>`;
 }
 
 function barChart(end) {
@@ -1344,6 +1383,7 @@ BIND.tx = () => {
   const fType = form.elements.type, fCat = form.elements.category;
   fType.addEventListener('change', () => { ui.txType = fType.value; fCat.setAttribute('list', 'cats-' + fType.value); $('#debtWrap').hidden = fType.value !== 'expense'; });
   fCat.addEventListener('change', () => { if (fCat.value.trim() === S.settings.loanCategory && fType.value === 'expense') form.elements.debtRepay.checked = true; });
+  bindCatSuggest(form, () => fType.value);
   form.addEventListener('submit', e => {
     e.preventDefault();
     const amount = parseFloat(form.elements.amount.value);
@@ -3020,7 +3060,7 @@ BIND.settings = () => {
   });
 };
 const _dashView = VIEWS.dash;
-VIEWS.dash = () => _dashView().replace('<div class="stats">', backupBanner() + forecastCard() + '<div class="stats">');
+VIEWS.dash = () => dashP1(_dashView());
 
 Object.assign(ACTIONS, {
   ruleDel: el => { S.rules = S.rules.filter(r => r.id !== el.dataset.id); save(); render(); },
@@ -3545,7 +3585,7 @@ function render() {
    השקופיות הן תמונות בתיקייה assets שליד הקובץ. מדיניות האבטחה מתירה תמונות רק מהאתר עצמו ('self'),
    כך ששום דבר לא נטען מבחוץ. החלון נפתח מעל הדשבורד ומתחת למסך הנעילה. */
 const GUIDE = {
-  n: 17, pdf: 'מדריך-למשתמש-כספי-הבית.pdf',
+  n: 21, pdf: 'מדריך-למשתמש-כספי-הבית.pdf',
   img: k => 'assets/' + (k < 10 ? '0' : '') + k + '.jpg'
 };
 const GUIDE_PDF = () => GUIDE.pdf;
@@ -3611,6 +3651,290 @@ function gvClose() {
     img.src = 'https://kaspei-habayit.goatcounter.com/count?' + q;
   } catch (e) {}
 })();
+
+/* ---------- שלב 1: תזכורות חכמות בדשבורד, רישום מהיר, הצעת קטגוריה, מה חדש וטיפ השבוע ----------
+   כל הודעה בדשבורד אפשר להסתיר ב־✕. ההסתרה נשמרת בנתונים (S.settings.nudges) לפי מפתח: יום, חודש או פריט */
+const nuStore = () => S.settings.nudges || (S.settings.nudges = {});
+function nuHidden(k) { return !!nuStore()[k]; }
+function nuHide(keys) {
+  const n = nuStore();
+  String(keys).split(',').filter(Boolean).forEach(k => { n[k] = today(); });
+  const ks = Object.keys(n);
+  if (ks.length > 80) ks.sort((a, b) => String(n[a]).localeCompare(String(n[b]))).slice(0, ks.length - 80).forEach(x => delete n[x]);
+  save();
+}
+const nuDays = (a, b) => Math.round((new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / 86400000);
+function nuCard(k, cls, ico, title, body, btns) {
+  return `<div class="nudge ${cls}" data-nu="${esc(k)}"><span class="nu-ico" aria-hidden="true">${ico}</span><div class="nu-body"><b>${title}</b><div class="nu-txt">${body}</div>${btns ? `<div class="nu-act">${btns}</div>` : ''}</div>
+    <button type="button" class="nu-x" data-action="nuHide" data-k="${esc(k)}" title="הסתרה" aria-label="הסתרת ההודעה">✕</button></div>`;
+}
+
+// 5. צעדים ראשונים: נעלם לבד כשהכל הושלם, ואפשר להסתיר
+function firstStepsCard() {
+  if (S.settings.stepsHidden) return '';
+  const steps = [
+    ['🔁', 'הגדרת הכנסות והוצאות קבועות', 'משכורת, שכר דירה, ועד בית, שכר לימוד', S.recurring.length > 0, '<button type="button" class="btn sm" data-tab="rec">להגדרה</button>'],
+    ['📥', 'רישום או ייבוא של עסקאות', 'מקובץ אקסל של הבנק, או ברישום מהיר בכפתור +', S.transactions.some(t => !t.recurringId), '<button type="button" class="btn sm" data-action="goImport">ייבוא מאקסל</button><button type="button" class="btn sm" data-action="quickAdd">רישום מהיר</button>'],
+    ['🎯', 'קביעת תקציב חודשי', 'כמה מתכננים להוציא בכל קטגוריה', Object.values(S.budgets || {}).some(v => v > 0), '<button type="button" class="btn sm" data-tab="budget">לתקציב</button>'],
+    ['💾', 'שמירת גיבוי ראשון', 'קובץ שממנו אפשר לשחזר את כל הנתונים', !!S.settings.lastBackup, '<button type="button" class="btn sm" data-action="backup">גיבוי עכשיו</button>']
+  ];
+  const done = steps.filter(s => s[3]).length;
+  if (done === steps.length) return '';
+  return `<section class="card first-steps"><div class="fs-head"><h2>🚀 צעדים ראשונים</h2><span class="sub" style="margin:0">${done} מתוך ${steps.length} הושלמו</span>
+    <button type="button" class="nu-x" data-action="stepsHide" title="הסתרה" aria-label="הסתרת הצעדים הראשונים">✕</button></div>
+    <div class="bar"><span style="width:${done / steps.length * 100}%"></span></div>
+    <ol class="fs-list">${steps.map(([ico, t, d, ok, b]) => `<li class="${ok ? 'ok' : ''}"><span class="fs-ico" aria-hidden="true">${ok ? '✅' : ico}</span><div class="fs-txt"><b>${t}</b><div class="sub" style="margin:0">${d}</div></div>${ok ? '' : `<div class="fs-btns">${b}</div>`}</li>`).join('')}</ol></section>`;
+}
+
+// 33. סיכום החודש שעבר, בשבוע הראשון של החודש
+function monthSumCard() {
+  const now = new Date();
+  if (now.getDate() > 7) return '';
+  const prev = shiftMonth(monthKey(now), -1), k = 'msum:' + prev;
+  if (nuHidden(k)) return '';
+  const inc = sumMonth(prev, 'income'), exp = sumMonth(prev, 'expense');
+  if (!inc && !exp) return '';
+  const pp = shiftMonth(prev, -1), pexp = sumMonth(pp, 'expense'), flow = inc - exp;
+  const g = {};
+  S.transactions.filter(t => t.type === 'expense' && t.date.startsWith(prev)).forEach(t => { const c = t.category || 'ללא קטגוריה'; g[c] = (g[c] || 0) + t.amount; });
+  const top = Object.entries(g).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  const cmp = pexp ? (exp > pexp ? `${money(exp - pexp)} יותר מהחודש שלפניו` : exp < pexp ? `${money(pexp - exp)} פחות מהחודש שלפניו` : 'כמו בחודש שלפניו') : '';
+  const body = `הכנסות <b class="pos">${money(inc)}</b> · הוצאות <b class="neg">${money(exp)}</b>${cmp ? ` (${cmp})` : ''} · ${flow >= 0 ? 'נשארו' : 'חסרו'} <b class="${flow >= 0 ? 'pos' : 'neg'}">${money(Math.abs(flow))}</b>` +
+    (top.length ? `<br>ההוצאות הגדולות: ${top.map(([c, v]) => `${esc(c)} ${money(v)}`).join(' · ')}` : '');
+  return nuCard(k, flow >= 0 ? 'good' : 'warn', '📅', `סיכום ${monthName(prev)}`, body, `<button type="button" class="btn sm" data-action="gotoMonth" data-m="${prev}">לכל הנתונים של ${monthName(prev)}</button>`);
+}
+
+// 10. תזכורת לפני חיוב קבוע גדול (עד 3 ימים קדימה)
+const BIG_CHARGE = 500;
+function bigChargeCard() {
+  const now = new Date(), items = [];
+  for (let i = 1; i <= 3; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i), m = monthKey(d), mm = d.getMonth() + 1, dim = new Date(d.getFullYear(), mm, 0).getDate();
+    S.recurring.forEach(r => {
+      if (!r.active || r.type !== 'expense' || !(r.amount >= BIG_CHARGE)) return;
+      if ((r.endMonth && r.endMonth < m) || (r.startMonth && r.startMonth > m) || (r.months && !r.months.includes(mm))) return;
+      if (Math.min(r.day, dim) !== d.getDate()) return;
+      if (S.transactions.some(t => t.recurringId === r.id && t.date.startsWith(m))) return;
+      const k = `big:${r.id}:${m}`;
+      if (!nuHidden(k)) items.push({ r, i, d, k });
+    });
+  }
+  if (!items.length) return '';
+  const when = i => i === 1 ? 'מחר' : i === 2 ? 'בעוד יומיים' : 'בעוד 3 ימים';
+  const total = items.reduce((a, x) => a + x.r.amount, 0);
+  const body = items.map(x => `${when(x.i)} (${x.d.getDate()}/${x.d.getMonth() + 1}): <b>${esc(x.r.note || x.r.category)}</b> ${money(x.r.amount)}`).join('<br>') +
+    `<br><span class="sub" style="margin:0">${items.length > 1 ? `ביחד ${money(total)}. ` : ''}כדאי לוודא שיש מספיק כסף בחשבון.</span>`;
+  return nuCard(items.map(x => x.k).join(','), 'info', '🔔', items.length > 1 ? 'חיובים קבועים גדולים בימים הקרובים' : 'חיוב קבוע גדול בימים הקרובים', body, '');
+}
+
+// 53. הוצאות חריגות: 7 הימים האחרונים לעומת הממוצע השבועי (בלי הוצאות קבועות)
+function unusualCard() {
+  const t0 = today(), last = nuStore().unus;
+  if (last && nuDays(last, t0) < 7) return '';
+  const exp = S.transactions.filter(t => t.type === 'expense' && !t.recurringId && !skipAsExpense(t) && t.date <= t0);
+  if (!exp.length) return '';
+  const first = exp.reduce((a, t) => t.date < a ? t.date : a, t0), span = nuDays(first, t0);
+  if (span < 35) return '';
+  let wk = 0, hist = 0; const wkTx = [];
+  exp.forEach(t => { const age = nuDays(t.date, t0); if (age < 7) { wk += t.amount; wkTx.push(t); } else if (age < 91) hist += t.amount; });
+  const avg = Math.round(hist / Math.min(84, span - 7) * 7);
+  if (!(wk > avg * 2 && wk - avg > 200)) return '';
+  const top = wkTx.sort((a, b) => b.amount - a.amount).slice(0, 3);
+  return nuCard('unus', 'warn', '📈', 'השבוע יצא יותר מהרגיל',
+    `ב־7 הימים האחרונים נרשמו הוצאות של <b class="neg">${money(wk)}</b>, לעומת ממוצע שבועי של ${money(avg)} (בלי הוצאות קבועות).<br>הגדולות: ${top.map(t => `${esc(t.note || t.category)} ${money(t.amount)}`).join(' · ')}`,
+    '<button type="button" class="btn sm" data-tab="tx">לעסקאות</button>');
+}
+
+// 23. תזכורת לפני שבת (חמישי בערב ושישי עד הצהריים) ואחרי שבת (יום ראשון)
+function shabbatCard() {
+  if (S.settings.noShabbat) return '';
+  const d = new Date(), wd = d.getDay(), h = d.getHours(), k = 'shab:' + today();
+  if (nuHidden(k)) return '';
+  const btns = '<button type="button" class="btn sm primary" data-action="quickAdd">➕ רישום מהיר</button><button type="button" class="btn sm" data-action="noShabbat">לא להזכיר יותר</button>';
+  if ((wd === 4 && h >= 17) || (wd === 5 && h < 13)) return nuCard(k, 'info', '🕯️', 'לקראת שבת', 'כדאי לרשום עכשיו את הקניות לשבת ואת ההוצאות של היום, כדי שלא יישכחו.', btns);
+  if (wd === 0) return nuCard(k, 'info', '🌅', 'שבוע טוב!', 'נשארו הוצאות מסוף השבוע (קניות לשבת, כיבוד, מוניות) שעוד לא נרשמו? זה הזמן.', btns);
+  return '';
+}
+
+// 48. טיפ השבוע
+const TIPS_K = [
+  'אפשר לפצל עסקה אחת לכמה קטגוריות, למשל קנייה בסופר שחלקה מזון וחלקה ניקיון: כפתור הפיצול ליד העסקה ברשימה.',
+  'כללי קטגוריות: מגדירים פעם אחת שמילה בהערה (למשל "רמי לוי") שייכת לקטגוריה, ומאז כל עסקה כזו מסודרת לבד, גם בייבוא מהבנק.',
+  'הוצאה קבועה שמגיעה רק בחלק מהשנה, כמו שכר לימוד, מגדירים עם "שנת לימודים (ספטמבר–יוני)" בבורר החודשים.',
+  'בכרטיס התחזית בדשבורד רואים כמה צפוי להישאר בסוף החודש, אחרי כל הקבועות שעוד לא ירדו.',
+  'מרכז הדוחות מפיק כל דוח גם כקובץ PDF להדפסה וגם כקובץ אקסל.',
+  'לחיצה על כותרת עמודה בטבלת העסקאות ממיינת לפיה. לחיצה נוספת הופכת את הסדר.',
+  'אפשר לסנן עסקאות גם לפי חודש עברי ושנה עברית, בבורר התקופה שבמסך העסקאות.',
+  'המעשרות מחושבים לבד מההכנסות. נתינה נרשמת כהוצאה בקטגוריית המעשרות, והיתרה מתעדכנת.',
+  'גיבוי לתיקייה קבועה (למשל דיסק און קי או תיקייה שמסונכרנת לענן) נשמר אוטומטית בפתיחת התוכנה, לפי התדירות שנבחרה בהגדרות.',
+  'החזר הלוואה או משכנתא מסמנים בתיבה "זהו החזר הלוואה" ברישום העסקה, וכך יתרת החוב במסך הנכסים מתעדכנת.',
+  'אחרי ייבוא מהבנק כדאי ללחוץ על "בדיקה" בהתראת הכפילויות: לפעמים עסקה נרשמה גם כקבועה וגם בייבוא.',
+  'ב־🎨 התאמת מראה בוחרים ערכת צבעים, מצב כהה, גודל טקסט וגופן. הבחירה נשמרת בדפדפן הזה.',
+  'הכפתור + בפינת המסך פותח רישום מהיר: סכום, הערה ושמירה, בלי לעזוב את המסך.',
+  'כשמקלידים הערה שכבר הופיעה בעבר, הקטגוריה מוצעת לבד לפי העסקאות הקודמות.',
+  'לחיצה על חודש בטבלת "סיכום לפי חודשים" מציגה את הדשבורד של אותו חודש.',
+  'בפילוח ההוצאות של החודש מופיע ליד כל קטגוריה אם היא מעל הממוצע של 3 החודשים הקודמים.',
+  'שווי נקי = כל הנכסים (חשבונות, חסכונות, דירה) פחות כל ההתחייבויות. מעדכנים אותו במסך הנכסים.',
+  'מדריך למשתמש עם צילומי מסך נמצא בכרטיס המדריך בדשבורד, ואפשר להוריד אותו כ־PDF.'
+];
+function tipCard() {
+  if (S.settings.noTips) return '';
+  const w = Math.floor((Date.now() / 86400000 + 4) / 7), k = 'tip:' + w;
+  if (nuHidden(k)) return '';
+  return `<div class="tip-week"><span class="tw-ico" aria-hidden="true">💡</span><div class="tw-body"><b>טיפ השבוע:</b> ${TIPS_K[w % TIPS_K.length]}</div>
+    <button type="button" class="nu-x" data-action="nuHide" data-k="${k}" title="הסתרת הטיפ" aria-label="הסתרת הטיפ">✕</button></div>`;
+}
+
+// הדשבורד: גיבוי, תזכורות (עד 3), צעדים ראשונים, תחזית, ואחרי הכרטיסים הראשיים הטיפ
+function dashP1(h) {
+  const fs = firstStepsCard();
+  if (fs) h = h.replace(/<div class="card welcome">[\s\S]*?<\/div><\/div>/, '');
+  const nu = [shabbatCard(), bigChargeCard(), unusualCard(), monthSumCard()].filter(Boolean).slice(0, 3).join('');
+  h = h.replace('<div class="row">', tipCard() + '<div class="row">');
+  return h.replace('<div class="stats">', backupBanner() + nu + fs + forecastCard() + '<div class="stats">');
+}
+
+// 11. ממוצע 3 החודשים הקודמים לכל קטגוריה (רק בתצוגה חודשית)
+function catAvg3(m, type) {
+  const avg = {};
+  for (let i = 1; i <= 3; i++) {
+    const k = shiftMonth(m, -i);
+    S.transactions.filter(t => t.type === type && t.date.startsWith(k) && !(type === 'expense' && skipAsExpense(t))).forEach(t => { avg[t.category] = (avg[t.category] || 0) + t.amount / 3; });
+  }
+  return avg;
+}
+function avgNote(v, a, type) {
+  if (!(a > 0)) return '<small class="avg" title="לא היה ב־3 החודשים הקודמים">חדש החודש</small>';
+  a = Math.max(1, Math.round(a)); const p = Math.round((v / a - 1) * 100), tl = `ממוצע 3 החודשים הקודמים: ${money(a)}`;
+  if (p >= 10) return `<small class="avg ${type === 'expense' ? 'up' : 'upg'}" title="${tl}">▲ ${p}% מעל הממוצע (${money(a)})</small>`;
+  return `<small class="avg" title="${tl}">ממוצע ${money(a)}</small>`;
+}
+
+// 7. הצעת קטגוריה לפי כללים ולפי עסקה קודמת עם אותה הערה
+function suggestCat(note, type) {
+  note = (note || '').trim();
+  if (note.length < 2) return '';
+  const r = ruleCat(note, type); if (r) return r;
+  const n = note.toLowerCase(); let best = null;
+  for (const t of S.transactions) {
+    if (t.type !== type || !t.category || t.category === 'ללא קטגוריה') continue;
+    if ((t.note || '').trim().toLowerCase() !== n) continue;
+    if (!best || t.date > best.date) best = t;
+  }
+  return best ? best.category : '';
+}
+function bindCatSuggest(form, typeOf) {
+  const fNote = form.elements.note, fCat = form.elements.category;
+  if (!fNote || !fCat) return;
+  let hint = form.querySelector('.cat-hint');
+  if (!hint) { hint = document.createElement('span'); hint.className = 'cat-hint'; hint.hidden = true; fCat.insertAdjacentElement('afterend', hint); }
+  const run = () => {
+    if (fCat.value.trim() && fCat.dataset.auto !== '1') return;
+    const c = suggestCat(fNote.value, typeOf());
+    if (c) { fCat.value = c; fCat.dataset.auto = '1'; hint.textContent = '💡 קטגוריה מוצעת לפי עסקאות קודמות. אפשר לשנות'; hint.hidden = false; }
+    else if (fCat.dataset.auto === '1') { fCat.value = ''; fCat.dataset.auto = ''; hint.hidden = true; }
+  };
+  fNote.addEventListener('input', run);
+  fCat.addEventListener('input', () => { fCat.dataset.auto = ''; hint.hidden = true; });
+  return run;
+}
+
+// 6. רישום מהיר בחלון קטן, בלי לעזוב את המסך
+function qaOpen() {
+  if (document.getElementById('qa')) return;
+  ui.qaType = ui.qaType || 'expense';
+  const back = document.createElement('div');
+  back.className = 'lk-back'; back.id = 'qaBack'; back.dataset.action = 'qaClose';
+  const el = document.createElement('div');
+  el.className = 'qa'; el.id = 'qa';
+  el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'רישום מהיר');
+  el.innerHTML = `<form id="qaForm" novalidate><div class="lk-head"><b>➕ רישום מהיר</b><button type="button" data-action="qaClose" aria-label="סגירה" title="סגירה (Esc)">✕</button></div>
+    <div class="qa-body">
+      <div class="seg" role="group" aria-label="סוג"><button type="button" data-qt="expense">הוצאה</button><button type="button" data-qt="income">הכנסה</button></div>
+      <label>סכום (₪)<input name="amount" type="number" step="0.01" min="0.01" inputmode="decimal" required></label>
+      <label>הערה<input name="note" maxlength="120" placeholder="למשל: קניות לשבת" autocomplete="off"></label>
+      <label>קטגוריה<input name="category" list="qa-cats" maxlength="40" placeholder="אפשר להשאיר ריק" autocomplete="off"></label>
+      <label>תאריך<input name="date" type="date" required value="${today()}"></label>
+      <datalist id="qa-cats"></datalist>
+      <button type="button" class="qa-full" data-action="quickAddFull">לטופס המלא (החזר הלוואה, עריכה ועוד)</button>
+    </div>
+    <div class="lk-foot"><button type="button" class="btn" data-action="qaClose">ביטול</button><button type="submit" class="btn primary">שמירה</button></div></form>`;
+  document.body.append(back, el);
+  const form = el.querySelector('form'), fCat = form.elements.category;
+  const paint = () => {
+    el.querySelectorAll('[data-qt]').forEach(b => { const on = b.dataset.qt === ui.qaType; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+    el.querySelector('#qa-cats').innerHTML = S.categories[ui.qaType].map(c => `<option value="${esc(c)}">`).join('');
+  };
+  const rerun = bindCatSuggest(form, () => ui.qaType);
+  el.querySelectorAll('[data-qt]').forEach(b => b.addEventListener('click', () => { ui.qaType = b.dataset.qt; paint(); if (fCat.dataset.auto === '1') { fCat.value = ''; fCat.dataset.auto = ''; } rerun && rerun(); }));
+  paint();
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const amount = parseFloat(form.elements.amount.value);
+    if (!(amount > 0)) { form.elements.amount.focus(); return toast('יש להזין סכום חיובי'); }
+    const type = ui.qaType, note = form.elements.note.value.trim();
+    const data = { type, amount, date: form.elements.date.value || today(), category: fCat.value.trim() || suggestCat(note, type) || 'ללא קטגוריה', note };
+    if (type === 'expense' && data.category === S.settings.loanCategory) data.debtRepay = true;
+    const sim = similarTx({ id: null, ...data });
+    if (sim.length && !confirm(`⚠️ חשש לכפילות: כבר קיימת ${type === 'income' ? 'הכנסה' : 'הוצאה'} של ${money(amount)} בתאריכים קרובים:\n` +
+      sim.slice(0, 3).map(x => `• ${gregDate(x.date)} · ${x.note || x.category}${x.recurringId ? ' (קבועה)' : ''}`).join('\n') + '\n\nלשמור בכל זאת?')) return;
+    ensureCat(type, data.category);
+    S.transactions.push({ id: uid(), ...data });
+    save(); qaClose(); render();
+    toast(`${type === 'income' ? 'ההכנסה' : 'ההוצאה'} נרשמה: ${money(amount)} · ${data.category}`);
+  });
+  setTimeout(() => form.elements.amount.focus(), 30);
+}
+function qaClose() { ['qa', 'qaBack'].forEach(id => { const e = document.getElementById(id); if (e) e.remove(); }); }
+
+// 2. מה חדש: מוצג פעם אחת אחרי עדכון, רק למי שכבר השתמש בתוכנה
+const WN_VER = '2026-11-26';
+const WN_ITEMS = [
+  ['➕', 'רישום מהיר', 'הכפתור + פותח חלון קטן: סכום, הערה ושמירה, בלי לעזוב את המסך.'],
+  ['💡', 'הצעת קטגוריה', 'כשמקלידים הערה שכבר הופיעה בעבר, הקטגוריה מוצעת לבד.'],
+  ['🔔', 'תזכורות בדשבורד', 'חיוב קבוע גדול שמתקרב, שבוע עם הוצאות חריגות, וסיכום החודש שעבר בתחילת כל חודש.'],
+  ['📊', 'השוואה לממוצע', 'בפילוח של החודש מופיע ליד כל קטגוריה אם היא מעל הממוצע של 3 החודשים הקודמים.'],
+  ['🕯️', 'תזכורת לפני שבת', 'ביום שישי ובמוצאי שבת: תזכורת קצרה לרשום את הקניות לשבת.'],
+  ['🚀', 'צעדים ראשונים וטיפ השבוע', 'רשימת התחלה למשתמשים חדשים, וטיפ שימושי אחד בכל שבוע.']
+];
+function whatsNew(force) {
+  if (document.getElementById('wn')) return;
+  if (!force) {
+    if (S.settings.seenVer === WN_VER) return;
+    if (!S.settings.seenVer && !S.transactions.length && !S.recurring.length) { S.settings.seenVer = WN_VER; save(); return; }
+    const lock = document.getElementById('lock'); if (lock && !lock.hidden) return;
+  }
+  const back = document.createElement('div');
+  back.className = 'lk-back'; back.id = 'wnBack'; back.dataset.action = 'wnClose';
+  const el = document.createElement('div');
+  el.className = 'qa'; el.id = 'wn';
+  el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'מה חדש');
+  el.innerHTML = `<div class="lk-head"><b>🎉 מה חדש בכספי הבית</b><button type="button" data-action="wnClose" aria-label="סגירה" title="סגירה (Esc)">✕</button></div>
+    <div class="qa-body"><ul class="wn-list">${WN_ITEMS.map(([i, t, d]) => `<li><span class="wn-ico" aria-hidden="true">${i}</span><div><b>${t}</b><p class="sub">${d}</p></div></li>`).join('')}</ul></div>
+    <div class="lk-foot"><span></span><button type="button" class="btn primary" data-action="wnClose">הבנתי, תודה</button></div>`;
+  document.body.append(back, el);
+  el.querySelector('.lk-foot .btn').focus();
+}
+function wnClose() {
+  ['wn', 'wnBack'].forEach(id => { const e = document.getElementById(id); if (e) e.remove(); });
+  if (S.settings.seenVer !== WN_VER) { S.settings.seenVer = WN_VER; save(); }
+}
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (document.getElementById('qa')) { e.preventDefault(); qaClose(); }
+  else if (document.getElementById('wn')) { e.preventDefault(); wnClose(); }
+});
+
+Object.assign(ACTIONS, {
+  nuHide: el => { nuHide(el.dataset.k); render(); },
+  stepsHide: () => { S.settings.stepsHidden = true; save(); render(); toast('הצעדים הראשונים הוסתרו'); },
+  noShabbat: () => { S.settings.noShabbat = true; save(); render(); toast('התזכורת לשבת לא תוצג יותר'); },
+  quickAdd: () => qaOpen(),
+  quickAddFull: () => { qaClose(); ui.tab = 'tx'; ui.txType = ui.qaType || 'expense'; ui.editTx = null; ui.splitTx = null; render(); window.scrollTo(0, 0); setTimeout(() => { const a = document.querySelector('#txForm [name=amount]'); if (a) a.focus(); }, 50); },
+  qaClose: () => qaClose(),
+  wnClose: () => wnClose(),
+  whatsNew: () => whatsNew(true)
+});
 
 /* ---------- חלון "התאמת מראה" ---------- */
 const LOOK_OPTS = [
@@ -3697,6 +4021,7 @@ function startApp() {
   render();
   resetIdle();
   autoBackupOnStart();
+  setTimeout(() => { try { whatsNew(); } catch (e) { console.error(e); } }, 900);
 }
 // הפעלה מוגנת: גם אם שלב אוטומטי נכשל, המסך מוצג והכפתורים מחווטים. מחזיר true אם ההצגה הצליחה
 function safeStart() {

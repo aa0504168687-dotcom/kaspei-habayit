@@ -607,6 +607,45 @@ html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *:
 .look-mini{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
 .look-mini button{width:34px;height:34px;border-radius:50%;border:3px solid var(--card);box-shadow:0 0 0 1.5px var(--border);cursor:pointer;padding:0}
 .look-mini button.on{box-shadow:0 0 0 2.5px var(--primary)}
+/* שלב 1: תזכורות בדשבורד, צעדים ראשונים, טיפ השבוע, רישום מהיר ומה חדש */
+.nudge{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-inline-start:4px solid var(--primary);border-radius:14px;padding:12px 14px;margin-bottom:12px}
+.nudge.warn{border-inline-start-color:var(--warn);background:var(--warn-soft)}
+.nudge.good{border-inline-start-color:var(--inc)}
+.nudge.info{background:linear-gradient(135deg,var(--primary-soft),var(--card) 70%)}
+.nu-ico{font-size:22px;line-height:1.3;flex:none}
+.nu-body{flex:1;min-width:0;line-height:1.65}
+.nu-txt{font-size:14px}
+.nu-act{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.nu-x{border:0;background:transparent;color:var(--muted);font:inherit;font-size:15px;cursor:pointer;width:30px;height:30px;border-radius:8px;flex:none}
+.nu-x:hover{background:var(--bg);color:var(--text)}
+.first-steps .fs-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.first-steps .fs-head h2{margin:0}
+.first-steps .fs-head .nu-x{margin-inline-start:auto}
+.first-steps .bar{margin-top:10px}
+.fs-list{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:8px}
+.fs-list li{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;flex-wrap:wrap}
+.fs-list li.ok{opacity:.62}
+.fs-list li.ok b{text-decoration:line-through}
+.fs-ico{font-size:20px;flex:none}
+.fs-txt{flex:1;min-width:160px}
+.fs-btns{display:flex;gap:6px;flex-wrap:wrap}
+.tip-week{display:flex;gap:10px;align-items:center;padding:10px 14px;border-radius:12px;background:var(--card);border:1px dashed var(--border);margin:0 0 16px;line-height:1.6;font-size:14px}
+.tw-ico{font-size:20px;flex:none}
+.tw-body{flex:1;min-width:0}
+.legend .avg{display:block;font-size:11.5px;color:var(--muted);font-weight:500;text-align:end}
+.legend .avg.up{color:var(--exp);font-weight:700}
+.legend .avg.upg{color:var(--inc);font-weight:700}
+.qa{position:fixed;z-index:27;top:50%;left:50%;transform:translate(-50%,-50%);width:min(440px,94vw);max-height:92vh;overflow:auto;background:var(--card);color:var(--text);border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.35)}
+.qa .lk-head{border-radius:18px 18px 0 0}
+.qa-body{padding:14px 18px;display:grid;gap:12px}
+.qa-body label{display:grid;gap:5px;font-size:13.5px;color:var(--muted);font-weight:600}
+.qa-body .seg{justify-self:start}
+.cat-hint{display:block;font-size:12px;color:var(--primary);font-weight:600;margin-top:3px}
+.qa-full{border:0;background:none;color:var(--primary);font:inherit;font-size:13px;cursor:pointer;text-decoration:underline;padding:0}
+.wn-list{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.wn-list li{display:flex;gap:12px;align-items:flex-start;line-height:1.55}
+.wn-ico{font-size:22px;flex:none}
+.wn-list .sub{margin:0}
 @media print{
   html[data-mode]{--bg:#fff!important;--card:#fff!important;--text:#111!important;--muted:#555!important;--border:#ddd!important}
   html[data-mode] body{background:#fff!important}
@@ -5208,6 +5247,73 @@ function renderError(e) {
   } catch (e) {}
 })();
 
+/* ---------- שלב 1: מה חדש וטיפ השבוע ---------- */
+const nuStore = () => S.settings.nudges || (S.settings.nudges = {});
+const TIPS_D = [
+  'לכל משימה אפשר לקבוע אחראי ותאריך יעד. משימה שעבר התאריך שלה מסומנת "באיחור" בכרטיס המשימות.',
+  'לכל הוצאה אפשר לצרף אסמכתא או חשבונית בכפתור 📎, וכך כל המסמכים של הדירה נמצאים במקום אחד.',
+  'בטבלת התקציב קובעים סכום לכל שלב בבנייה או בשיפוץ, ורואים מיד אם יש חריגה.',
+  'את סדר השלבים אפשר לשנות בחץ ⬆️, ולשנות שם של שלב בכפתור ✏️.',
+  'הדוח לאדריכלית או למפקח נוצר כטיוטה בג׳ימייל. שום דבר לא נשלח לבד: בודקים ולוחצים "שלח" בעצמך.',
+  'הדוח אפשר להפיק גם כקובץ PDF או אקסל, ולבחור מה ייכלל בו: משימות, תקציב, תשלומים והלוואות.',
+  'משכנתא והלוואות מופיעות בלשונית "הלוואות ומימון", עם מספר התשלומים שנותרו והסכום שנותר לשלם.',
+  'בחיפוש שמעל רשימת ההוצאות אפשר למצוא תשלום לפי מילה מהתיאור, ולסנן לפי שלב.',
+  'אפשר לסמן כמה הוצאות ביחד ולמחוק אותן בבת אחת, בתיבת הסימון שבפינת כל הוצאה.',
+  'באנשי הקשר שומרים טלפון ומייל של כל בעלי המקצוע, והם מופיעים גם בבחירת האחראי למשימה.',
+  'ב־🎨 התאמת מראה בוחרים ערכת צבעים, מצב כהה, גודל טקסט וגופן. הבחירה נשמרת בדפדפן הזה.',
+  'כדאי לשמור קובץ גיבוי מדי פעם בהגדרות, ובמיוחד לפני שמחליפים מחשב או דפדפן.'
+];
+function tipCardD() {
+  if (S.settings.noTips) return '';
+  const w = Math.floor((Date.now() / 86400000 + 4) / 7), k = 'tip:' + w;
+  if (nuStore()[k]) return '';
+  return `<div class="tip-week no-print"><span class="tw-ico" aria-hidden="true">💡</span><div class="tw-body"><b>טיפ השבוע:</b> ${TIPS_D[w % TIPS_D.length]}</div>
+    <button type="button" class="nu-x" data-action="nuHideD" data-k="${k}" title="הסתרת הטיפ" aria-label="הסתרת הטיפ">✕</button></div>`;
+}
+const _homeViewP1 = VIEWS.home;
+VIEWS.home = () => {
+  let h = _homeViewP1();
+  if (ui.homeTab !== 'all') return h;
+  const a = h.indexOf('<div class="stats'), b = h.indexOf('<section'), i = [a, b].filter(x => x >= 0).sort((x, y) => x - y)[0];
+  return i >= 0 ? h.slice(0, i) + tipCardD() + h.slice(i) : h;
+};
+const WN_VER = '2026-11-26';
+const WN_ITEMS = [
+  ['💡', 'טיפ השבוע', 'בכל שבוע מופיע במסך הראשי טיפ קצר על אפשרות שימושית בתוכנה. אפשר להסתיר אותו ב־✕.'],
+  ['🎨', 'התאמת מראה', 'ערכות צבעים, מצב כהה, גודל טקסט, גופן ועוד – בתפריט הצד ובהגדרות.'],
+  ['🎉', 'חלון "מה חדש"', 'מעכשיו, אחרי כל עדכון של התוכנה, יופיע כאן הסבר קצר על מה שהשתנה.']
+];
+function whatsNew(force) {
+  if (document.getElementById('wn')) return;
+  if (!force) {
+    if (S.settings.seenVer === WN_VER) return;
+    let used = S.transactions.length > 0;
+    try { const hh = homeStats().h; used = used || (hh.tasks || []).length > 0 || (hh.contacts || []).length > 0; } catch (e) {}
+    if (!S.settings.seenVer && !used) { S.settings.seenVer = WN_VER; save(); return; }
+    const lock = document.getElementById('lock'); if (lock && !lock.hidden) return;
+  }
+  const back = document.createElement('div');
+  back.className = 'lk-back'; back.id = 'wnBack'; back.dataset.action = 'wnClose';
+  const el = document.createElement('div');
+  el.className = 'qa'; el.id = 'wn';
+  el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'מה חדש');
+  el.innerHTML = `<div class="lk-head"><b>🎉 מה חדש בדירה חדשה</b><button type="button" data-action="wnClose" aria-label="סגירה" title="סגירה (Esc)">✕</button></div>
+    <div class="qa-body"><ul class="wn-list">${WN_ITEMS.map(([i, t, d]) => `<li><span class="wn-ico" aria-hidden="true">${i}</span><div><b>${t}</b><p class="sub">${d}</p></div></li>`).join('')}</ul></div>
+    <div class="lk-foot"><span></span><button type="button" class="btn primary" data-action="wnClose">הבנתי, תודה</button></div>`;
+  document.body.append(back, el);
+  el.querySelector('.lk-foot .btn').focus();
+}
+function wnClose() {
+  ['wn', 'wnBack'].forEach(id => { const e = document.getElementById(id); if (e) e.remove(); });
+  if (S.settings.seenVer !== WN_VER) { S.settings.seenVer = WN_VER; save(); }
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.getElementById('wn')) { e.preventDefault(); wnClose(); } });
+Object.assign(ACTIONS, {
+  nuHideD: el => { nuStore()[el.dataset.k] = today(); save(); render(); },
+  wnClose: () => wnClose(),
+  whatsNew: () => whatsNew(true)
+});
+
 /* ---------- חלון "התאמת מראה" ---------- */
 const LOOK_OPTS = [
   ['mode', 'מצב תצוגה', [['light', '☀️ בהיר'], ['dark', '🌙 כהה'], ['auto', '🖥️ לפי המחשב']]],
@@ -5277,6 +5383,7 @@ function startApp() {
   render();
   resetIdle();
   autoBackupOnStart();
+  setTimeout(() => { try { whatsNew(); } catch (e) { console.error(e); } }, 900);
 }
 // הפעלה מוגנת: גם אם שלב אוטומטי נכשל, המסך מוצג והכפתורים מחווטים. מחזיר true אם ההצגה הצליחה
 function safeStart() {
