@@ -3,9 +3,13 @@
 <head>
 <meta charset="utf-8">
 <!-- אבטחה: חוסם כל חיבור לאינטרנט וכל טעינת קוד או קבצים מבחוץ. החריג היחיד: שרת הצ'אט שרץ במחשב הזה (127.0.0.1), שמעביר שאלות לשירות SAI -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob: https://kaspei-habayit.goatcounter.com; font-src data:; connect-src https://formsubmit.co; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; manifest-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob: https://kaspei-habayit.goatcounter.com; font-src data:; connect-src https://formsubmit.co; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; form-action 'none'; base-uri 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%234f46e5%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%237c3aed%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22url(%23g)%22%2F%3E%3Ctext%20x%3D%2232%22%20y%3D%2245%22%20font-size%3D%2238%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22700%22%20text-anchor%3D%22middle%22%20fill%3D%22%23fff%22%3E%E2%82%AA%3C%2Ftext%3E%3C%2Fsvg%3E">
+<meta name="theme-color" content="#4f46e5">
+<link rel="manifest" href="kaspei.webmanifest">
+<link rel="apple-touch-icon" href="assets/icon-kaspei-192.png">
 <title>כספי הבית</title>
 <style>
 :root{
@@ -504,6 +508,65 @@ html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *:
 .look-mini{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
 .look-mini button{width:34px;height:34px;border-radius:50%;border:3px solid var(--card);box-shadow:0 0 0 1.5px var(--border);cursor:pointer;padding:0}
 .look-mini button.on{box-shadow:0 0 0 2.5px var(--primary)}
+/* שלב 4 (משותף) */
+.gs-wrap{display:flex;gap:6px;align-items:center;margin:0 0 14px;width:100%;align-self:stretch;box-sizing:border-box}
+.gs-wrap input{flex:1;min-width:120px;width:auto;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:inherit;font:inherit;font-size:14px}
+.gs-wrap input::placeholder{color:inherit;opacity:.75}
+.gs-wrap .ql-btn{flex:0 0 auto;width:auto!important;min-width:0;margin:0}
+.ql-btn{border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:inherit;border-radius:10px;padding:7px 9px;cursor:pointer;font-size:15px;line-height:1}
+.ql-btn:hover,.gs-wrap input:focus{background:rgba(255,255,255,.22);outline:none}
+.gs-box{position:fixed;z-index:1200;width:min(440px,calc(100vw - 16px));max-height:min(70vh,520px);overflow:auto;background:var(--card,#fff);color:var(--text,#111);border:1px solid var(--border,#e5e7eb);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.25);padding:6px}
+.gs-g{font-size:12px;opacity:.65;padding:8px 10px 4px;font-weight:700}
+.gs-it{display:block;width:100%;text-align:right;border:0;background:none;color:inherit;font:inherit;padding:8px 10px;border-radius:9px;cursor:pointer}
+.gs-it:hover,.gs-it.on{background:rgba(99,102,241,.12)}
+.gs-none{padding:14px;opacity:.7}
+body.ql-cover #view,body.ql-cover aside{filter:blur(14px);pointer-events:none}
+.hc-list{display:grid;gap:8px}
+.hc-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;border-radius:12px;background:rgba(245,158,11,.1)}
+.hc-ok{margin:0;font-weight:600}
+.p4-note{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;margin:0 0 16px;border-radius:16px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.35)}
+.p4-note>span{font-size:22px}
+@media print{.gs-wrap,.gs-box,.p4-note,.dk-tools,.dash-edit-bar,.dash-hidden-bar{display:none!important}}
+/* שלב 4 (כספי הבית) */
+.simple{max-width:760px;margin:0 auto}
+.sm-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+.sm-head h1{margin:0;font-size:30px}
+.sm-left{display:flex;flex-direction:column;align-items:center;gap:4px;padding:26px 16px;border-radius:22px;background:var(--card,#fff);box-shadow:0 8px 30px rgba(0,0,0,.08);margin-bottom:18px;text-align:center}
+.sm-left small{font-size:17px;opacity:.75}
+.sm-left b{font-size:52px;line-height:1.1}
+.sm-left.pos b{color:var(--inc,#0f9d58)}.sm-left.neg b{color:var(--exp,#e03131)}
+.sm-left span{font-size:16px;opacity:.75}
+.sm-flash{animation:smFlash 1.2s ease}
+@keyframes smFlash{0%,100%{transform:scale(1)}30%{transform:scale(1.06);box-shadow:0 0 0 6px rgba(99,102,241,.35)}}
+.sm-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.sm-btn{display:flex;flex-direction:column;align-items:center;gap:8px;padding:28px 10px;border:0;border-radius:22px;font:inherit;font-size:24px;font-weight:700;color:#fff;cursor:pointer;box-shadow:0 10px 26px rgba(0,0,0,.15)}
+.sm-btn span{font-size:40px;line-height:1}
+.sm-btn.inc{background:linear-gradient(135deg,#0f9d58,#34c47c)}
+.sm-btn.exp{background:linear-gradient(135deg,#e03131,#ff6b6b)}
+.sm-btn.left{background:linear-gradient(135deg,var(--primary,#4f46e5),var(--primary2,#7c3aed))}
+.sm-btn:focus-visible{outline:4px solid #fbbf24;outline-offset:3px}
+.sm-row{display:grid;grid-template-columns:90px 1fr auto;gap:10px;padding:9px 0;border-bottom:1px solid var(--border,#eee);font-size:17px}
+.sm-start{display:flex!important;flex-direction:row!important;gap:8px;align-items:center;justify-content:center;margin:10px 0;font-size:15px}
+.sm-start input{width:auto}
+@media (max-width:640px){.sm-btns{grid-template-columns:1fr}.sm-btn{flex-direction:row;justify-content:center;padding:20px}.sm-left b{font-size:42px}}
+.dk-edit{position:relative;outline:2px dashed rgba(99,102,241,.55);outline-offset:4px}
+.dk-off{opacity:.45}
+.dk-tools{position:absolute;top:8px;left:8px;z-index:5;display:flex;gap:4px}
+.dk-tools button{border:1px solid var(--border,#ddd);background:var(--card,#fff);color:inherit;border-radius:8px;padding:4px 9px;cursor:pointer;font:inherit;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.dash-edit-bar{position:sticky;top:8px;z-index:20;padding:10px 14px;margin:0 0 16px;border-radius:14px;background:#eef2ff;color:#312e81;border:1px solid #c7d2fe}
+.dash-hidden-bar{margin:16px 0 0;padding:10px 14px;border-radius:12px;background:rgba(127,127,127,.08);font-size:14px;text-align:center}
+.hc-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.hc-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:10px}
+.hc-wd{text-align:center;font-size:12px;font-weight:700;opacity:.65;padding:4px 0}
+.hc-cell{min-height:78px;border:1px solid var(--border,#e5e7eb);border-radius:10px;padding:5px 6px;font-size:12px;background:var(--card,#fff);overflow:hidden}
+.hc-empty{border:0;background:none}
+.hc-shabbat{background:rgba(99,102,241,.06)}
+.hc-today{outline:2px solid var(--primary,#4f46e5)}
+.hc-d{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
+.hc-d b{font-size:15px}.hc-d small{opacity:.55}
+.hc-r{border-radius:6px;padding:2px 5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hc-r.inc{background:rgba(15,157,88,.13)}.hc-r.exp{background:rgba(224,49,49,.1)}
+@media (max-width:700px){.hc-cell{min-height:54px;font-size:10px}.hc-r b{display:none}}
 /* שלב 3: תכנון וחיסכון */
 .pl-list{display:grid;gap:12px;margin-top:14px}
 .pl-item{border:1px solid var(--border,#e5e7eb);border-radius:14px;padding:14px 16px;background:var(--card-2,rgba(127,127,127,.04))}
@@ -796,6 +859,7 @@ try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change
     <div class="logo"><span class="logo-ico">₪</span>כספי הבית</div>
     <div class="nav-group">תזרים חודשי</div>
     <button data-tab="dash">📊 דשבורד</button>
+    <button data-tab="simple">🟢 מצב פשוט</button>
     <button data-tab="tx">📝 עסקאות</button>
     <button data-tab="rec">🔁 הוצאות והכנסות קבועות</button>
     <button data-tab="budget">💼 תקציב</button>
@@ -4713,6 +4777,365 @@ Object.assign(ACTIONS, {
   evSave: el => { const e = planS().events.find(x => x.id === el.dataset.id), i = document.getElementById('evAmt-' + el.dataset.id), v = plNum(i && i.value); if (!e || !v) return toast('צריך לרשום סכום');
     e.saved = e.saved || []; e.saved.push({ date: today(), amount: v }); save(); render(); toast('ההפרשה נרשמה'); },
   evDel: el => { const P = planS(), e = P.events.find(x => x.id === el.dataset.id); if (!e || !confirm(`למחוק את האירוע "${e.name}"?`)) return; P.events = P.events.filter(x => x !== e); save(); render(); }
+});
+
+/* ---------- שלב 4 (משותף): היסטוריית שינויים, נעילה מהירה, בדיקת תקינות, התקנה, הקראה, חיפוש כללי ---------- */
+
+// 70. היסטוריית שינויים ושחזור: כל הוספה, עריכה ומחיקה נרשמת, ואפשר לשחזר
+const H_KEYS = { transactions: 'עסקה', recurring: 'קבועה', assets: 'נכס / התחייבות' };
+const H_SKIP = ['lastApplied', 'lastAuto'];
+let hSnap = null, hRef = null;
+function hTake() {
+  const m = {};
+  Object.keys(H_KEYS).forEach(k => (S[k] || []).forEach(o => { if (o && o.id) m[k + ':' + o.id] = JSON.stringify(o, (key, v) => H_SKIP.includes(key) ? undefined : v); }));
+  return m;
+}
+function hDesc(k, o) {
+  if (!o) return '';
+  if (k === 'transactions') return `${o.type === 'income' ? 'הכנסה' : 'הוצאה'} ${money(o.amount)} · ${o.category || 'ללא קטגוריה'}${o.note ? ' · ' + o.note : ''} · ${o.date ? gregDate(o.date) : ''}`;
+  if (k === 'recurring') return `${o.note || o.category || ''} · ${money(o.amount)} ${o.type === 'income' ? 'הכנסה' : 'הוצאה'} קבועה`;
+  return `${o.name || ''} · ${money(o.value || 0)}`;
+}
+function hRecord() {
+  if (!S || hRef !== S || !hSnap) { hRef = S; hSnap = hTake(); return; }
+  const now = hTake(), at = Date.now(), del = [], ed = [], add = [];
+  for (const id in hSnap) { if (!(id in now)) del.push(id); else if (now[id] !== hSnap[id]) ed.push(id); }
+  for (const id in now) if (!(id in hSnap)) add.push(id);
+  if (!del.length && !ed.length && !add.length) return;
+  const H = S.history = S.history || [], obj = (m, id) => JSON.parse(m[id]), sp = id => { const i = id.indexOf(':'); return [id.slice(0, i), id.slice(i + 1)]; };
+  if (del.length > 20) H.push({ at, kind: 'bulkdel', k: sp(del[0])[0], items: del.slice(0, 2000).map(id => { const [k] = sp(id); return { k, o: obj(hSnap, id) }; }), n: del.length });
+  else del.forEach(id => { const [k, i] = sp(id); H.push({ at, kind: 'del', k, id: i, o: obj(hSnap, id) }); });
+  if (ed.length > 20) H.push({ at, kind: 'bulkedit', k: sp(ed[0])[0], items: ed.slice(0, 2000).map(id => { const [k] = sp(id); return { k, o: obj(hSnap, id) }; }), n: ed.length });
+  else ed.forEach(id => { const [k, i] = sp(id); H.push({ at, kind: 'edit', k, id: i, o: obj(hSnap, id), after: obj(now, id) }); });
+  const realAdd = add.filter(id => { const o = obj(now, id); return !(sp(id)[0] === 'transactions' && o.recurringId); });
+  if (realAdd.length > 20) H.push({ at, kind: 'bulkadd', k: sp(realAdd[0])[0], ids: realAdd.slice(0, 5000).map(id => sp(id)[1]), n: realAdd.length });
+  else realAdd.forEach(id => { const [k, i] = sp(id); H.push({ at, kind: 'add', k, id: i, after: obj(now, id) }); });
+  const old = at - 90 * 864e5; S.history = H.filter(e => e.at >= old).slice(-400);
+  hSnap = now;
+}
+const _saveP4 = save;
+save = function () { try { hRecord(); } catch (e) {} return _saveP4.apply(this, arguments); };
+const _renderP4 = render;
+render = function () { try { if (S && hRef !== S) { hRef = S; hSnap = hTake(); } } catch (e) {} return _renderP4.apply(this, arguments); };
+const H_KIND = { del: 'נמחקה', edit: 'נערכה', add: 'נוספה', bulkdel: 'נמחקו', bulkedit: 'נערכו', bulkadd: 'נוספו' };
+function hWhen(at) { const d = new Date(at); return `${pad(d.getDate())}/${pad(d.getMonth() + 1)} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+function historyCard() {
+  const H = (S.history || []).slice().reverse(), show = H.slice(0, ui.hAll ? 400 : 25);
+  const row = (e, i) => {
+    const name = H_KEYS[e.k] || '', what = e.kind.startsWith('bulk') ? `${H_KIND[e.kind]} ${e.n} ${e.k === 'transactions' ? 'עסקאות' : 'פריטים'} בבת אחת` : `${name} ${H_KIND[e.kind]}: ${esc(hDesc(e.k, e.kind === 'add' ? e.after : e.o))}`;
+    const extra = e.kind === 'edit' && e.after ? `<div class="sub" style="margin:2px 0 0">אחרי העריכה: ${esc(hDesc(e.k, e.after))}</div>` : '';
+    const btn = e.done ? '<span class="sub" style="margin:0">✓ שוחזר</span>'
+      : e.kind === 'del' || e.kind === 'bulkdel' ? `<button type="button" class="btn sm" data-action="hUndo" data-at="${e.at}" data-i="${H.length - 1 - i}">↩️ שחזור</button>`
+      : e.kind === 'edit' || e.kind === 'bulkedit' ? `<button type="button" class="btn sm" data-action="hUndo" data-at="${e.at}" data-i="${H.length - 1 - i}">↩️ להחזיר כמו שהיה</button>`
+      : `<button type="button" class="btn sm" data-action="hUndo" data-at="${e.at}" data-i="${H.length - 1 - i}">ביטול ההוספה</button>`;
+    return `<tr><td style="white-space:nowrap">${hWhen(e.at)}</td><td>${what}${extra}</td><td class="actions">${btn}</td></tr>`;
+  };
+  return `<section class="card" id="histCard"><h2>🕘 היסטוריית שינויים</h2>
+    <p class="sub">כל הוספה, עריכה ומחיקה של עסקה, קבועה או נכס נשמרת כאן ל־90 יום. מחקתם בטעות? לוחצים "שחזור".</p>
+    ${show.length ? `<div class="table-wrap"><table><thead><tr><th>מתי</th><th>מה השתנה</th><th></th></tr></thead><tbody>${show.map(row).join('')}</tbody></table></div>
+      ${H.length > show.length ? `<button type="button" class="btn sm" data-action="hMore" style="margin-top:8px">להציג הכל (${H.length})</button>` : ''}` : '<p class="empty">עוד לא נרשמו שינויים</p>'}</section>`;
+}
+function hUndo(e) {
+  const list = k => (S[k] = S[k] || []);
+  const putBack = (k, o) => { const L = list(k), i = L.findIndex(x => x.id === o.id); if (i >= 0) L[i] = o; else L.push(o); };
+  if (e.kind === 'del' || e.kind === 'edit') putBack(e.k, e.o);
+  else if (e.kind === 'bulkdel' || e.kind === 'bulkedit') e.items.forEach(x => putBack(x.k, x.o));
+  else if (e.kind === 'add') S[e.k] = list(e.k).filter(x => x.id !== e.id);
+  else if (e.kind === 'bulkadd') { const s = new Set(e.ids); S[e.k] = list(e.k).filter(x => !s.has(x.id)); }
+  e.done = true;
+}
+
+// 71. נעילה מהירה: כפתור בתפריט, או Ctrl+Shift+L
+async function quickLock() {
+  if (typeof CRYPT === 'undefined' || !CRYPT) { toast('כדי לנעול צריך קודם להגדיר סיסמה (בהגדרות וגיבוי)'); return; }
+  document.body.classList.add('ql-cover');
+  try { if (typeof encChain !== 'undefined') await encChain; } catch (e) {}
+  for (let i = 0; i < 30 && typeof FILE !== 'undefined' && (FILE.busy || FILE.pending); i++) await new Promise(r => setTimeout(r, 100));
+  lockNowAndReload();
+}
+document.addEventListener('keydown', e => { if (e.ctrlKey && e.shiftKey && (e.key === 'L' || e.key === 'l' || e.code === 'KeyL')) { e.preventDefault(); quickLock(); } });
+
+// 73. בדיקת תקינות: כפילויות, קטגוריות ריקות, קבועות שהסתיימו, עסקאות בלי קטגוריה או עם תאריך רחוק
+function healthIssues() {
+  const out = [], tx = S.transactions || [], cur = monthKey(new Date()), far = plusDays(today(), 60);
+  const dup = typeof duplicatePairs === 'function' ? duplicatePairs(tx).length : 0;
+  if (dup) out.push({ k: 'dup', t: `${dup} זוגות של עסקאות שנראות כפולות`, btn: 'לבדיקה במסך העסקאות', a: 'hcGo', v: 'tx' });
+  const used = new Set([...tx.map(t => t.category), ...(S.recurring || []).map(r => r.category), ...Object.keys(S.budgets || {}).filter(c => S.budgets[c] > 0)]);
+  const st = S.settings || {}, keep = [st.maaserCategory, st.loanCategory];
+  const empty = ['expense', 'income'].flatMap(ty => ((S.categories || {})[ty] || []).filter(c => !used.has(c) && !keep.includes(c)).map(c => ty + ':' + c));
+  if (empty.length) out.push({ k: 'cats', t: `${empty.length} קטגוריות בלי אף עסקה: ${empty.slice(0, 6).map(x => x.split(':').slice(1).join(':')).join(', ')}${empty.length > 6 ? '…' : ''}`, btn: 'להסיר אותן מהרשימה', a: 'hcCats', list: empty });
+  const ended = (S.recurring || []).filter(r => r.active && r.endMonth && r.endMonth < cur);
+  if (ended.length) out.push({ k: 'ended', t: `${ended.length} קבועות שהסתיימו ועדיין מסומנות פעילות: ${ended.slice(0, 4).map(r => r.note || r.category).join(', ')}`, btn: 'לסמן כלא פעילות', a: 'hcEnded' });
+  const noCat = tx.filter(t => !t.category).length;
+  if (noCat) out.push({ k: 'nocat', t: `${noCat} עסקאות בלי קטגוריה`, btn: 'לבדיקה', a: 'hcGo', v: 'tx' });
+  const fut = tx.filter(t => t.date > far).length;
+  if (fut) out.push({ k: 'future', t: `${fut} עסקאות עם תאריך רחוק בעתיד (אולי טעות הקלדה בשנה)`, btn: 'לבדיקה', a: 'hcGo', v: 'tx', fut: true });
+  return out;
+}
+function plusDays(iso, n) { const [y, m, d] = iso.split('-').map(Number), x = new Date(y, m - 1, d + n, 12); return `${x.getFullYear()}-${pad(x.getMonth() + 1)}-${pad(x.getDate())}`; }
+function healthCard() {
+  const L = healthIssues();
+  return `<section class="card" id="healthCard"><h2>🩺 בדיקת תקינות</h2><p class="sub">בדיקה קצרה שמוצאת דברים שכדאי לסדר. שום דבר לא משתנה בלי לחיצה שלך.</p>
+    ${L.length ? `<div class="hc-list">${L.map(x => `<div class="hc-row"><span>⚠️ ${esc(x.t)}</span><button type="button" class="btn sm" data-action="${x.a}" data-k="${x.k}"${x.v ? ` data-v="${x.v}"` : ''}>${x.btn}</button></div>`).join('')}</div>`
+      : '<p class="hc-ok">✅ הכל תקין. לא נמצא שום דבר לסדר.</p>'}</section>`;
+}
+function healthNudge() {
+  const st = S.settings || {}, m = monthKey(new Date());
+  if (st.hcMonth === m) return '';
+  const L = healthIssues(); if (!L.length) return '';
+  return `<div class="p4-note"><span aria-hidden="true">🩺</span><div><b>בדיקת התקינות החודשית מצאה ${L.length === 1 ? 'דבר אחד' : L.length + ' דברים'} לסדר</b><div class="sub" style="margin:2px 0 6px">${L.map(x => esc(x.t)).join(' · ')}</div>
+    <button type="button" class="btn sm primary" data-action="hcOpen">לבדיקה</button> <button type="button" class="btn sm" data-action="hcLater">לא החודש</button></div></div>`;
+}
+function p4Insert(h, c) {
+  if (!c) return h;
+  const idx = ['<div class="nudge', '<div class="p4-note', '<section class="card first-steps', '<section class="card forecast', '<div class="stats">', '<section'].map(a => h.indexOf(a)).filter(i => i >= 0).sort((a, b) => a - b)[0];
+  return idx >= 0 ? h.slice(0, idx) + c + h.slice(idx) : h + c;
+}
+const _dashViewP4 = VIEWS.dash;
+VIEWS.dash = () => p4Insert(_dashViewP4(), healthNudge());
+// בדירה חדשה המסך הראשי הוא לשונית "הכל" בתוך הבית
+if (VIEWS.home) { const _homeViewP4 = VIEWS.home; VIEWS.home = () => { const h = _homeViewP4(); return (ui.homeTab || 'all') === 'all' ? p4Insert(h, healthNudge()) : h; }; }
+
+// 3. התקנה כאפליקציה
+let p4Install = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); p4Install = e; if (ui.tab === 'settings') render(); });
+window.addEventListener('appinstalled', () => { p4Install = null; toast('התוכנה הותקנה. אפשר לפתוח אותה מהאייקון'); });
+function installCard() {
+  const standalone = window.matchMedia && matchMedia('(display-mode: standalone)').matches, local = /^(127\.0\.0\.1|localhost)$/.test(location.hostname) || location.protocol === 'file:';
+  if (local) return '';
+  return `<section class="card"><h2>📲 התקנה כאפליקציה</h2>
+    ${standalone ? '<p class="sub">התוכנה פתוחה כאפליקציה מותקנת ✓</p>'
+      : `<p class="sub">אפשר להתקין את התוכנה, ואז היא נפתחת מאייקון בשולחן העבודה או במסך הבית של הטלפון, בחלון נקי בלי שורת הכתובת. הנתונים נשארים אותם נתונים.</p>
+      ${p4Install ? '<button type="button" class="btn primary" data-action="installApp">📲 להתקין עכשיו</button>'
+        : '<p class="sub">במחשב (כרום או אדג׳): בתפריט ⋮ של הדפדפן בוחרים "התקנת אפליקציה" / "אפליקציות ← התקנה". בטלפון: בתפריט הדפדפן בוחרים "הוספה למסך הבית".</p>'}`}</section>`;
+}
+
+// 45. הקראה בקול של סיכום החודש
+function speakText() {
+  const m = ui.month && ui.month.length === 7 ? ui.month : monthKey(new Date()), inc = Math.round(sumMonth(m, 'income')), exp = Math.round(sumMonth(m, 'expense')), left = inc - exp;
+  const n = v => Math.abs(v).toLocaleString('he-IL') + ' שקלים';
+  let t = `סיכום ${monthName(m)}. נכנסו ${n(inc)}. יצאו ${n(exp)}. ${left >= 0 ? 'נשארו' : 'חסרו'} ${n(left)}.`;
+  try { if (typeof maaserCalc === 'function') { const c = maaserCalc(m); if (c.due || c.given) t += ` מעשרות: נדרש החודש ${n(Math.round(c.due))}, וניתנו ${n(Math.round(c.given))}.`; } } catch (e) {}
+  const big = {}; (S.transactions || []).filter(x => x.type === 'expense' && x.date.startsWith(m)).forEach(x => big[x.category] = (big[x.category] || 0) + x.amount);
+  const top = Object.entries(big).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  if (top.length) t += ` ההוצאות הגדולות: ${top.map(([c, v]) => `${c}, ${n(Math.round(v))}`).join('. ')}.`;
+  return t;
+}
+function speakNow() {
+  const ss = window.speechSynthesis; if (!ss) return toast('הדפדפן הזה לא תומך בהקראה');
+  if (ss.speaking) { ss.cancel(); return toast('ההקראה הופסקה'); }
+  const go = () => {
+    const v = ss.getVoices().filter(x => /^he|^iw/i.test(x.lang));
+    if (!v.length) return toast('לא נמצא קול בעברית במחשב הזה. בדפדפן Edge יש קולות בעברית');
+    const u = new SpeechSynthesisUtterance(speakText()); u.lang = 'he-IL'; u.voice = v.find(x => /Hila|Avri|Online|Natural/i.test(x.name)) || v[0]; u.rate = 0.95;
+    ss.speak(u); toast('🔊 מקריא… לחיצה נוספת עוצרת');
+  };
+  if (ss.getVoices().length) go(); else { ss.onvoiceschanged = () => { ss.onvoiceschanged = null; go(); }; setTimeout(() => { if (!ss.speaking) go(); }, 800); }
+}
+const _topbarP4 = topbar;
+topbar = function (title, extra = '') {
+  let h = _topbarP4(title, extra);
+  if (title === 'דשבורד') h = h.replace('<div class="tb-tools no-print">', '<div class="tb-tools no-print"><button type="button" class="btn sm" data-action="speak" title="הקראה בקול של סיכום החודש">🔊 הקראה</button>' + (typeof dashArrangeBtn === 'function' ? dashArrangeBtn() : ''));
+  return h;
+};
+
+// 8. חיפוש כללי: תיבה אחת בתפריט, Ctrl+K
+function gsResults(q) {
+  q = q.trim(); if (!q) return [];
+  const ql = q.toLowerCase(), num = parseFloat(q.replace(/[,₪\s]/g, '')), has = s => String(s || '').toLowerCase().includes(ql), R = [];
+  document.querySelectorAll('aside [data-tab]').forEach(b => { if (has(b.textContent)) R.push({ g: 'מסכים', t: b.textContent.trim(), tab: b.dataset.tab }); });
+  const SET = [['גיבוי', 'settings'], ['סיסמה', 'settings'], ['קטגוריות', 'settings'], ['היסטוריית שינויים', 'settings', 'histCard'], ['בדיקת תקינות', 'settings', 'healthCard'], ['שחזור', 'settings', 'histCard'], ['התקנה', 'settings'], ['ייבוא', 'tx']];
+  SET.forEach(([w, tab, anchor]) => { if (w.includes(q) || has(w)) R.push({ g: 'הגדרות', t: w, tab, go: () => { ui.gsAnchor = anchor; } }); });
+  if (has('מראה') || has('צבע') || has('גופן')) R.push({ g: 'הגדרות', t: 'התאמת מראה', go: () => { if (ACTIONS.lookOpen) setTimeout(() => ACTIONS.lookOpen(), 50); }, stay: true });
+  const tx = (S.transactions || []).filter(t => has(t.note) || has(t.category) || (!isNaN(num) && Math.abs(t.amount - num) < 0.01)).sort((a, b) => b.date.localeCompare(a.date));
+  tx.slice(0, 8).forEach(t => R.push({ g: `עסקאות (${tx.length})`, t: `${gregDate(t.date)} · ${t.note || t.category} · ${money(t.amount)}`, go: () => { Object.assign(ui.filters, { period: 'all', q: isNaN(num) ? q : '', type: 'all', cat: 'all', min: isNaN(num) ? '' : num, max: isNaN(num) ? '' : num }); }, tab: 'tx' }));
+  if (tx.length > 8) R.push({ g: `עסקאות (${tx.length})`, t: `כל ${tx.length} העסקאות שנמצאו ←`, go: () => { Object.assign(ui.filters, { period: 'all', q: isNaN(num) ? q : '', type: 'all', cat: 'all', min: isNaN(num) ? '' : num, max: isNaN(num) ? '' : num }); }, tab: 'tx' });
+  (S.recurring || []).filter(r => has(r.note) || has(r.category)).slice(0, 5).forEach(r => R.push({ g: 'קבועות', t: `${r.note || r.category} · ${money(r.amount)}`, tab: 'rec' }));
+  (S.assets || []).filter(a => has(a.name) || has(a.lender)).slice(0, 5).forEach(a => R.push({ g: 'נכסים והתחייבויות', t: `${a.name} · ${money(a.value)}`, tab: 'assets' }));
+  if (typeof REPORTS !== 'undefined') REPORTS.filter(r => has(r.title) || has(r.desc)).slice(0, 5).forEach(r => R.push({ g: 'דוחות', t: `${r.icon || ''} ${r.title}`, go: () => { ui.repMode = 'center'; ui.repSel = r.id; }, tab: 'report' }));
+  if (S.plan) {
+    [...(S.funds || []).map(f => f.name), ...(S.plan.events || []).map(e => e.name), ...(S.plan.debts || []).map(d => d.who)].filter(has).slice(0, 5).forEach(n => R.push({ g: 'תכנון וחיסכון', t: n, tab: 'plan' }));
+  }
+  return R.slice(0, 30);
+}
+// מעבר למסך: לוחצים על הכפתור בתפריט, כדי שיעבוד בשתי התוכנות (בדירה חדשה המסכים הם לשוניות בתוך הבית)
+function p4Go(tab) {
+  ui.editTx = null; ui.splitTx = null;
+  let b = document.querySelector(`aside [data-tab="${tab}"]`);
+  if (!b && VIEWS.home) { const alt = { tx: 'exp', dash: 'all' }[tab]; if (alt) b = document.querySelector(`aside [data-tab="${alt}"]`); }
+  if (b) b.click(); else { ui.tab = tab; render(); }
+  window.scrollTo(0, 0);
+}
+let gsSel = 0, gsList = [];
+function gsDraw() {
+  const box = document.getElementById('gsBox'), inp = document.getElementById('gSearch'); if (!box || !inp) return;
+  gsList = gsResults(inp.value);
+  if (!inp.value.trim()) { box.hidden = true; return; }
+  const r = inp.getBoundingClientRect(); box.style.top = (r.bottom + 6) + 'px'; box.style.right = Math.max(8, innerWidth - r.right) + 'px';
+  let g = '';
+  box.innerHTML = gsList.length ? gsList.map((x, i) => (x.g !== g ? `<div class="gs-g">${esc(g = x.g)}</div>` : '') + `<button type="button" class="gs-it${i === gsSel ? ' on' : ''}" data-gs="${i}">${esc(x.t)}</button>`).join('') : '<div class="gs-none">לא נמצא שום דבר</div>';
+  box.hidden = false;
+}
+function gsGo(i) {
+  const x = gsList[i]; if (!x) return;
+  const inp = document.getElementById('gSearch'); if (x.go) x.go();
+  document.getElementById('gsBox').hidden = true; if (inp) { inp.value = ''; inp.blur(); }
+  if (!x.stay) p4Go(x.tab || ui.tab);
+  if (ui.gsAnchor) { const a = document.getElementById(ui.gsAnchor); ui.gsAnchor = null; if (a) setTimeout(() => a.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); }
+}
+(function gsInit() {
+  const logo = document.querySelector('aside .logo'); if (!logo || document.getElementById('gSearch')) return;
+  const w = document.createElement('div'); w.className = 'gs-wrap no-print';
+  w.innerHTML = '<input id="gSearch" type="search" placeholder="🔍 חיפוש" autocomplete="off" aria-label="חיפוש בכל התוכנה (Ctrl+K)" title="חיפוש בכל התוכנה (Ctrl+K)"><button type="button" class="ql-btn" data-action="quickLock" title="נעילה מיידית (Ctrl+Shift+L)" aria-label="נעילה מיידית">🔒</button>';
+  logo.after(w);
+  const box = document.createElement('div'); box.id = 'gsBox'; box.className = 'gs-box'; box.hidden = true; box.setAttribute('role', 'listbox'); document.body.appendChild(box);
+  const inp = w.querySelector('input');
+  inp.addEventListener('input', () => { gsSel = 0; gsDraw(); });
+  inp.addEventListener('focus', () => { if (inp.value.trim()) gsDraw(); });
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); gsSel = Math.min(gsList.length - 1, gsSel + 1); gsDraw(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); gsSel = Math.max(0, gsSel - 1); gsDraw(); }
+    else if (e.key === 'Enter') { e.preventDefault(); gsGo(gsSel); }
+    else if (e.key === 'Escape') { inp.value = ''; box.hidden = true; inp.blur(); }
+  });
+  box.addEventListener('mousedown', e => { const b = e.target.closest('[data-gs]'); if (b) { e.preventDefault(); gsGo(+b.dataset.gs); } });
+  document.addEventListener('click', e => { if (!e.target.closest('#gsBox, #gSearch')) box.hidden = true; });
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K' || e.code === 'KeyK')) { e.preventDefault(); inp.focus(); inp.select(); }
+  });
+})();
+
+// חיבור למסך ההגדרות
+const _settingsViewP4 = VIEWS.settings;
+VIEWS.settings = () => _settingsViewP4() + installCard() + healthCard() + historyCard();
+Object.assign(ACTIONS, {
+  hUndo: el => {
+    const H = S.history || [], e = H[+el.dataset.i]; if (!e || String(e.at) !== el.dataset.at || e.done) return;
+    const msg = e.kind === 'bulkdel' ? `לשחזר ${e.n} פריטים שנמחקו?` : e.kind === 'bulkadd' ? `לבטל את ההוספה של ${e.n} פריטים? הם יימחקו (ואפשר יהיה לשחזר אותם מכאן)` : e.kind === 'bulkedit' ? `להחזיר ${e.n} פריטים למה שהיה לפני העריכה?` : e.kind === 'add' ? 'לבטל את ההוספה? הפריט יימחק (ואפשר יהיה לשחזר אותו מכאן)' : null;
+    if (msg && !confirm(msg)) return;
+    hUndo(e); save(); render(); toast('שוחזר');
+  },
+  hMore: () => { ui.hAll = true; render(); const c = document.getElementById('histCard'); if (c) c.scrollIntoView({ block: 'start' }); },
+  quickLock: () => quickLock(),
+  hcGo: el => { if (el.dataset.k === 'future') Object.assign(ui.filters, { period: 'all', q: '', type: 'all', cat: 'all', min: '', max: '', sort: 'date-desc' }); p4Go(el.dataset.v); },
+  hcCats: () => { const it = healthIssues().find(x => x.k === 'cats'); if (!it || !confirm(`להסיר ${it.list.length} קטגוריות ריקות מהרשימה?\n\n${it.list.map(x => x.split(':').slice(1).join(':')).join(', ')}`)) return;
+    it.list.forEach(x => { const [ty, ...r] = x.split(':'), c = r.join(':'); S.categories[ty] = S.categories[ty].filter(y => y !== c); }); save(); render(); toast('הקטגוריות הריקות הוסרו'); },
+  hcEnded: () => { const cur = monthKey(new Date()), L = S.recurring.filter(r => r.active && r.endMonth && r.endMonth < cur); if (!L.length || !confirm(`לסמן ${L.length} קבועות שהסתיימו כלא פעילות?`)) return; L.forEach(r => r.active = false); save(); render(); toast('עודכן'); },
+  hcOpen: () => { S.settings.hcMonth = monthKey(new Date()); save(); p4Go('settings'); const c = document.getElementById('healthCard'); if (c) setTimeout(() => c.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); },
+  hcLater: () => { S.settings.hcMonth = monthKey(new Date()); save(); render(); toast('הבדיקה תחזור בחודש הבא'); },
+  installApp: async () => { if (!p4Install) return; p4Install.prompt(); try { await p4Install.userChoice; } catch (e) {} p4Install = null; render(); },
+  speak: () => speakNow()
+});
+
+/* ---------- שלב 4 (כספי הבית): מצב פשוט, דשבורד שאפשר לסדר, לוח שנה עברי ---------- */
+
+// 46. מצב פשוט: שלושה כפתורים גדולים. התפריט נשאר גלוי, ואפשר לחזור לתוכנה המלאה בכל רגע
+const SIMPLE_KEY = 'kaspei_simple_start';
+function simpleStart() { try { return localStorage.getItem(SIMPLE_KEY) === '1'; } catch (e) { return false; } }
+if (simpleStart()) ui.tab = 'simple';
+VIEWS.simple = () => {
+  const m = monthKey(new Date()), inc = sumMonth(m, 'income'), exp = sumMonth(m, 'expense'), left = inc - exp;
+  const last = [...S.transactions].sort((a, b) => b.date.localeCompare(a.date) || 0).slice(0, 6);
+  return `<div class="simple">
+    <div class="sm-head"><div><h1>שלום! 👋</h1><div class="sub" style="margin:0">${esc(hebDate(today()))} · ${gregDate(today())}</div></div>
+      <button type="button" class="btn" data-tab="dash">לתוכנה המלאה ←</button></div>
+    <div class="sm-left ${left >= 0 ? 'pos' : 'neg'}" id="smLeft"><small>${left >= 0 ? 'נשאר החודש' : 'חסר החודש'} · ${monthName(m)}</small><b>${money(Math.abs(left))}</b>
+      <span>נכנס ${money(inc)} · יצא ${money(exp)}</span></div>
+    <div class="sm-btns">
+      <button type="button" class="sm-btn inc" data-action="smAdd" data-t="income"><span>➕</span>הכנסה</button>
+      <button type="button" class="sm-btn exp" data-action="smAdd" data-t="expense"><span>➖</span>הוצאה</button>
+      <button type="button" class="sm-btn left" data-action="smLeft"><span>💰</span>כמה נשאר?</button></div>
+    ${last.length ? `<section class="card sm-last"><h2>רשמתי לאחרונה</h2>${last.map(t => `<div class="sm-row"><span>${gregDate(t.date)}</span><span>${esc(t.note || t.category)}</span><b class="${t.type === 'income' ? 'pos' : 'neg'}">${t.type === 'income' ? '+' : '−'}${money(t.amount)}</b></div>`).join('')}</section>` : ''}
+    <label class="sm-start"><input type="checkbox" id="smStart"${simpleStart() ? ' checked' : ''}> לפתוח תמיד במצב פשוט (במחשב הזה)</label></div>`;
+};
+document.addEventListener('change', e => {
+  if (e.target && e.target.id === 'smStart') { try { localStorage.setItem(SIMPLE_KEY, e.target.checked ? '1' : '0'); } catch (x) {} toast(e.target.checked ? 'התוכנה תיפתח במצב פשוט' : 'התוכנה תיפתח בדשבורד'); }
+});
+
+// 65. דשבורד שאפשר לסדר: הזזה למעלה ולמטה והסתרה של כרטיסים
+function dashKey(el) {
+  const cls = [...el.classList].filter(c => !['card', 'no-print'].includes(c)).join('.');
+  const h = el.querySelector('h2'), txt = h ? h.textContent.replace(/\d+|ינואר|פברואר|מרץ|אפריל|מאי|יוני|יולי|אוגוסט|ספטמבר|אוקטובר|נובמבר|דצמבר|[·:,()'"״׳]/g, '').replace(/\s+/g, ' ').trim().slice(0, 24) : '';
+  return el.tagName.toLowerCase() + (cls ? '.' + cls : '') + (txt ? '|' + txt : '');
+}
+function dashLayout() { S.settings.dashLayout = S.settings.dashLayout || { order: [], hidden: [] }; return S.settings.dashLayout; }
+function dashBlocks(v) { return [...v.children].filter(el => !el.classList.contains('topbar') && !el.classList.contains('nudge') && !el.classList.contains('p4-note') && !el.classList.contains('dash-edit-bar') && !el.classList.contains('dash-hidden-bar') && el.tagName !== 'SCRIPT'); }
+function dashApply() {
+  const v = document.getElementById('view'); if (!v || ui.tab !== 'dash') return;
+  const L = S.settings.dashLayout || { order: [], hidden: [] }, blocks = dashBlocks(v);
+  const seen = {}; blocks.forEach(b => { const k = dashKey(b); seen[k] = (seen[k] || 0) + 1; b.dataset.dk = seen[k] > 1 ? k + '#' + seen[k] : k; });
+  const known = blocks.filter(b => L.order.includes(b.dataset.dk));
+  if (known.length > 1) {
+    const slots = known.map(b => { const ph = document.createComment('dk'); b.before(ph); return ph; });
+    const sorted = [...known].sort((a, b) => L.order.indexOf(a.dataset.dk) - L.order.indexOf(b.dataset.dk));
+    slots.forEach((ph, i) => { ph.replaceWith(sorted[i]); });
+  }
+  const hidden = dashBlocks(v).filter(b => L.hidden.includes(b.dataset.dk));
+  if (ui.dashEdit) {
+    dashBlocks(v).forEach(b => {
+      b.classList.add('dk-edit'); if (L.hidden.includes(b.dataset.dk)) b.classList.add('dk-off');
+      const t = document.createElement('div'); t.className = 'dk-tools no-print';
+      t.innerHTML = `<button type="button" data-action="dkMove" data-d="-1" title="למעלה" aria-label="להזיז למעלה">▲</button><button type="button" data-action="dkMove" data-d="1" title="למטה" aria-label="להזיז למטה">▼</button><button type="button" data-action="dkHide" title="${L.hidden.includes(b.dataset.dk) ? 'להציג' : 'להסתיר'}">${L.hidden.includes(b.dataset.dk) ? '👁️ להציג' : '🙈 להסתיר'}</button>`;
+      b.prepend(t);
+    });
+    const bar = document.createElement('div'); bar.className = 'dash-edit-bar no-print';
+    bar.innerHTML = '<b>✏️ מצב סידור:</b> ▲▼ מזיזים כרטיס, 🙈 מסתירים. <button type="button" class="btn sm primary" data-action="dkDone">סיום</button> <button type="button" class="btn sm" data-action="dkReset">איפוס לסדר המקורי</button>';
+    v.querySelector('.topbar').after(bar);
+  } else {
+    hidden.forEach(b => b.hidden = true);
+    if (hidden.length) { const bar = document.createElement('div'); bar.className = 'dash-hidden-bar no-print'; bar.innerHTML = `${hidden.length === 1 ? 'כרטיס אחד מוסתר' : hidden.length + ' כרטיסים מוסתרים'} בדשבורד · <button type="button" class="linkbtn" data-action="dkEdit">להציג או לסדר</button>`; v.appendChild(bar); }
+  }
+}
+function dashArrangeBtn() { return `<button type="button" class="btn sm" data-action="${ui.dashEdit ? 'dkDone' : 'dkEdit'}" title="להזיז ולהסתיר כרטיסים בדשבורד">${ui.dashEdit ? '✅ סיום סידור' : '✏️ סידור'}</button>`; }
+const _renderP4k = render;
+render = function () { const r = _renderP4k.apply(this, arguments); try { dashApply(); } catch (e) {} return r; };
+function dkCurrent() { const v = document.getElementById('view'); return dashBlocks(v).map(b => b.dataset.dk); }
+
+// 14. לוח שנה עברי: חודש עברי, ובכל יום – הקבועות שיורדות בו
+const HEB_DAY = ['', 'א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ז', 'ח', 'ט', 'י', 'יא', 'יב', 'יג', 'יד', 'טו', 'טז', 'יז', 'יח', 'יט', 'כ', 'כא', 'כב', 'כג', 'כד', 'כה', 'כו', 'כז', 'כח', 'כט', 'ל'];
+function hcalStart(iso) { let d = iso; for (let i = 0; i < 31; i++) { const h = plHeb(d); if (!h || h.d === 1) return d; d = plAdd(d, -1); } return d; }
+function hcalMonth(off) {
+  let s = hcalStart(today());
+  for (let i = 0; i < Math.abs(off); i++) s = off > 0 ? hcalStart(plAdd(s, 31)) : hcalStart(plAdd(s, -1));
+  const days = []; let d = s; do { days.push(d); d = plAdd(d, 1); } while (plHeb(d).d !== 1 && days.length < 31);
+  return days;
+}
+function recOnDate(iso) {
+  const [y, m, d] = iso.split('-').map(Number), dim = new Date(y, m, 0).getDate(), mk = iso.slice(0, 7);
+  return (S.recurring || []).filter(r => r.active && (!r.months || r.months.includes(m)) && !(r.startMonth && r.startMonth > mk) && !(r.endMonth && r.endMonth < mk) && Math.min(+r.day || 1, dim) === d);
+}
+function hcalCard() {
+  if (!plHebFmt) return '';
+  const off = ui.hcal || 0, days = hcalMonth(off), h0 = plHeb(days[0]), t = today();
+  const first = new Date(days[0] + 'T12:00:00').getDay();
+  let inc = 0, exp = 0;
+  const cells = Array(first).fill('<div class="hc-cell hc-empty"></div>').concat(days.map(iso => {
+    const h = plHeb(iso), wd = new Date(iso + 'T12:00:00').getDay(), rs = recOnDate(iso);
+    rs.forEach(r => r.type === 'income' ? inc += r.amount : exp += r.amount);
+    return `<div class="hc-cell${wd === 6 ? ' hc-shabbat' : ''}${iso === t ? ' hc-today' : ''}"><div class="hc-d"><b>${HEB_DAY[h.d] || h.d}</b><small>${+iso.slice(8)}/${+iso.slice(5, 7)}</small></div>
+      ${rs.map(r => `<div class="hc-r ${r.type === 'income' ? 'inc' : 'exp'}" title="${esc((r.note || r.category) + ' · ' + money(r.amount))}">${esc(r.note || r.category)} <b>${money(r.amount)}</b></div>`).join('')}</div>`;
+  })).join('');
+  return `<section class="card hcal"><div class="hc-top"><h2>📅 לוח שנה עברי · ${esc(h0.m)} ${h0.y}</h2>
+      <div class="inline"><button type="button" class="btn sm" data-action="hcalGo" data-d="-1" aria-label="החודש הקודם">› הקודם</button>${off ? '<button type="button" class="btn sm" data-action="hcalGo" data-d="0">החודש</button>' : ''}<button type="button" class="btn sm" data-action="hcalGo" data-d="1" aria-label="החודש הבא">הבא ‹</button></div></div>
+    <p class="sub">באיזה יום בחודש העברי יורדת או נכנסת כל קבועה. ${inc ? `הכנסות קבועות: <b class="pos">${money(inc)}</b>` : ''} ${exp ? ` · הוצאות קבועות: <b class="neg">${money(exp)}</b>` : ''}</p>
+    <div class="hc-grid">${['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'].map(n => `<div class="hc-wd">${n}</div>`).join('')}${cells}</div></section>`;
+}
+const _recViewP4 = VIEWS.rec;
+VIEWS.rec = () => _recViewP4() + hcalCard();
+
+Object.assign(ACTIONS, {
+  smAdd: el => { ui.qaType = el.dataset.t; qaOpen(); },
+  smLeft: () => { const b = document.getElementById('smLeft'); if (b) { b.classList.remove('sm-flash'); void b.offsetWidth; b.classList.add('sm-flash'); } if (typeof speakNow === 'function' && window.speechSynthesis) speakNow(); },
+  dkEdit: () => { ui.dashEdit = true; render(); },
+  dkDone: () => { ui.dashEdit = false; render(); toast('סידור הדשבורד נשמר'); },
+  dkReset: () => { if (!confirm('להחזיר את הדשבורד לסדר המקורי ולהציג את כל הכרטיסים?')) return; S.settings.dashLayout = { order: [], hidden: [] }; save(); render(); },
+  dkMove: el => {
+    const b = el.closest('[data-dk]'); if (!b) return; const L = dashLayout(), cur = dkCurrent(), i = cur.indexOf(b.dataset.dk), j = i + +el.dataset.d;
+    if (j < 0 || j >= cur.length) return; [cur[i], cur[j]] = [cur[j], cur[i]]; L.order = cur; save(); render();
+    const n = document.querySelector(`[data-dk="${CSS.escape(b.dataset.dk)}"]`); if (n) n.scrollIntoView({ block: 'nearest' });
+  },
+  dkHide: el => { const b = el.closest('[data-dk]'); if (!b) return; const L = dashLayout(), k = b.dataset.dk; L.hidden = L.hidden.includes(k) ? L.hidden.filter(x => x !== k) : [...L.hidden, k]; if (!L.order.length) L.order = dkCurrent(); save(); render(); },
+  hcalGo: el => { const d = +el.dataset.d; ui.hcal = d ? (ui.hcal || 0) + d : 0; render(); const c = document.querySelector('.hcal'); if (c) c.scrollIntoView({ block: 'start' }); }
 });
 
 /* ---------- חלון "התאמת מראה" ---------- */
