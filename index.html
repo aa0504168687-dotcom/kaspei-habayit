@@ -1117,7 +1117,7 @@ VIEWS.dash = () => {
   `<div class="stats">
     <div class="stat s-flow s-hero"><div class="lbl">${year ? 'תזרים שנתי' : 'תזרים חודשי'}</div><div class="val ${flow >= 0 ? 'pos' : 'neg'}">${money(flow)}</div><div class="cmp">${cmpText(flow, pflow, true, prevLabel)}</div></div>
     <div class="stat s-inc"><div class="lbl">הכנסות ${word}</div><div class="val">${money(inc)}</div><div class="cmp">${cmpText(inc, pinc, true, prevLabel)}</div></div>
-    <div class="stat s-exp"><div class="lbl">הוצאות ${word}</div><div class="val">${money(exp)}</div><div class="cmp">${cmpText(exp, pexp, false, prevLabel)}${debtM ? ` · מתוכן החזרי חוב ${money(debtM)}` : ''}</div></div>
+    <div class="stat s-exp"><div class="lbl">הוצאות ${word}</div><div class="val">${money(exp)}</div><div class="cmp">${cmpText(exp, pexp, false, prevLabel)}${debtM ? `<br>מתוכן החזרי חוב ${money(debtM)}` : ''}</div></div>
     <div class="stat s-nw"><div class="lbl">שווי נקי</div><div class="val ${nw.n >= 0 ? 'pos' : 'neg'}">${money(nw.n)}</div><div class="cmp">נכסים ${money(nw.a)} · התחייבויות ${money(nw.l)}</div></div>
   </div>
   <div class="row">
