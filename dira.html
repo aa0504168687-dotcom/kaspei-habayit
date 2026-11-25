@@ -611,6 +611,24 @@ html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *:
 .look-mini{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
 .look-mini button{width:34px;height:34px;border-radius:50%;border:3px solid var(--card);box-shadow:0 0 0 1.5px var(--border);cursor:pointer;padding:0}
 .look-mini button.on{box-shadow:0 0 0 2.5px var(--primary)}
+/* שלב 5: ציוד וליקויים */
+tr.eq-done td{opacity:.7}
+tr.eq-done td b{text-decoration:line-through}
+.df-list{display:grid;gap:12px}
+.df-item{border:1px solid var(--border,#e5e7eb);border-radius:14px;padding:12px 14px;border-inline-start:5px solid #f59e0b}
+.df-item.df-hard{border-inline-start-color:#e03131}
+.df-item.df-fixed{border-inline-start-color:#0f9d58;opacity:.75}
+.df-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.df-badge{font-size:13px;font-weight:700;white-space:nowrap}
+.df-photos{display:flex;gap:8px;flex-wrap:wrap}
+.df-photos img{width:120px;height:90px;object-fit:cover;border-radius:10px;border:1px solid var(--border,#ddd)}
+.df-print-head{display:none}
+@media print{
+  .df-print-head{display:block;margin-bottom:12px}
+  .df-item{break-inside:avoid}
+  .df-photos img{width:160px;height:120px}
+}
+.df-ph{border:0;padding:0;background:none;cursor:zoom-in}
 /* שלב 4 (משותף) */
 .gs-wrap{display:flex;gap:6px;align-items:center;margin:0 0 14px;width:100%;align-self:stretch;box-sizing:border-box}
 .gs-wrap input{flex:1;min-width:120px;width:auto;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:inherit;font:inherit;font-size:14px}
@@ -862,6 +880,8 @@ try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change
     <button data-tab="contacts">👥 אנשי קשר</button>
     <button data-tab="mail">✉️ מיילים</button>
     <button data-tab="files">📎 קבצים</button>
+    <button data-tab="equip">🛒 ציוד לדירה</button>
+    <button data-tab="defects">🔧 ליקויים למסירה</button>
     <button data-tab="report">📊 דוח</button>
     <div class="nav-group">כללי</div>
     <button data-tab="settings">⚙️ הגדרות וגיבוי</button>
@@ -5619,6 +5639,111 @@ Object.assign(ACTIONS, {
   hcLater: () => { S.settings.hcMonth = monthKey(new Date()); save(); render(); toast('הבדיקה תחזור בחודש הבא'); },
   installApp: async () => { if (!p4Install) return; p4Install.prompt(); try { await p4Install.userChoice; } catch (e) {} p4Install = null; render(); },
   speak: () => speakNow()
+});
+
+/* ---------- שלב 5 (דירה חדשה): רשימת ציוד לדירה, ורשימת ליקויים למסירה ---------- */
+function HX() { const h = H(); h.equip ??= []; h.defects ??= []; return h; }
+const EQ_ROOMS = ['מטבח', 'חשמל', 'ריהוט', 'חדרי שינה', 'אמבטיה וכביסה', 'שבת וחג', 'אחר'];
+const EQ_READY = {
+  'מטבח': ['מקרר', 'תנור', 'כיריים', 'מיקרוגל', 'מדיח כלים', 'כלים בשריים', 'כלים חלביים', 'סירים ומחבתות', 'סכו״ם', 'קומקום'],
+  'חשמל': ['מזגנים', 'מנורות וגופי תאורה', 'שואב אבק', 'מאוורר'],
+  'ריהוט': ['שולחן אוכל', 'כסאות', 'ספה', 'ארון ספרים (ספרי קודש)', 'וילונות'],
+  'חדרי שינה': ['מיטות', 'מזרנים', 'ארונות בגדים', 'מצעים'],
+  'אמבטיה וכביסה': ['מכונת כביסה', 'מייבש כביסה', 'מתקן ייבוש', 'מראה וארון אמבטיה'],
+  'שבת וחג': ['פלטה לשבת', 'מיחם לשבת', 'שעון שבת', 'פמוטים', 'גביע לקידוש', 'מזוזות ובתי מזוזה']
+};
+const eqStatus = x => x.bought ? 'נקנה' : 'לקנות';
+function equipView() {
+  const h = HX(), L = h.equip, f = ui.eqF || 'all';
+  const bud = L.reduce((a, x) => a + (+x.budget || 0), 0), paid = L.filter(x => x.bought).reduce((a, x) => a + (+x.price || 0), 0);
+  const left = L.filter(x => !x.bought), leftBud = left.reduce((a, x) => a + (+x.budget || 0), 0);
+  const overItems = L.filter(x => x.bought && x.budget && x.price > x.budget);
+  const show = L.filter(x => f === 'all' || (f === 'todo' ? !x.bought : x.bought));
+  const rooms = [...new Set([...EQ_ROOMS, ...L.map(x => x.room)])].filter(r => show.some(x => x.room === r));
+  const row = x => `<tr class="${x.bought ? 'eq-done' : ''}"><td style="width:42px"><input type="checkbox" data-eqbought="${x.id}"${x.bought ? ' checked' : ''} aria-label="נקנה: ${esc(x.name)}" style="width:auto"></td>
+    <td><b>${esc(x.name)}</b>${x.where ? `<div class="sub" style="margin:0">${esc(x.where)}</div>` : ''}</td>
+    <td><input type="number" min="0" step="1" data-eqf="budget" data-id="${x.id}" value="${x.budget || ''}" placeholder="0" style="width:105px" aria-label="תקציב ל${esc(x.name)}"></td>
+    <td><input type="number" min="0" step="1" data-eqf="price" data-id="${x.id}" value="${x.price || ''}" placeholder="0" style="width:105px" aria-label="מחיר בפועל של ${esc(x.name)}"></td>
+    <td class="${x.bought && x.budget && x.price > x.budget ? 'neg' : x.bought && x.budget ? 'pos' : ''}">${x.bought && x.budget && x.price ? (x.price > x.budget ? '+' : '−') + money(Math.abs(x.price - x.budget)) : '—'}</td>
+    <td class="actions no-print">${x.bought && x.price && !x.txId ? `<button type="button" class="btn sm" data-action="eqTx" data-id="${x.id}" title="לרשום את הקנייה כהוצאה בפרויקט">🧾 לרשום כהוצאה</button>` : x.txId ? '<span class="sub" style="margin:0">✓ נרשם כהוצאה</span>' : ''}<button type="button" class="btn sm danger" data-action="eqDel" data-id="${x.id}" aria-label="מחיקת ${esc(x.name)}">🗑️</button></td></tr>`;
+  return `<div class="topbar"><div><h1>🛒 ציוד לדירה</h1><div class="dates">${esc(hebDate(today()))} · ${gregDate(today())}</div></div>
+      <div class="tb-tools no-print"><button type="button" class="btn sm" data-action="printScreen">🖨️ הדפסה</button></div></div>
+    <div class="stats"><div class="stat s-nw s-hero"><div class="lbl">תקציב לציוד</div><div class="val">${money(bud)}</div><div class="cmp">${L.length} פריטים</div></div>
+      <div class="stat s-exp"><div class="lbl">שולם עד עכשיו</div><div class="val">${money(paid)}</div><div class="cmp">${L.length - left.length} נקנו${overItems.length ? ` · ${overItems.length} מעל התקציב` : ''}</div></div>
+      <div class="stat s-inc"><div class="lbl">נשאר לקנות</div><div class="val">${left.length}</div><div class="cmp">תקציב ${money(leftBud)}</div></div></div>
+    <section class="card no-print"><h2>➕ פריט חדש</h2>
+      <form id="eqForm" class="grid-form"><label>חדר / תחום<select name="room">${EQ_ROOMS.map(r => `<option>${r}</option>`).join('')}</select></label>
+        <label>פריט<input name="name" required maxlength="60" placeholder="למשל: מקרר"></label>
+        <label>תקציב (₪)<input name="budget" type="number" min="0" step="1"></label>
+        <label>איפה / הערה<input name="where" maxlength="80" placeholder="למשל: חנות החשמל, דגם…"></label>
+        <div class="actions"><button class="btn primary">הוספה</button></div></form>
+      ${L.length ? '' : `<p class="sub" style="margin-top:12px">אפשר להתחיל מרשימה מוכנה (מקרר, תנור, כלים בשריים וחלביים, פלטה ומיחם לשבת ועוד) ולמחוק מה שלא צריך: <button type="button" class="btn sm" data-action="eqReady">📋 להוסיף רשימה מוכנה</button></p>`}</section>
+    ${L.length ? `<div class="seg no-print" style="margin:0 0 14px">${[['all', 'הכל'], ['todo', 'לקנות'], ['done', 'נקנה']].map(([k, n]) => `<button type="button" class="${f === k ? 'on' : ''}" data-action="eqFilter" data-f="${k}">${n}</button>`).join('')}</div>
+      ${rooms.map(r => { const it = show.filter(x => x.room === r), rb = it.reduce((a, x) => a + (+x.budget || 0), 0);
+        return `<section class="card"><h2>${esc(r)} <span class="sub" style="margin:0;font-weight:400">· ${it.filter(x => x.bought).length}/${it.length} נקנו${rb ? ` · תקציב ${money(rb)}` : ''}</span></h2>
+          <div class="table-wrap"><table><thead><tr><th>נקנה</th><th>פריט</th><th>תקציב</th><th>מחיר בפועל</th><th>הפרש</th><th class="no-print"></th></tr></thead><tbody>${it.map(row).join('')}</tbody></table></div></section>`; }).join('') || '<p class="empty">אין פריטים בסינון הזה</p>'}` : ''}`;
+}
+
+const DEF_ROOMS = ['סלון', 'מטבח', 'חדר שינה', 'חדר ילדים', 'אמבטיה', 'שירותים', 'מרפסת', 'חדר מדרגות', 'כללי'];
+function defectsView() {
+  const h = HX(), L = h.defects, f = ui.dfF || 'open', c = h.contract || {};
+  const open = L.filter(x => x.status !== 'fixed'), fixed = L.filter(x => x.status === 'fixed'), hard = open.filter(x => x.sev === 'hard');
+  const show = (f === 'all' ? L : f === 'fixed' ? fixed : open).slice().sort((a, b) => (a.status === 'fixed') - (b.status === 'fixed') || (b.sev === 'hard') - (a.sev === 'hard') || DEF_ROOMS.indexOf(a.room) - DEF_ROOMS.indexOf(b.room));
+  const card = (x, i) => `<div class="df-item${x.status === 'fixed' ? ' df-fixed' : ''}${x.sev === 'hard' ? ' df-hard' : ''}">
+    <div class="df-top"><b>${i + 1}. ${esc(x.text)}</b><span class="df-badge">${x.status === 'fixed' ? `✓ תוקן${x.fixedDate ? ' ב־' + gregDate(x.fixedDate) : ''}` : x.sev === 'hard' ? '⚠️ חמור · לא תוקן' : 'לא תוקן'}</span></div>
+    <div class="sub" style="margin:2px 0 6px">📍 ${esc(x.room)} · נרשם ב־${gregDate(x.date)}${x.note ? ' · ' + esc(x.note) : ''}</div>
+    ${(x.photos || []).length ? `<div class="df-photos">${x.photos.map(p => `<button type="button" class="df-ph" data-action="hOpenFile" data-f="${esc(p.file)}" data-n="${esc(p.name)}" title="פתיחת התמונה בגודל מלא"><img data-hthumb="${esc(homeFileUrl(p.file))}" alt="תמונה של הליקוי: ${esc(x.text)}" loading="lazy"></button>`).join('')}</div>` : ''}
+    <div class="inline no-print" style="margin-top:8px">${x.status === 'fixed' ? `<button type="button" class="btn sm" data-action="dfStatus" data-id="${x.id}" data-s="open">↩️ לא תוקן</button>` : `<button type="button" class="btn sm primary" data-action="dfStatus" data-id="${x.id}" data-s="fixed">✓ תוקן</button>`}
+      <label class="btn sm" style="cursor:pointer">📷 הוספת תמונה<input type="file" accept="image/*" capture="environment" multiple data-dfphoto="${x.id}" hidden></label>
+      <button type="button" class="btn sm danger" data-action="dfDel" data-id="${x.id}">🗑️ מחיקה</button></div></div>`;
+  return `<div class="topbar"><div><h1>🔧 ליקויים למסירה</h1><div class="dates">${esc(hebDate(today()))} · ${gregDate(today())}</div></div>
+      <div class="tb-tools no-print"><button type="button" class="btn sm primary" data-action="dfPrint" title="רשימה מסודרת להדפסה או לשמירה כ־PDF ולשליחה לקבלן">📄 רשימה לקבלן (הדפסה / PDF)</button></div></div>
+    <div class="df-print-head"><h2>רשימת ליקויים${c.contractor ? ' – לכבוד ' + esc(c.contractor) : ''}</h2><p>תאריך: ${gregDate(today())} · ${esc(hebDate(today()))}. ${open.length} ליקויים פתוחים${hard.length ? `, מתוכם ${hard.length} חמורים` : ''}.</p></div>
+    <div class="stats"><div class="stat s-exp s-hero"><div class="lbl">לא תוקנו</div><div class="val">${open.length}</div><div class="cmp">${hard.length ? hard.length + ' חמורים' : 'אין ליקויים חמורים'}</div></div>
+      <div class="stat s-inc"><div class="lbl">תוקנו</div><div class="val">${fixed.length}</div><div class="cmp">${L.length ? Math.round(fixed.length / L.length * 100) + '% מהרשימה' : ''}</div></div></div>
+    <section class="card no-print"><h2>➕ ליקוי חדש</h2><p class="sub">בסיור המסירה עוברים חדר אחרי חדר. כל ליקוי עם תמונה ומיקום, ובסוף מפיקים רשימה מסודרת לקבלן. אפשר לצלם ישירות מהטלפון.</p>
+      <form id="dfForm" class="grid-form"><label>איפה<select name="room">${DEF_ROOMS.map(r => `<option>${r}</option>`).join('')}</select></label>
+        <label class="wide">מה הליקוי<input name="text" required maxlength="140" placeholder="למשל: סדק בטיח מעל החלון"></label>
+        <label>חומרה<select name="sev"><option value="normal">רגיל</option><option value="hard">חמור</option></select></label>
+        <label>הערה<input name="note" maxlength="100"></label>
+        <label>תמונות<input name="photos" type="file" accept="image/*" capture="environment" multiple></label>
+        <div class="actions"><button class="btn primary" id="dfSave">הוספה</button></div></form></section>
+    ${L.length ? `<div class="seg no-print" style="margin:0 0 14px">${[['open', `לא תוקנו (${open.length})`], ['fixed', `תוקנו (${fixed.length})`], ['all', 'הכל']].map(([k, n]) => `<button type="button" class="${f === k ? 'on' : ''}" data-action="dfFilter" data-f="${k}">${n}</button>`).join('')}</div>
+      <section class="card"><div class="df-list">${show.map(card).join('') || '<p class="empty">אין ליקויים בסינון הזה</p>'}</div></section>` : '<section class="card"><p class="empty">עוד לא נרשמו ליקויים</p></section>'}`;
+}
+
+const _homeViewP5 = VIEWS.home;
+VIEWS.home = () => ui.homeTab === 'equip' ? equipView() : ui.homeTab === 'defects' ? defectsView() : _homeViewP5();
+
+document.addEventListener('submit', async e => {
+  const f = e.target; if (!f || (f.id !== 'eqForm' && f.id !== 'dfForm')) return;
+  e.preventDefault(); const E = f.elements, h = HX();
+  if (f.id === 'eqForm') { h.equip.push({ id: uid(), room: E.room.value, name: E.name.value.trim(), budget: Math.max(0, parseFloat(E.budget.value) || 0), price: 0, where: E.where.value.trim(), bought: false }); save(); render(); toast('נוסף לרשימה'); return; }
+  const btn = f.querySelector('#dfSave'); if (btn) { btn.disabled = true; btn.textContent = 'שומר…'; }
+  const photos = E.photos.files && E.photos.files.length ? await homeUpload(E.photos.files) : [];
+  h.defects.push({ id: uid(), room: E.room.value, text: E.text.value.trim(), sev: E.sev.value, note: E.note.value.trim(), status: 'open', date: today(), photos });
+  ui.dfF = 'open'; save(); render(); toast(photos.length ? `הליקוי נרשם עם ${photos.length} תמונות` : 'הליקוי נרשם');
+});
+document.addEventListener('change', async e => {
+  const el = e.target; if (!el || !el.dataset) return; const h = S.home ? HX() : null; if (!h) return;
+  if (el.dataset.eqbought) { const x = h.equip.find(i => i.id === el.dataset.eqbought); if (!x) return; x.bought = el.checked; if (x.bought && !x.price && x.budget) x.price = x.budget; save(); render(); toast(x.bought ? `"${x.name}" סומן כנקנה` : 'הסימון בוטל'); }
+  if (el.dataset.eqf) { const x = h.equip.find(i => i.id === el.dataset.id); if (!x) return; x[el.dataset.eqf] = Math.max(0, parseFloat(el.value) || 0); save(); render(); }
+  if (el.dataset.dfphoto) { const x = h.defects.find(i => i.id === el.dataset.dfphoto); if (!x || !el.files.length) return; toast('מעלה תמונות…'); const up = await homeUpload(el.files); (x.photos ||= []).push(...up); save(); render(); if (up.length) toast(`נוספו ${up.length} תמונות`); }
+});
+Object.assign(ACTIONS, {
+  eqFilter: el => { ui.eqF = el.dataset.f; render(); },
+  eqReady: () => { const h = HX(), have = new Set(h.equip.map(x => x.name)); let n = 0;
+    Object.entries(EQ_READY).forEach(([room, items]) => items.forEach(name => { if (!have.has(name)) { h.equip.push({ id: uid(), room, name, budget: 0, price: 0, where: '', bought: false }); n++; } }));
+    save(); render(); toast(`נוספו ${n} פריטים. אפשר למחוק מה שלא צריך ולמלא תקציב`); },
+  eqDel: el => { const h = HX(), x = h.equip.find(i => i.id === el.dataset.id); if (!x || !confirm(`למחוק את "${x.name}" מהרשימה?`)) return; h.equip = h.equip.filter(i => i !== x); save(); render(); },
+  eqTx: el => { const h = HX(), x = h.equip.find(i => i.id === el.dataset.id); if (!x || !x.price) return;
+    if (!confirm(`לרשום הוצאה של ${money(x.price)} על "${x.name}" בתאריך היום?`)) return;
+    const t = { id: uid(), type: 'expense', amount: x.price, date: today(), category: h.category || 'דירה חדשה', note: 'ציוד לדירה: ' + x.name };
+    ensureCat('expense', t.category); S.transactions.push(t); x.txId = t.id; save(); render(); toast('ההוצאה נרשמה'); },
+  dfFilter: el => { ui.dfF = el.dataset.f; render(); },
+  dfStatus: el => { const x = HX().defects.find(i => i.id === el.dataset.id); if (!x) return; x.status = el.dataset.s; x.fixedDate = x.status === 'fixed' ? today() : ''; save(); render(); toast(x.status === 'fixed' ? 'סומן שתוקן ✓' : 'סומן שלא תוקן'); },
+  dfDel: el => { const h = HX(), x = h.defects.find(i => i.id === el.dataset.id); if (!x || !confirm(`למחוק את הליקוי "${x.text}"?`)) return; h.defects = h.defects.filter(i => i !== x); save(); render(); },
+  dfPrint: () => { ui.dfF = 'open'; render(); document.body.classList.add('df-printing'); setTimeout(() => { window.print(); setTimeout(() => document.body.classList.remove('df-printing'), 500); }, 150); }
 });
 
 /* ---------- חלון "התאמת מראה" ---------- */
