@@ -889,7 +889,41 @@ function download(name, content, mime) {
 }
 
 /* ---------- הוצאות והכנסות קבועות: רישום אוטומטי בכל חודש ---------- */
+// האם הקבועה כבר נרשמה בחודש m: עסקה שלה עצמה, או עסקה זהה אחת שלא שייכת לקבועה אחרת קיימת (למשל מייבוא מהבנק).
+// כך שתי קבועות זהות (למשל שכר לימוד זהה לשני ילדים) נרשמות כל אחת בנפרד. claimed: עסקה זהה נספרת רק לקבועה אחת
+function recTaken(r, m, date, claimed) {
+  if (S.transactions.some(t => t.recurringId === r.id && t.date.startsWith(m))) return true;
+  const ids = new Set(S.recurring.map(x => x.id));
+  const same = S.transactions.find(t => !(t.recurringId && ids.has(t.recurringId)) && !(claimed && claimed.has(t.id)) &&
+    t.date === date && t.amount === r.amount && t.type === r.type && t.note === r.note);
+  if (same && claimed) claimed.add(same.id);
+  return !!same;
+}
+// תיקון חד־פעמי: בגרסאות קודמות, מתוך שתי קבועות זהות (אותו תיאור, סכום ויום) נרשמה רק אחת.
+// משלימים לכל "תאומה" את החודשים שבהם האחות שלה נרשמה והיא לא. קבועות אחרות לא נוגעים
+function repairTwinRecurring() {
+  if (S.settings.twinRecFixed) return 0;
+  let added = 0; const groups = {};
+  S.recurring.forEach(r => { const k = [r.type, r.amount, r.note, r.day].join('|'); (groups[k] = groups[k] || []).push(r); });
+  Object.values(groups).filter(g => g.length > 1).forEach(g => {
+    const ids = new Set(g.map(r => r.id));
+    const months = [...new Set(S.transactions.filter(t => ids.has(t.recurringId)).map(t => t.date.slice(0, 7)))].sort();
+    months.forEach(m => g.forEach(r => {
+      if ((r.startMonth && m < r.startMonth) || (r.endMonth && m > r.endMonth) || (r.lastApplied && m > r.lastApplied)) return;
+      const [y, mm] = m.split('-').map(Number);
+      if (r.months && !r.months.includes(mm)) return;
+      if (S.transactions.some(t => t.recurringId === r.id && t.date.startsWith(m))) return;
+      const date = `${m}-${pad(Math.min(r.day, new Date(y, mm, 0).getDate()))}`;
+      S.transactions.push({ id: uid(), type: r.type, amount: r.amount, date, category: r.category, note: r.note, recurringId: r.id });
+      added++;
+    }));
+  });
+  S.settings.twinRecFixed = true;
+  if (added) save();
+  return added;
+}
 function applyRecurring() {
+  const claimed = new Set();
   const now = new Date(), cur = monthKey(now); let added = 0;
   S.recurring.forEach(r => {
     if (!r.active) return;
@@ -901,7 +935,7 @@ function applyRecurring() {
       if (m === cur && now.getDate() < day) break;
       // נרשמת רק בחודשים שנבחרו, ולא נרשמת פעמיים אם כבר קיימת עסקה זהה
       const inMonths = !r.months || r.months.includes(mm);
-      const exists = S.transactions.some(t => t.date === date && t.amount === r.amount && t.type === r.type && t.note === r.note);
+      const exists = recTaken(r, m, date, claimed);
       if (inMonths && !exists) {
         S.transactions.push({ id: uid(), type: r.type, amount: r.amount, date, category: r.category, note: r.note, recurringId: r.id });
         added++;
@@ -922,7 +956,7 @@ function backfillRecurring(r, from, to, dry) {
     const [y, mm] = m.split('-').map(Number);
     const day = Math.min(r.day, new Date(y, mm, 0).getDate()), date = `${m}-${pad(day)}`;
     if (m === cur && now.getDate() < day) break;
-    const exists = S.transactions.some(t => (t.recurringId === r.id && t.date.startsWith(m)) || (t.date === date && t.amount === r.amount && t.type === r.type && t.note === r.note));
+    const exists = recTaken(r, m, date);
     if ((!r.months || r.months.includes(mm)) && !exists) {
       if (!dry) S.transactions.push({ id: uid(), type: r.type, amount: r.amount, date, category: r.category, note: r.note, recurringId: r.id });
       n++;
@@ -1057,7 +1091,7 @@ VIEWS.dash = () => {
   const m = year ? Y : ui.month, pm = year ? String(+Y - 1) : shiftMonth(ui.month, -1);
   const word = year ? 'השנה' : 'החודש', prevLabel = year ? 'שנה קודמת' : 'חודש קודם';
   const inc = sumMonth(m, 'income'), exp = sumMonth(m, 'expense');
-  // החזרי חוב בחודש הזה: מוצגים בנפרד, ואינם נכללים בהוצאות
+  // החזרי חוב בחודש הזה: נכללים בהוצאות, והסכום שלהם מוצג גם בנפרד לידיעה
   const debtM = S.transactions.filter(t => isDebtRepay(t) && t.date.startsWith(m)).reduce((a, t) => a + t.amount, 0);
   const pinc = sumMonth(pm, 'income'), pexp = sumMonth(pm, 'expense');
   const flow = inc - exp, pflow = pinc - pexp, nw = netWorth();
@@ -1083,7 +1117,7 @@ VIEWS.dash = () => {
   `<div class="stats">
     <div class="stat s-flow s-hero"><div class="lbl">${year ? 'תזרים שנתי' : 'תזרים חודשי'}</div><div class="val ${flow >= 0 ? 'pos' : 'neg'}">${money(flow)}</div><div class="cmp">${cmpText(flow, pflow, true, prevLabel)}</div></div>
     <div class="stat s-inc"><div class="lbl">הכנסות ${word}</div><div class="val">${money(inc)}</div><div class="cmp">${cmpText(inc, pinc, true, prevLabel)}</div></div>
-    <div class="stat s-exp"><div class="lbl">הוצאות ${word}${debtM ? ' (בלי החזרי חוב)' : ''}</div><div class="val">${money(exp)}</div><div class="cmp">${debtM ? `החזרי חוב בנפרד: ${money(debtM)}` : cmpText(exp, pexp, false, prevLabel)}</div></div>
+    <div class="stat s-exp"><div class="lbl">הוצאות ${word}</div><div class="val">${money(exp)}</div><div class="cmp">${cmpText(exp, pexp, false, prevLabel)}${debtM ? ` · מתוכן החזרי חוב ${money(debtM)}` : ''}</div></div>
     <div class="stat s-nw"><div class="lbl">שווי נקי</div><div class="val ${nw.n >= 0 ? 'pos' : 'neg'}">${money(nw.n)}</div><div class="cmp">נכסים ${money(nw.a)} · התחייבויות ${money(nw.l)}</div></div>
   </div>
   <div class="row">
@@ -1111,7 +1145,7 @@ VIEWS.dash = () => {
 
 function donut(m, type) {
   const map = {};
-  S.transactions.filter(t => t.type === type && t.date.startsWith(m) && !(type === 'expense' && isDebtRepay(t))).forEach(t => map[t.category] = (map[t.category] || 0) + t.amount);
+  S.transactions.filter(t => t.type === type && t.date.startsWith(m) && !(type === 'expense' && skipAsExpense(t))).forEach(t => map[t.category] = (map[t.category] || 0) + t.amount);
   return donutFromMap(map, `אין ${type === 'expense' ? 'הוצאות' : 'הכנסות'} להצגה ${m.length === 4 ? 'בשנה זו' : 'בחודש זה'}`);
 }
 function donutFromMap(map, emptyMsg) {
@@ -2657,6 +2691,7 @@ function forecastCard() {
       <div><div class="lbl">הכנסות</div><b class="pos">${money(projInc)}</b><div class="sub" style="margin:0">עד היום ${money(incSoFar)}${recInc ? ` + קבועות ${money(recInc)}` : ''}</div>${detail('income')}</div>
       <div><div class="lbl">הוצאות</div><b class="neg">${money(projExp)}</b><div class="sub" style="margin:0">עד היום ${money(expSoFar)}${recExp ? ` + קבועות ${money(recExp)}` : ''}</div>${detail('expense')}</div>
       <div class="fc-end"><div class="lbl">צפוי להישאר</div><b class="${bad ? 'neg' : 'pos'}">${money(end)}</b><div class="sub" style="margin:0">${remDays} ימים לסוף החודש</div></div></div>
+    ${pending.length ? `<p class="sub fc-pend" style="margin:12px 0 0">🔁 קבועות שעוד יירשמו החודש (כל אחת ביום שלה): ${pending.slice().sort((a, b) => a.day - b.day).map(r => `<b>${esc(r.note || r.category)}</b> ${money(r.amount)} (${Math.min(r.day, dim)}/${mm})`).join(' · ')}</p>` : ''}
     ${bad ? `<div class="tip bad" style="margin-top:12px"><span class="tip-ico">⚠️</span><span>גם בלי הוצאות נוספות, צפוי מינוס של ${money(-end)} בסוף החודש.</span></div>`
       : `<div class="tip good" style="margin-top:12px"><span class="tip-ico">✅</span><span>אחרי הקבועות שעוד צפויות, נשארו ${money(end)} להוצאות נוספות עד סוף החודש.</span></div>`}</section>`;
 }
@@ -3063,7 +3098,7 @@ function repData() {
   const filt = [f.type !== 'all' ? (f.type === 'income' ? 'הכנסות בלבד' : 'הוצאות בלבד') : '', f.cat !== 'all' ? 'קטגוריה: ' + f.cat : '', q ? `חיפוש: "${f.q.trim()}"` : ''].filter(Boolean).join(' · ');
   return { f, p, periodTx, list, filt };
 }
-const sumOf = (l, type) => l.filter(t => (!type || t.type === type) && !(type === 'expense' && isDebtRepay(t))).reduce((a, t) => a + t.amount, 0);
+const sumOf = (l, type) => l.filter(t => (!type || t.type === type) && !(type === 'expense' && skipAsExpense(t))).reduce((a, t) => a + t.amount, 0);
 const monthsOf = l => [...new Set(l.map(t => t.date.slice(0, 7)))].sort();
 const groupSum = (l, key) => { const g = {}; l.forEach(t => { const k = key(t) || 'ללא'; (g[k] = g[k] || { s: 0, n: 0 }); g[k].s += t.amount; g[k].n++; }); return Object.entries(g).sort((a, b) => b[1].s - a[1].s); };
 const txKind = t => t.type === 'income' ? 'inc' : 'exp';
@@ -3656,6 +3691,7 @@ function startApp() {
   cleanCategories();
   save();
   applyRecurring();
+  { const fixed = repairTwinRecurring(); if (fixed) setTimeout(() => toast(`הושלמו ${fixed} עסקאות של קבועות זהות שלא נרשמו`), 1500); }
   applyLiabilityPayments();
   // מסך הקופות הוסר מהתפריט, ולכן גם ההפקדה האוטומטית לקופות כבויה. הנתונים הקיימים נשארים שמורים
   render();
