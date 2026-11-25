@@ -968,6 +968,61 @@ tr.pl-late td{background:rgba(224,49,49,.07)}
 .pm-num{color:#4b4f6a;opacity:1;font-weight:600}
 @media print{#pmPrint .pm-slide{box-shadow:none;border:0;border-radius:0;overflow:visible}#pmPrint .pm-slide::after{display:none}#pmPrint .pm-slide h2{margin-bottom:18px}}
 .pm-nav:focus{outline:none}.pm-nav:focus-visible{outline:3px solid #c4b5fd!important;outline-offset:3px}
+/* שלב 13: תצוגה מסודרת */
+.tb-more{position:relative}
+.tb-more>summary{list-style:none;cursor:pointer;padding:6px 12px;border-radius:10px;border:1px solid var(--border);background:var(--card);font-size:14px;font-weight:600;user-select:none}
+.tb-more>summary::-webkit-details-marker{display:none}
+.tb-more[open]>summary{background:var(--primary-soft)}
+.tb-menu{position:absolute;inset-inline-end:0;top:calc(100% + 6px);z-index:30;min-width:190px;display:flex;flex-direction:column;gap:2px;padding:6px;background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.16)}
+.tb-menu .btn{justify-content:flex-start;border:0;background:transparent;box-shadow:none;width:100%;text-align:start;padding:9px 12px}
+.tb-menu .btn:hover{background:var(--primary-soft)}
+.cl-inbox,.cl-more{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin:0 0 18px}
+.cl-inbox>summary,.cl-more>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:12px 16px;user-select:none;border-radius:var(--radius)}
+.cl-inbox>summary::-webkit-details-marker,.cl-more>summary::-webkit-details-marker{display:none}
+.cl-inbox>summary:hover,.cl-more>summary:hover{background:var(--primary-soft)}
+.cl-ico{font-size:20px;font-family:Segoe UI Emoji,Segoe UI,sans-serif}
+.cl-badge{background:var(--primary);color:#fff;border-radius:99px;min-width:22px;height:22px;display:inline-grid;place-items:center;font-size:12px;font-weight:700;padding:0 6px}
+.cl-hint{color:var(--muted);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+.cl-inbox>summary::after,.cl-chev{content:"▾";margin-inline-start:auto;color:var(--muted);transition:transform .2s}
+.cl-inbox[open]>summary::after,.cl-more[open] .cl-chev{transform:rotate(180deg)}
+.cl-more>summary .cl-chev{margin-inline-start:0}
+.cl-inbox-body{padding:4px 14px 14px}
+.cl-inbox-body>*{margin-bottom:10px}
+.cl-inbox-body>:last-child{margin-bottom:0}
+.cl-inbox-body .card{box-shadow:none}
+.cl-more{background:transparent;border-style:dashed}
+.cl-more[open]{border:0}
+.cl-more[open]>summary{margin-bottom:12px;border:1px dashed var(--border)}
+.cl-more-body>:last-child{margin-bottom:0}
+/* הגדרות: כרטיס נפתח בלחיצה על הכותרת */
+.acc>.acc-head{cursor:pointer;display:flex;align-items:center;gap:8px;margin:0;user-select:none}
+.acc>.acc-head:focus-visible{outline:3px solid var(--primary);outline-offset:4px;border-radius:6px}
+.acc-chev{margin-inline-start:auto;color:var(--muted);font-size:16px;transition:transform .2s}
+.acc.acc-open>h2{margin-bottom:12px}
+.acc.acc-open .acc-chev{transform:rotate(180deg)}
+.acc:not(.acc-open)>.acc-body{display:none}
+html.clean .acc:not(.acc-open){padding-top:16px;padding-bottom:16px;margin-bottom:10px}
+html.clean .acc:not(.acc-open):hover{background:var(--primary-soft)}
+.clean-tg{display:flex;gap:8px;align-items:flex-start;margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);line-height:1.6;cursor:pointer}
+/* דשבורד רגוע יותר */
+html.clean .forecast>p.sub:first-of-type,html.clean .forecast .fc-pend{display:none}
+html.clean .stats{margin-bottom:18px}
+html.clean .forecast{display:flex;flex-wrap:wrap;align-items:center;gap:10px 22px;padding-top:18px;padding-bottom:18px}
+html.clean .forecast>h2{margin:0}
+html.clean .forecast .fc-grid{display:block;margin:0}
+html.clean .forecast .fc-grid>div:not(.fc-end){display:none}
+html.clean .forecast .fc-end{display:flex;align-items:baseline;gap:10px;background:none;padding:0;margin:0}
+html.clean .forecast .fc-end b{font-size:24px}
+html.clean .forecast .tip{margin:0!important;flex:1;min-width:260px}
+html.clean .legend .cl-x{display:none}
+.cl-legmore{list-style:none;padding-top:6px}
+/* תפריט צד: שלושת הכפתורים התחתונים בשורה אחת קטנה */
+.side-mini{display:contents}
+html.clean .side-mini{display:flex;gap:6px;margin:10px 0 0;padding-top:10px;border-top:1px solid rgba(255,255,255,.14)}
+html.clean .side-mini>button{flex:1;justify-content:center;padding:9px 0;margin:0;min-width:0}
+html.clean .side-mini .sm-txt{display:none}
+html.clean .side-mini .sm-i{font-size:19px}
+@media print{.cl-inbox,.tb-more{display:none!important}.cl-more>summary{display:none}.cl-more:not([open])>.cl-more-body{display:block}}
 </style>
 <script>
 /* ---------- התאמת מראה: רץ לפני שהדף מצויר, כדי שלא יהבהב בצבעים הקודמים ----------
@@ -4010,7 +4065,7 @@ function render() {
    השקופיות הן תמונות בתיקייה assets שליד הקובץ. מדיניות האבטחה מתירה תמונות רק מהאתר עצמו ('self'),
    כך ששום דבר לא נטען מבחוץ. החלון נפתח מעל הדשבורד ומתחת למסך הנעילה. */
 const GUIDE = {
-  n: 31, pdf: 'מדריך-למשתמש-כספי-הבית.pdf',
+  n: 32, pdf: 'מדריך-למשתמש-כספי-הבית.pdf',
   img: k => 'assets/' + (k < 10 ? '0' : '') + k + '.jpg'
 };
 const GUIDE_PDF = () => GUIDE.pdf;
@@ -6192,6 +6247,176 @@ pmShow = function (i) { _pmShowP11(i); const sl = document.querySelector('#pm .p
 const _pmPrintP11 = pmPrint;
 pmPrint = function () { _pmPrintP11(); document.querySelectorAll('#pmPrint .pp-body').forEach((b, k) => { b.dataset.k = k % 6; }); };
 
+/* ---------- שלב 13: "תצוגה מסודרת" – פחות עומס על המסך ----------
+   שכבה שרצה אחרי כל ציור מסך, בלי לשנות את המסכים עצמם. אפשר לכבות בהגדרות.
+   - בראש המסך: כפתור ראשי אחד + תפריט "⋯ עוד"
+   - הודעות, טיפים והמלצות – בתיבה סגורה אחת "עדכונים והמלצות"
+   - דשבורד: המספרים הראשיים למעלה, ונתונים נוספים מאחורי "עוד נתונים"
+   - הגדרות: כל כרטיס נפתח בלחיצה על הכותרת */
+const CLEAN_APP = (() => { try { return SHARE_IS_DIRA ? 'dira' : 'kaspei'; } catch (e) { return 'kaspei'; } })();
+const CLEAN_KEY = CLEAN_APP + '_clean', CLEAN_ST = CLEAN_APP + '_clean_state';
+function cleanOn() { try { return localStorage.getItem(CLEAN_KEY) !== '0'; } catch (e) { return true; } }
+function cleanState() { try { return JSON.parse(localStorage.getItem(CLEAN_ST) || '{}'); } catch (e) { return {}; } }
+function cleanSave(k, v) { const s = cleanState(); s[k] = v ? 1 : 0; try { localStorage.setItem(CLEAN_ST, JSON.stringify(s)); } catch (e) {} }
+const CLEAN_INBOX = ['nudge', 'tip-week', 'guide-card', 'sh-card', 'p4-note'];
+const CLEAN_ACC_TABS = ['settings', 'all'];
+const CLEAN_ACC_FIRST = ['all']; // בלשוניות האלה הכרטיס הראשון פתוח כברירת מחדל
+const CLEAN_ACC_OPEN = ['importCard'];
+const CLEAN_MORE = [/הכנסות מול הוצאות/, /סיכום לפי חודשים/, /עסקאות אחרונות/, /^מעשרות/];
+
+// בדירה חדשה המסכים הם לשוניות-משנה של "home" (ui.homeTab)
+function clTab() { return ui.tab === 'home' && ui.homeTab ? ui.homeTab : ui.tab; }
+function cleanTitle(el) { const h = el.querySelector(':scope > h2, :scope > .topbar h2, :scope > div > h2'); return h ? h.textContent.replace(/\s+/g, ' ').trim() : ''; }
+function cleanKey(el) { return (clTab() || '') + '|' + (el.id || cleanTitle(el).replace(/[\d·:,()'"״׳]/g, '').trim().slice(0, 30)); }
+
+function cleanTopbar(v) {
+  const tools = v.querySelector(':scope > .topbar .tb-tools');
+  if (!tools || tools.querySelector('.tb-more')) return;
+  const btns = [...tools.children].filter(b => b.tagName === 'BUTTON');
+  const keep = btns.find(b => b.dataset.action === 'pmOpen') || null;
+  const move = btns.filter(b => b !== keep);
+  if (move.length < 2) return;
+  const d = document.createElement('details'); d.className = 'tb-more';
+  d.innerHTML = '<summary title="עוד פעולות">⋯ עוד</summary><div class="tb-menu" role="menu"></div>';
+  const menu = d.querySelector('.tb-menu');
+  move.forEach(b => { b.setAttribute('role', 'menuitem'); menu.appendChild(b); });
+  tools.appendChild(d);
+}
+
+function cleanInbox(v) {
+  const items = [...v.children].filter(el => CLEAN_INBOX.some(c => el.classList.contains(c)) && !el.hidden);
+  if (!items.length) return;
+  const key = (clTab() || '') + '|inbox';
+  const d = document.createElement('details'); d.className = 'cl-inbox no-print';
+  if (cleanState()[key]) d.open = true;
+  d.innerHTML = `<summary><span class="cl-ico" aria-hidden="true">📬</span><b>עדכונים והמלצות</b><span class="cl-badge">${items.length}</span><span class="cl-hint">${esc(items.map(cleanInboxName).filter(Boolean).slice(0, 3).join(' · '))}</span></summary><div class="cl-inbox-body"></div>`;
+  items[0].before(d);
+  const body = d.querySelector('.cl-inbox-body'); items.forEach(el => body.appendChild(el));
+  d.addEventListener('toggle', () => cleanSave(key, d.open));
+}
+function cleanInboxName(el) {
+  if (el.classList.contains('tip-week')) return 'טיפ השבוע';
+  if (el.classList.contains('guide-card')) return 'מדריך למשתמש';
+  if (el.classList.contains('sh-card')) return 'שתפו חבר';
+  const b = el.querySelector('.nu-body > b, h2, b'); return b ? b.textContent.trim().slice(0, 32) : '';
+}
+
+function cleanDash(v) {
+  const L = S.settings.dashLayout || { order: [], hidden: [] };
+  // המספרים הראשיים לפני התחזית (רק אם המשתמש לא סידר בעצמו)
+  const st = v.querySelector(':scope > .stats'), fc = v.querySelector(':scope > .forecast');
+  if (st && fc && !L.order.length && (fc.compareDocumentPosition(st) & Node.DOCUMENT_POSITION_FOLLOWING)) fc.before(st);
+  // פילוח: 6 הקטגוריות הגדולות, והשאר בלחיצה
+  v.querySelectorAll('.donut-wrap > .legend').forEach(ul => {
+    const li = [...ul.children]; if (li.length <= 7 || ui.clLegAll) return;
+    li.slice(6).forEach(x => x.classList.add('cl-x'));
+    const more = document.createElement('li'); more.className = 'cl-legmore';
+    more.innerHTML = `<button type="button" class="linkbtn" data-action="clLegAll">+ עוד ${li.length - 6} קטגוריות</button>`;
+    ul.appendChild(more);
+  });
+  // נתונים נוספים מאחורי כפתור
+  const blocks = [...v.children].filter(el => !el.hidden && el.tagName !== 'DETAILS' && CLEAN_MORE.some(re => re.test(cleanTitle(el)) || [...el.querySelectorAll(':scope > section > h2')].some(h => re.test(h.textContent.trim()))));
+  if (!blocks.length) return;
+  const key = 'dash|more';
+  const d = document.createElement('details'); d.className = 'cl-more no-print-open';
+  if (cleanState()[key]) d.open = true;
+  const names = blocks.map(b => [cleanTitle(b), ...[...b.querySelectorAll(':scope > section > h2')].map(h => h.textContent.trim())].filter(Boolean).join(' · ')).join(' · ').replace(/\s*·\s*שנת \d+/g, '');
+  d.innerHTML = `<summary><span class="cl-ico" aria-hidden="true">📊</span><b>עוד נתונים</b><span class="cl-hint">${esc(names.slice(0, 90))}</span><span class="cl-chev" aria-hidden="true">▾</span></summary><div class="cl-more-body"></div>`;
+  blocks[0].before(d);
+  const body = d.querySelector('.cl-more-body'); blocks.forEach(b => body.appendChild(b));
+  // גרפים מצוירים לפי רוחב – כשפותחים, מציירים מחדש
+  d.addEventListener('toggle', () => { cleanSave(key, d.open); if (d.open) render(); });
+}
+
+function cleanAccordion(v) {
+  const st = cleanState();
+  const first = CLEAN_ACC_FIRST.includes(clTab());
+  [...v.querySelectorAll(':scope > section.card')].forEach((card, i) => {
+    if (card.classList.contains('acc')) return;
+    // הכותרת: h2 ישיר, או שורת כותרת (div) שמכילה h2 – למשל כותרת עם כפתורים לצידה
+    const h = card.querySelector(':scope > h2') || [...card.children].find(c => c.tagName === 'DIV' && c.querySelector(':scope > h2, :scope > div > h2'));
+    if (!h || h !== card.firstElementChild) return;
+    const key = cleanKey(card);
+    const body = document.createElement('div'); body.className = 'acc-body';
+    let n = h.nextSibling; while (n) { const nx = n.nextSibling; body.appendChild(n); n = nx; }
+    card.appendChild(body); card.classList.add('acc'); card.dataset.acc = key;
+    h.classList.add('acc-head');
+    const t = h.tagName === 'H2' ? h : h.querySelector('h2');
+    h.setAttribute('role', 'button'); h.tabIndex = 0;
+    t.insertAdjacentHTML('beforeend', '<span class="acc-chev" aria-hidden="true">▾</span>');
+    const def = CLEAN_ACC_OPEN.includes(card.id) || (first && i === 0);
+    cleanAccSet(card, st[key] === undefined ? def : st[key] === 1, true);
+  });
+}
+function cleanAccSet(card, open, quiet) {
+  card.classList.toggle('acc-open', open);
+  const h = card.querySelector(':scope > .acc-head'); if (h) h.setAttribute('aria-expanded', open ? 'true' : 'false');
+  if (!quiet) cleanSave(card.dataset.acc, open);
+}
+
+function cleanSide() {
+  const a = document.querySelector('aside'); if (!a || a.querySelector('.side-mini')) return;
+  const bs = [...a.querySelectorAll('.side-share, .side-vid, .side-look')]; if (bs.length < 2) return;
+  const row = document.createElement('div'); row.className = 'side-mini';
+  bs[0].before(row);
+  bs.forEach(b => {
+    const t = b.textContent.trim(), m = t.match(/^(\S+)\s+(.+)$/);
+    if (m && !b.querySelector('.sm-txt')) b.innerHTML = `<span class="sm-i" aria-hidden="true">${esc(m[1])}</span><span class="sm-txt">${esc(m[2])}</span>`;
+    b.title = m ? m[2] : t; b.setAttribute('aria-label', m ? m[2] : t);
+    row.appendChild(b);
+  });
+}
+
+function cleanSettingsToggle(v) {
+  if (clTab() !== 'settings' || v.querySelector('#cleanTg')) return;
+  const look = v.querySelector('.look-card .acc-body') || v.querySelector('.look-card');
+  const el = document.createElement('label'); el.className = 'clean-tg';
+  el.innerHTML = `<input type="checkbox" id="cleanTg"${cleanOn() ? ' checked' : ''}> <b>תצוגה מסודרת</b> – פחות עומס: הודעות בתיבה אחת, נתונים נוספים מאחורי כפתור, והגדרות שנפתחות בלחיצה`;
+  if (look) look.appendChild(el); else v.querySelector('.topbar')?.after(el);
+}
+
+function cleanApply() {
+  const v = document.getElementById('view'); if (!v) return;
+  document.documentElement.classList.toggle('clean', cleanOn());
+  cleanSide();
+  if (!cleanOn()) { cleanSettingsToggle(v); return; }
+  if (ui.dashEdit && clTab() === 'dash') return;
+  cleanTopbar(v);
+  cleanInbox(v);
+  // דירה חדשה: שורת הלשוניות שמתחת לכותרת חוזרת על תפריט הצד – מסתירים אותה כשתפריט הצד גלוי
+  const ht = v.querySelector('.h-tabs'), as = document.querySelector('aside');
+  if (ht && as) { const r = as.getBoundingClientRect(), cs = getComputedStyle(as); ht.hidden = r.width > 120 && r.right > 0 && r.left < innerWidth && cs.display !== 'none' && cs.visibility !== 'hidden'; }
+  if (clTab() === 'dash') cleanDash(v);
+  if (CLEAN_ACC_TABS.includes(clTab())) cleanAccordion(v);
+  cleanSettingsToggle(v);
+}
+Object.assign(ACTIONS, { clLegAll: () => { ui.clLegAll = true; render(); } });
+const _renderP13 = render;
+render = function (...a) { const r = _renderP13.apply(this, a); try { cleanApply(); } catch (e) { console.warn('תצוגה מסודרת:', e); } return r; };
+
+document.addEventListener('click', e => {
+  const h = e.target.closest && e.target.closest('.acc > .acc-head');
+  if (h && !e.target.closest('button, a, input, select, label')) { const c = h.parentElement; cleanAccSet(c, !c.classList.contains('acc-open')); }
+  const m = e.target.closest && e.target.closest('.tb-menu button'); if (m) { const d = m.closest('details'); if (d) d.open = false; }
+  document.querySelectorAll('.tb-more[open]').forEach(d => { if (!d.contains(e.target)) d.open = false; });
+});
+document.addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('.acc > .acc-head')) { e.preventDefault(); const c = e.target.parentElement; cleanAccSet(c, !c.classList.contains('acc-open')); }
+  if (e.key === 'Escape') document.querySelectorAll('.tb-more[open]').forEach(d => { d.open = false; });
+});
+document.addEventListener('change', e => {
+  if (e.target && e.target.id === 'cleanTg') { try { localStorage.setItem(CLEAN_KEY, e.target.checked ? '1' : '0'); } catch (x) {} toast(e.target.checked ? 'תצוגה מסודרת הופעלה' : 'מוצג הכל, כמו קודם'); render(); }
+});
+// קוד שגולל לכרטיס סגור (למשל מתוך הודעה) – פותח אותו קודם
+const _sivP13 = Element.prototype.scrollIntoView;
+Element.prototype.scrollIntoView = function (...a) {
+  try {
+    const c = this.closest && this.closest('.acc:not(.acc-open)'); if (c) cleanAccSet(c, true, true);
+    const d = this.closest && this.closest('details.cl-more:not([open]), details.cl-inbox:not([open])'); if (d && d !== this) d.open = true;
+  } catch (e) {}
+  return _sivP13.apply(this, a);
+};
+
 /* ---------- חלון "התאמת מראה" ---------- */
 const LOOK_OPTS = [
   ['mode', 'מצב תצוגה', [['light', '☀️ בהיר'], ['dark', '🌙 כהה'], ['auto', '🖥️ לפי המחשב']]],
@@ -6412,7 +6637,7 @@ const QR = (() => {
       CRYPT = { key: await deriveKey(f.p1.value, salt), salt };
       persist(); await encChain; await rememberKey();
       el.hidden = true; el.innerHTML = ''; resetIdle(); render();
-      toast('הסיסמה נשמרה והנתונים מוצפנים. מומלץ להפעיל גם אימות כפול בהגדרות');
+      toast('הסיסמה נשמרה והנתונים מוצפנים. מומלץ לשמור קובץ גיבוי מדי פעם (בהגדרות וגיבוי)');
     });
     setTimeout(() => f.p1.focus(), 50);
   }
