@@ -508,6 +508,23 @@ html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *:
 .look-mini{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
 .look-mini button{width:34px;height:34px;border-radius:50%;border:3px solid var(--card);box-shadow:0 0 0 1.5px var(--border);cursor:pointer;padding:0}
 .look-mini button.on{box-shadow:0 0 0 2.5px var(--primary)}
+/* שלב 7: פרטי מסך וסקר */
+.req-snap{display:grid;gap:6px;margin:4px 0 8px;font-size:14px}
+.req-snap-chk{display:flex!important;flex-direction:row!important;gap:8px;align-items:flex-start;font-weight:600}
+.req-snap-chk input{width:auto;margin-top:3px}
+.req-snap summary{cursor:pointer;opacity:.75;font-size:13px}
+.req-snap-pre{white-space:pre-wrap;direction:rtl;text-align:right;font-family:inherit;font-size:12.5px;line-height:1.7;background:rgba(127,127,127,.1);border-radius:8px;padding:8px 10px;margin:6px 0 0;max-height:160px;overflow:auto}
+.req-svy-link{border:0;background:none;color:var(--primary,#4f46e5);font:inherit;font-size:14px;font-weight:700;cursor:pointer;text-align:start;padding:2px 0}
+.svy-card{max-width:520px;max-height:92vh;overflow:auto}
+.svy-q{border:0;padding:0;margin:4px 0}
+.svy-q legend{font-weight:700;margin-bottom:6px}
+.svy-stars{display:flex;flex-wrap:wrap;gap:6px}
+.svy-stars label,.svy-opts label{display:inline-flex!important;flex-direction:row!important;align-items:center;gap:6px;border:1px solid var(--border,#ddd);border-radius:10px;padding:6px 10px;cursor:pointer;font-weight:500}
+.svy-stars input,.svy-opts input{width:auto;margin:0}
+.svy-stars span{color:#f59e0b;letter-spacing:1px}
+.svy-opts{display:flex;flex-wrap:wrap;gap:6px}
+.svy-bar{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:60;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;max-width:calc(100vw - 24px);padding:10px 14px;border-radius:14px;background:var(--card,#fff);color:inherit;box-shadow:0 10px 30px rgba(0,0,0,.18);border:1px solid var(--border,#e5e7eb);font-size:15px}
+@media print{.svy-bar{display:none}}
 /* שלב 6: ייבוא מהבנקים ומנויים */
 .imp-bank{margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(15,157,88,.09);border:1px solid rgba(15,157,88,.3);line-height:1.7}
 .imp-cols{margin-top:10px}
@@ -5814,6 +5831,123 @@ const QR = (() => {
     setTimeout(() => el.querySelector('input').focus(), 50);
   }
   $('#reqOpen').addEventListener('click', openReq);
+  window.reqPost = body => fetch('https://formsubmit.co/ajax/' + TO, { method: 'POST', referrerPolicy: 'origin', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) });
+})();
+/* ---------- שלב 7: פרטי מסך בפנייה (בלי נתונים כספיים) וסקר קצר ---------- */
+(function () {
+  const APPN = /דירה/.test(document.title) ? 'דירה חדשה' : 'כספי הבית', KEY = /דירה/.test(document.title) ? 'dira' : 'kaspei';
+  const ls = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
+  // שגיאות והודעות אחרונות – רק לצורך "פרטי המסך"
+  const lastErr = [], lastToast = [];
+  const keep = (a, v) => { a.push(v); if (a.length > 3) a.shift(); };
+  window.addEventListener('error', e => keep(lastErr, String(e.message || '').slice(0, 140)));
+  window.addEventListener('unhandledrejection', e => keep(lastErr, String((e.reason && e.reason.message) || e.reason || '').slice(0, 140)));
+  const tEl = document.getElementById('toast');
+  if (tEl) new MutationObserver(() => { const t = tEl.textContent.trim(); if (t && t !== lastToast[lastToast.length - 1]) keep(lastToast, t.slice(0, 120)); }).observe(tEl, { childList: true, characterData: true, subtree: true });
+  // הסתרה: כל ספרה הופכת ל-#, וכל טקסט במירכאות (שמות, תיאורים) מוסתר
+  const mask = s => String(s || '').replace(/\s+/g, ' ').trim().replace(/["“”״][^"“”״]{0,80}["“”״]/g, '"…"').replace(/\d/g, '#').slice(0, 70);
+  function snapText() {
+    const v = document.getElementById('view'), L = [];
+    const h1 = v && v.querySelector('h1');
+    L.push('תוכנה: ' + APPN + ' (גרסת קישור)');
+    L.push('מסך: ' + (h1 ? mask(h1.textContent) : '—') + (typeof ui !== 'undefined' ? ` [${mask(ui.tab || '')}${ui.homeTab ? '/' + mask(ui.homeTab) : ''}]` : ''));
+    const h2 = v ? [...v.querySelectorAll('h2')].map(h => mask(h.textContent)).filter(Boolean).slice(0, 12) : [];
+    if (h2.length) L.push('חלקים במסך: ' + h2.join(' | '));
+    const dlg = [...document.querySelectorAll('.auth:not([hidden]):not(#reqBox):not(#svyBox) h2, #wn h2')].map(h => mask(h.textContent)).filter(Boolean);
+    if (dlg.length) L.push('חלון פתוח: ' + dlg.join(' | '));
+    if (lastToast.length) L.push('הודעות אחרונות: ' + lastToast.map(mask).join(' | '));
+    if (lastErr.length) L.push('שגיאות אחרונות: ' + lastErr.map(mask).join(' | '));
+    const ua = navigator.userAgent, m = ua.match(/Edg\/(\d+)/) ? 'Edge ' + ua.match(/Edg\/(\d+)/)[1] : ua.match(/Chrome\/(\d+)/) ? 'Chrome ' + ua.match(/Chrome\/(\d+)/)[1] : ua.match(/Firefox\/(\d+)/) ? 'Firefox ' + ua.match(/Firefox\/(\d+)/)[1] : /Safari/.test(ua) ? 'Safari' : 'אחר';
+    L.push(`דפדפן: ${m} · ${/Android|iPhone|iPad/.test(ua) ? 'טלפון/טאבלט' : 'מחשב'} · חלון ${innerWidth}×${innerHeight}${matchMedia('(display-mode: standalone)').matches ? ' · מותקן כאפליקציה' : ''}`);
+    return L.join('\n');
+  }
+  // ההודעה עצמה נשלחת בקוד הקיים; כאן רק מוסיפים לה את פרטי המסך כשהמשתמש בחר בכך
+  let pendingSnap = null;
+  const _fetch = window.fetch.bind(window);
+  window.fetch = function (url, opts) {
+    if (pendingSnap && typeof url === 'string' && url.includes('formsubmit.co/ajax/') && opts && typeof opts.body === 'string') {
+      try { const b = JSON.parse(opts.body); if (b['הודעה'] !== undefined) { b['פרטי המסך (בלי סכומים)'] = pendingSnap; opts = Object.assign({}, opts, { body: JSON.stringify(b) }); } } catch (e) {}
+      pendingSnap = null;
+    }
+    return _fetch(url, opts);
+  };
+  const reqBtn = document.getElementById('reqOpen');
+  // החלון נבנה במאזין הקיים, ולכן מוסיפים את החלק החדש מיד אחריו
+  if (reqBtn) reqBtn.addEventListener('click', () => setTimeout(() => {
+    const f = document.getElementById('reqForm'); if (!f || f.querySelector('.req-snap')) return;
+    const snap = snapText(), box = document.createElement('div'); box.className = 'req-snap';
+    box.innerHTML = `<label class="req-snap-chk"><input type="checkbox" name="snap" checked> 📸 לצרף את פרטי המסך שאני נמצא בו – בלי סכומים, בלי שמות ובלי נתונים</label>
+      <details><summary>מה בדיוק יישלח?</summary><pre class="req-snap-pre"></pre></details>
+      <button type="button" class="req-svy-link">📋 או: למלא סקר קצר (חצי דקה)</button>`;
+    box.querySelector('pre').textContent = snap;
+    f.insertBefore(box, f.querySelector('#reqMsg'));
+    box.querySelector('.req-svy-link').addEventListener('click', () => { const b = document.getElementById('reqBox'); if (b) b.remove(); openSurvey(); });
+    // שלב הלכידה רץ לפני מאזין השליחה הקיים
+    f.addEventListener('submit', () => { pendingSnap = f.elements.snap && f.elements.snap.checked ? snap : null; }, true);
+  }, 0));
+
+  /* סקר קצר: מוצג פעם אחת אחרי 10 ימי שימוש, ואפשר לפתוח אותו מחלון הפניות */
+  const FEAT = APPN === 'כספי הבית'
+    ? ['לוח הבקרה', 'רישום הוצאות והכנסות', 'ייבוא מהבנק והאשראי', 'תקציב', 'מעשרות', 'דוחות', 'תכנון וחיסכון', 'מצב פשוט']
+    : ['משימות', 'חוזה ותשלומים', 'הוצאות', 'הלוואות ומימון', 'אנשי קשר', 'מיילים וקבצים', 'ציוד לדירה', 'ליקויים למסירה'];
+  function openSurvey() {
+    if (document.getElementById('svyBox')) return;
+    const el = document.createElement('div'); el.className = 'auth'; el.id = 'svyBox';
+    el.innerHTML = `<div class="auth-card svy-card"><form id="svyForm"><h2>📋 סקר קצר – ${APPN}</h2>
+      <p class="sub" style="text-align:center;margin:0">חצי דקה, בלי שם ובלי נתונים. עוזר לשפר את התוכנה 🙏</p>
+      <fieldset class="svy-q"><legend>כמה התוכנה עוזרת לכם?</legend><div class="svy-stars">${[1, 2, 3, 4, 5].map(n => `<label><input type="radio" name="stars" value="${n}"><span>${'★'.repeat(n)}</span></label>`).join('')}</div></fieldset>
+      <fieldset class="svy-q"><legend>מה הכי שימושי? (אפשר כמה)</legend><div class="svy-opts">${FEAT.map(x => `<label><input type="checkbox" name="feat" value="${x}"> ${x}</label>`).join('')}</div></fieldset>
+      <label>מה חסר, או מה היה עוזר לכם?<textarea name="miss" rows="3" maxlength="1000" placeholder="רשות"></textarea></label>
+      <fieldset class="svy-q"><legend>הייתם ממליצים לחברים?</legend><div class="svy-opts">${['כן', 'אולי', 'לא'].map(x => `<label><input type="radio" name="rec" value="${x}"> ${x}</label>`).join('')}</div></fieldset>
+      <label>איך הגעתם לתוכנה?<select name="src"><option value="">—</option><option>חבר או משפחה</option><option>ישעיה גליק</option><option>קהילה או בית כנסת</option><option>אחר</option></select></label>
+      <div class="auth-msg" id="svyMsg" hidden></div>
+      <button class="btn primary">שליחה</button><button type="button" class="btn" data-x>סגירה</button></form></div>`;
+    document.body.appendChild(el);
+    const close = () => el.remove();
+    el.querySelector('[data-x]').addEventListener('click', close);
+    el.addEventListener('click', e => { if (e.target === el) close(); });
+    el.querySelector('#svyForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const f = e.target, btn = f.querySelector('button.primary'), m = el.querySelector('#svyMsg');
+      const err = t => { m.hidden = false; m.className = 'auth-msg err'; m.textContent = t; };
+      const stars = (f.querySelector('[name=stars]:checked') || {}).value;
+      if (!stars) return err('צריך לבחור כמה כוכבים');
+      if (typeof window.reqPost !== 'function') return err('השליחה לא זמינה כרגע');
+      btn.disabled = true; btn.textContent = 'שולח…';
+      const body = { 'תוכנה': APPN, 'כמה עוזרת (1–5)': stars, 'הכי שימושי': [...f.querySelectorAll('[name=feat]:checked')].map(x => x.value).join(', ') || '—',
+        'מה חסר': f.miss.value.trim() || '—', 'ממליצים': (f.querySelector('[name=rec]:checked') || {}).value || '—', 'איך הגיעו': f.src.value || '—',
+        _subject: 'סקר קצר – ' + APPN, _template: 'table', _captcha: 'false' };
+      try {
+        const r = await window.reqPost(body), d = await r.json().catch(() => ({}));
+        if (!r.ok || String(d.success) === 'false') throw new Error('failed');
+        ls.set('sai_survey_' + KEY, 'done');
+        el.querySelector('.auth-card').innerHTML = '<div class="req-done"><h2>✅ תודה רבה!</h2><p>התשובות התקבלו.</p><button class="btn primary" type="button">סגירה</button></div>';
+        el.querySelector('.req-done button').addEventListener('click', close);
+        const bar = document.getElementById('svyBar'); if (bar) bar.remove();
+      } catch (x) { btn.disabled = false; btn.textContent = 'שליחה'; err('השליחה לא הצליחה (אולי אין חיבור לאינטרנט). אפשר לנסות שוב מאוחר יותר.'); }
+    });
+    setTimeout(() => { const i = el.querySelector('input'); if (i) i.focus(); }, 50);
+  }
+  window.openSurvey = openSurvey;
+  // ההזמנה לסקר: פס קטן בתחתית, אחרי 10 ימים מהשימוש הראשון. "לא עכשיו" = עוד שבועיים, "לא להציג שוב" = לעולם
+  const FIRST = 'sai_first_use_' + KEY, SV = 'sai_survey_' + KEY;
+  if (!ls.get(FIRST)) ls.set(FIRST, new Date().toISOString().slice(0, 10));
+  function surveyBar() {
+    const st = ls.get(SV) || '', first = ls.get(FIRST), now = new Date().toISOString().slice(0, 10);
+    if (st === 'done' || st === 'never' || (st && st > now) || document.getElementById('svyBar')) return;
+    if (!first || (Date.parse(now) - Date.parse(first)) / 864e5 < 10) return;
+    const lock = document.getElementById('lock'); if (lock && !lock.hidden) return setTimeout(surveyBar, 30000);
+    const b = document.createElement('div'); b.id = 'svyBar'; b.className = 'svy-bar'; b.setAttribute('role', 'region'); b.setAttribute('aria-label', 'הזמנה לסקר');
+    b.innerHTML = `<span>📋 סקר קצר (חצי דקה) – עוזר לשפר את ${APPN}</span><button type="button" class="btn sm primary" data-s="go">למילוי</button><button type="button" class="btn sm" data-s="later">לא עכשיו</button><button type="button" class="btn sm" data-s="never">לא להציג שוב</button>`;
+    b.addEventListener('click', e => {
+      const a = e.target.dataset && e.target.dataset.s; if (!a) return;
+      if (a === 'go') openSurvey();
+      else { if (a === 'later') { const d = new Date(); d.setDate(d.getDate() + 14); ls.set(SV, d.toISOString().slice(0, 10)); } else ls.set(SV, 'never'); b.remove(); }
+    });
+    document.body.appendChild(b);
+  }
+  setTimeout(surveyBar, 15000);
+  window.surveyBar = surveyBar;
 })();
 </script>
 </body>
