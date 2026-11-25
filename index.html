@@ -508,6 +508,14 @@ html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *:
 .look-mini{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
 .look-mini button{width:34px;height:34px;border-radius:50%;border:3px solid var(--card);box-shadow:0 0 0 1.5px var(--border);cursor:pointer;padding:0}
 .look-mini button.on{box-shadow:0 0 0 2.5px var(--primary)}
+/* שלב 6: ייבוא מהבנקים ומנויים */
+.imp-bank{margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(15,157,88,.09);border:1px solid rgba(15,157,88,.3);line-height:1.7}
+.imp-cols{margin-top:10px}
+.imp-cols>summary{cursor:pointer;font-weight:600;opacity:.8;padding:4px 0}
+.subs-q{white-space:nowrap}
+.subs-q .btn{margin-inline-end:6px}
+.subs-list{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:8px}
+.subs-list li{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 10px;border:1px solid var(--border,#e5e7eb);border-radius:10px}
 /* שלב 4 (משותף) */
 .gs-wrap{display:flex;gap:6px;align-items:center;margin:0 0 14px;width:100%;align-self:stretch;box-sizing:border-box}
 .gs-wrap input{flex:1;min-width:120px;width:auto;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:inherit;font:inherit;font-size:14px}
@@ -2084,7 +2092,7 @@ BIND.settings = () => {
         const isZip = head[0] === 0x50 && head[1] === 0x4b, isBiff = head[0] === 0xd0 && head[1] === 0xcf;
         // הרבה בנקים מורידים "xls" שהוא בעצם דף אינטרנט עם טבלה – קוראים אותו כטבלה
         const asText = !isZip && !isBiff ? decodeText(buf) : '';
-        if (isBiff) { bad.push(`${file.name} (פורמט xls ישן: לפתוח באקסל ולשמור בשם כ־xlsx)`); continue; }
+        if (isBiff) { try { const xs = readXls(buf).filter(x => x.rows.length >= 2); if (xs.length) { queue.push({ name: file.name, sheets: xs }); continue; } } catch (err) {} bad.push(`${file.name} (קובץ xls ישן שלא הצלחתי לקרוא: לפתוח באקסל ולשמור בשם כ־xlsx)`); continue; }
         const sheets = (isZip ? await readXlsx(buf) : /<table/i.test(asText) ? readHtmlTables(asText, file.name) : [{ name: file.name, rows: parseCSV(asText) }]).filter(s => s.rows.length >= 2);
         if (sheets.length) queue.push({ name: file.name, sheets }); else bad.push(`${file.name} (אין בו שורות)`);
       } catch (err) { bad.push(`${file.name} (לא הצלחתי לקרוא)`); }
@@ -5136,6 +5144,253 @@ Object.assign(ACTIONS, {
   },
   dkHide: el => { const b = el.closest('[data-dk]'); if (!b) return; const L = dashLayout(), k = b.dataset.dk; L.hidden = L.hidden.includes(k) ? L.hidden.filter(x => x !== k) : [...L.hidden, k]; if (!L.order.length) L.order = dkCurrent(); save(); render(); },
   hcalGo: el => { const d = +el.dataset.d; ui.hcal = d ? (ui.hcal || 0) + d : 0; render(); const c = document.querySelector('.hcal'); if (c) c.scrollIntoView({ block: 'start' }); }
+});
+
+/* ---------- שלב 6: ייבוא ישיר מכל הבנקים וחברות האשראי, ומנויים שנשכחו ---------- */
+// קריאת קובץ xls ישן (BIFF8 בתוך מכולה של Office) בלי ספריות חיצוניות. מחזיר [{name, rows}]
+function readXls(buf) {
+  const u8 = new Uint8Array(buf), dv = new DataView(buf), END = 0xfffffffa;
+  if (dv.getUint32(0, true) !== 0xe011cfd0) throw new Error('not cfb');
+  const ssz = 1 << dv.getUint16(30, true), msz = 1 << dv.getUint16(32, true), cutoff = dv.getUint32(56, true);
+  const at = n => (n + 1) * ssz;
+  // טבלת ההקצאה (FAT): 109 הסקטורים הראשונים בכותרת, והשאר בשרשרת DIFAT
+  const difat = [];
+  for (let i = 0; i < 109; i++) difat.push(dv.getUint32(76 + i * 4, true));
+  for (let d = dv.getUint32(68, true), guard = 0; d < END && guard < 10000; guard++) {
+    for (let i = 0; i < ssz / 4 - 1; i++) difat.push(dv.getUint32(at(d) + i * 4, true));
+    d = dv.getUint32(at(d) + ssz - 4, true);
+  }
+  const fat = [];
+  difat.filter(s => s < END && at(s) + ssz <= u8.length).forEach(s => { for (let i = 0; i < ssz / 4; i++) fat.push(dv.getUint32(at(s) + i * 4, true)); });
+  const chain = (start, table) => { const out = []; for (let s = start, g = 0; s < END && g < 1e6; g++) { out.push(s); s = table[s]; if (s === undefined) break; } return out; };
+  const readBig = (start, size) => { const ids = chain(start, fat), out = new Uint8Array(ids.length * ssz); ids.forEach((s, i) => out.set(u8.subarray(at(s), Math.min(u8.length, at(s) + ssz)), i * ssz)); return size == null ? out : out.subarray(0, size); };
+  const dir = readBig(dv.getUint32(48, true)), ddv = new DataView(dir.buffer, dir.byteOffset, dir.byteLength), ents = [];
+  for (let o = 0; o + 128 <= dir.length; o += 128) {
+    const nl = ddv.getUint16(o + 64, true); let name = '';
+    for (let i = 0; i < Math.max(0, nl - 2); i += 2) name += String.fromCharCode(ddv.getUint16(o + i, true));
+    ents.push({ name, type: dir[o + 66], start: ddv.getUint32(o + 116, true), size: ddv.getUint32(o + 120, true) });
+  }
+  const wbe = ents.find(e => e.type === 2 && /^(workbook|book)$/i.test(e.name));
+  if (!wbe) throw new Error('no workbook');
+  let W;
+  if (wbe.size < cutoff) {
+    // זרם קטן: יושב בתוך ה"מיני־זרם" של שורש הקובץ
+    const root = readBig(ents[0].start), mfat = [], mf = readBig(dv.getUint32(60, true)), mdv = new DataView(mf.buffer, mf.byteOffset, mf.byteLength);
+    for (let i = 0; i + 4 <= mf.length && i / 4 < dv.getUint32(64, true) * ssz / 4; i += 4) mfat.push(mdv.getUint32(i, true));
+    const ids = chain(wbe.start, mfat); W = new Uint8Array(ids.length * msz);
+    ids.forEach((s, i) => W.set(root.subarray(s * msz, s * msz + msz), i * msz)); W = W.subarray(0, wbe.size);
+  } else W = readBig(wbe.start, wbe.size);
+  const wv = new DataView(W.buffer, W.byteOffset, W.byteLength), recs = [];
+  for (let p = 0; p + 4 <= W.length;) { const type = wv.getUint16(p, true), len = wv.getUint16(p + 2, true); recs.push({ type, off: p + 4, len, pos: p }); p += 4 + len; }
+  const latin = (o, n) => { let s = ''; for (let i = 0; i < n; i++) s += String.fromCharCode(W[o + i]); return s; };
+  const utf16 = (o, n) => { let s = ''; for (let i = 0; i < n; i++) s += String.fromCharCode(wv.getUint16(o + i * 2, true)); return s; };
+  // מחרוזת בתוך רשומה אחת: אורך (1 או 2 בתים), דגלים, ואז התווים
+  const xlStr = (o, wide) => {
+    const cch = wide ? wv.getUint16(o, true) : W[o], f = W[o + (wide ? 2 : 1)]; let p = o + (wide ? 3 : 2);
+    if (f & 8) p += 2; if (f & 4) p += 4;
+    return f & 1 ? utf16(p, cch) : latin(p, cch);
+  };
+  const fmts = {}, xfs = [], sst = [], sheetsMeta = [];
+  let i = 0;
+  for (; i < recs.length; i++) {
+    const r = recs[i];
+    if (r.type === 0x41e) fmts[wv.getUint16(r.off, true)] = xlStr(r.off + 2, true);
+    else if (r.type === 0xe0) xfs.push(wv.getUint16(r.off + 2, true));
+    else if (r.type === 0x85) sheetsMeta.push({ pos: wv.getUint32(r.off, true), kind: W[r.off + 5], name: xlStr(r.off + 6, false) });
+    else if (r.type === 0xfc) {
+      // טבלת המחרוזות המשותפת, שיכולה להימשך על פני כמה רשומות CONTINUE
+      const segs = [[r.off, r.off + r.len]];
+      for (let j = i + 1; j < recs.length && recs[j].type === 0x3c; j++) segs.push([recs[j].off, recs[j].off + recs[j].len]);
+      let si = 0, p = segs[0][0];
+      const fix = () => { while (si < segs.length - 1 && p >= segs[si][1]) { si++; p = segs[si][0]; } };
+      const b8 = () => { fix(); return W[p++]; }, b16 = () => b8() | (b8() << 8), b32 = () => (b16() | (b16() << 16)) >>> 0;
+      const skip = n => { while (n > 0) { fix(); const k = Math.min(n, segs[si][1] - p); p += k; n -= k; if (k === 0 && si >= segs.length - 1) break; } };
+      b32(); const uniq = b32();
+      for (let k = 0; k < uniq && si < segs.length && p < segs[segs.length - 1][1]; k++) {
+        const cch = b16(), f = b8(); let high = f & 1, runs = 0, ext = 0, s = '';
+        if (f & 8) runs = b16(); if (f & 4) ext = b32();
+        let left = cch;
+        while (left > 0) {
+          if (p >= segs[si][1]) { if (si >= segs.length - 1) break; si++; p = segs[si][0]; high = W[p++] & 1; }
+          const n = Math.min(left, Math.floor((segs[si][1] - p) / (high ? 2 : 1)));
+          s += high ? utf16(p, n) : latin(p, n); p += n * (high ? 2 : 1); left -= n;
+          if (n === 0 && p < segs[si][1]) break;
+        }
+        skip(runs * 4); skip(ext); sst.push(s);
+      }
+    }
+    else if (r.type === 0x0a) break;
+  }
+  const isDateXf = x => { const id = xfs[x]; if (id == null) return false; if ((id >= 14 && id <= 22) || (id >= 45 && id <= 47)) return true; const c = (fmts[id] || '').replace(/\[[^\]]*\]|"[^"]*"/g, ''); return /[dy]/i.test(c); };
+  const rk = v => { const n = v & 2 ? (v | 0) >> 2 : (() => { const b = new DataView(new ArrayBuffer(8)); b.setUint32(4, (v & 0xfffffffc) >>> 0, true); return b.getFloat64(0, true); })(); return v & 1 ? n / 100 : n; };
+  const numVal = (n, x) => isDateXf(x) && n > 0 && n < 2958466 ? serialToISO(n) : String(+n.toFixed(10));
+  const out = [];
+  for (const sh of sheetsMeta.filter(s => s.kind === 0)) {
+    let k = recs.findIndex(r => r.pos === sh.pos); if (k < 0) continue;
+    const grid = new Map(), put = (row, col, v) => { if (!grid.has(row)) grid.set(row, []); grid.get(row)[col] = String(v).trim(); };
+    let pending = null;
+    for (k++; k < recs.length && recs[k].type !== 0x0a; k++) {
+      const r = recs[k], o = r.off, row = () => wv.getUint16(o, true), col = () => wv.getUint16(o + 2, true), xf = () => wv.getUint16(o + 4, true);
+      if (r.type === 0xfd) put(row(), col(), sst[wv.getUint32(o + 6, true)] ?? '');
+      else if (r.type === 0x203) put(row(), col(), numVal(wv.getFloat64(o + 6, true), xf()));
+      else if (r.type === 0x27e) put(row(), col(), numVal(rk(wv.getUint32(o + 6, true)), xf()));
+      else if (r.type === 0xbd) { const rw = row(), c0 = col(), n = (r.len - 6) / 6; for (let j = 0; j < n; j++) put(rw, c0 + j, numVal(rk(wv.getUint32(o + 6 + j * 6, true)), wv.getUint16(o + 4 + j * 6, true))); }
+      else if (r.type === 0x204) put(row(), col(), xlStr(o + 6, true));
+      else if (r.type === 0x06) {
+        if (wv.getUint16(o + 12, true) === 0xffff) { if (W[o + 6] === 0) pending = [row(), col()]; }
+        else put(row(), col(), numVal(wv.getFloat64(o + 6, true), xf()));
+      }
+      else if (r.type === 0x207 && pending) { put(pending[0], pending[1], xlStr(o, true)); pending = null; }
+    }
+    const rows = [...grid.keys()].sort((a, b) => a - b).map(n => Array.from(grid.get(n), x => x ?? '')).filter(r => r.some(c => c));
+    out.push({ name: sh.name, rows });
+  }
+  return out;
+}
+
+// זיהוי הבנק או חברת האשראי לפי שמות העמודות, ואם אין – לפי שם הקובץ והשורות שמעל הכותרות
+const bkNorm = c => String(c || '').replace(/\s+/g, ' ').trim();
+const bkHas = (h, re) => h.some(c => re.test(bkNorm(c)));
+const bkWord = w => new RegExp(`(^|[^א-ת])(${w})([^א-ת]|$)`, 'i');
+const BANKS = [
+  { name: 'ישראכרט / אמריקן אקספרס', card: true, txt: bkWord('ישראכרט|אמריקן אקספרס|isracard|american express|amex'), head: h => bkHas(h, /שם בית ה?עסק/) && (bkHas(h, /מספר שובר/) || bkHas(h, /פירוט נוסף/)) },
+  { name: 'מקס (לאומי קארד)', card: true, txt: bkWord('max|מקס|לאומי קארד|leumi ?card'), head: h => bkHas(h, /ספרות אחרונות/) || bkHas(h, /^תיוג$/) },
+  { name: 'כאל', card: true, txt: bkWord('כאל|cal|visa cal|כרטיסי אשראי לישראל'), head: h => bkHas(h, /^ענף$/) && bkHas(h, /סכום/) },
+  { name: 'בנק הפועלים', txt: bkWord('בנק הפועלים|הפועלים|poalim|bank hapoalim'), head: h => bkHas(h, /^תיאור הפעולה$/) && bkHas(h, /יתרה לאחר/) },
+  { name: 'בנק לאומי', txt: bkWord('בנק לאומי|leumi'), head: h => bkHas(h, /^בחובה$/) && bkHas(h, /^בזכות$/) },
+  { name: 'בנק דיסקונט / מרכנתיל', txt: bkWord('דיסקונט|מרכנתיל|discount|mercantile'), head: h => bkHas(h, /זכות ?\/ ?חובה|חובה ?\/ ?זכות/) || (bkHas(h, /^תיאור התנועה$/) && bkHas(h, /^יום ערך$/)) },
+  { name: 'מזרחי טפחות', txt: bkWord('מזרחי|טפחות|mizrahi|tefahot'), head: h => bkHas(h, /^סוג תנועה$/) && (bkHas(h, /^חובה$/) || bkHas(h, /^זכות$/)) },
+  { name: 'הבינלאומי (וגם מסד, אוצר החייל, פאג"י)', txt: bkWord('הבינלאומי|fibi|אוצר החייל|מסד|פאג"?י|massad|otsar'), head: () => false },
+  { name: 'בנק יהב', txt: bkWord('יהב|yahav'), head: () => false },
+  { name: 'בנק ירושלים', txt: bkWord('בנק ירושלים|bank jerusalem'), head: () => false }
+];
+function detectBank(h, rows, header, fname) {
+  const byHead = BANKS.find(b => b.head(h || []));
+  if (byHead) return byHead;
+  const top = [fname || '', ...(rows || []).slice(0, Math.max(0, header)).map(r => r.join(' '))].join(' ');
+  return BANKS.find(b => b.txt.test(top)) || null;
+}
+// השלמות לזיהוי העמודות הכללי: עמודה אחת של "זכות/חובה" (דיסקונט), "סוג תנועה" כתיאור (מזרחי), "ענף" כקטגוריה (כאל)
+const _guessColsP6 = guessCols;
+guessCols = function (h) {
+  const c = _guessColsP6(h), H = (h || []).map(bkNorm);
+  const both = H.findIndex(x => /זכות ?\/ ?חובה|חובה ?\/ ?זכות/.test(x));
+  if (both >= 0) { c.amount = both; c.debit = -1; c.credit = -1; c.sign = 'neg-exp'; if (c.type === both) c.type = -1; }
+  if (c.desc < 0) { const d = H.findIndex(x => /^סוג תנועה$|^תיאור|^תנועה$/.test(x)); if (d >= 0) { c.desc = d; if (c.type === d) c.type = -1; } }
+  if (c.cat < 0) { const k = H.findIndex(x => /^ענף$/.test(x)); if (k >= 0) c.cat = k; }
+  return c;
+};
+function bankFix(cols, bank) { if (bank && bank.card && cols.amount >= 0) cols.sign = 'pos-exp'; return cols; }
+selectSheet = function (i) {
+  const rows = ui.imp.sheets[i].rows, header = findHeader(rows), q = ui.impQueue;
+  const fname = (q && q.files[q.i] ? q.files[q.i].name : '') + ' ' + (ui.imp.sheets[i].name || '');
+  const bank = detectBank(rows[header], rows, header, fname);
+  Object.assign(ui.imp, { sheet: i, rows, header, cols: bankFix(guessCols(rows[header]), bank), modes: null, bank: bank ? bank.name : '', bankCard: !!(bank && bank.card) });
+  renderImport();
+};
+// גיליון עם כמה חלקים (למשל ישראכרט: עסקאות בארץ ואחריהן עסקאות בחו"ל, עם סדר עמודות אחר) – כל חלק לפי הכותרות שלו
+const _buildImportP6 = buildImport;
+buildImport = function () {
+  const I = ui.imp; if (!I || !I.rows) return _buildImportP6();
+  const { rows, header, cols } = I, cuts = [];
+  for (let r = header + 1; r < rows.length; r++) if (headerScore(rows[r]) >= 4 && !parseDate(rows[r][cols.date])) cuts.push(r);
+  I.segN = cuts.length + 1;
+  if (!cuts.length) return _buildImportP6();
+  const segs = [[header, cols, cuts[0]], ...cuts.map((c, k) => [c, bankFix(guessCols(rows[c]), { card: I.bankCard }), cuts[k + 1] || rows.length])];
+  const out = [];
+  try {
+    for (const [h0, c0, end] of segs) {
+      Object.assign(I, { rows: rows.slice(0, end), header: h0, cols: c0 });
+      _buildImportP6().forEach(t => { t.src += h0 - header; out.push(t); });
+    }
+  } finally { Object.assign(I, { rows, header, cols }); }
+  return out;
+};
+const _renderImportP6 = renderImport;
+renderImport = function () {
+  _renderImportP6();
+  const panel = $('#impPanel'), I = ui.imp; if (!panel || !I) return;
+  const g = panel.querySelector('.grid-form'); if (!g || panel.querySelector('.imp-bank')) return;
+  const box = document.createElement('div'); box.className = 'imp-bank';
+  box.innerHTML = I.bank ? `🏦 זוהה: <b>${esc(I.bank)}</b> – העמודות סודרו אוטומטית. בודקים את הטבלה למטה ולוחצים "ייבוא".${I.segN > 1 ? `<br>📑 בגיליון יש ${I.segN} חלקים (למשל עסקאות בארץ ובחו"ל) – כולם נקראו, כל חלק לפי הכותרות שלו.` : ''}`
+    : `📄 הקובץ נקרא והעמודות זוהו לפי הכותרות.${I.segN > 1 ? ` בגיליון יש ${I.segN} חלקים – כולם נקראו.` : ''} אם משהו לא נכון – פותחים "בחירת עמודות".`;
+  const det = document.createElement('details'); det.className = 'imp-cols';
+  det.innerHTML = '<summary>⚙️ בחירת עמודות (רק אם משהו בטבלה לא נכון)</summary>';
+  if (ui.impColsOpen) det.open = true;
+  det.addEventListener('toggle', () => { ui.impColsOpen = det.open; });
+  g.parentNode.insertBefore(box, g); g.parentNode.insertBefore(det, g); det.appendChild(g);
+};
+
+/* מנויים וחיובים קטנים שחוזרים כל חודש – "עדיין צריך?" */
+const SUBS_SKIP = /מעשר|צדקה|שכר לימוד|תלמוד תורה|דיור|שכר דירה|משכנתא|ארנונה|הלוואה|חיסכון|קופת גמל|ועד בית/;
+function subsMonths(n) { const d = new Date(), out = []; for (let i = n - 1; i >= 0; i--) out.push(monthKey(new Date(d.getFullYear(), d.getMonth() - i, 1))); return out; }
+function subsFind() {
+  const ms = subsMonths(6), from = ms[0] + '-01', groups = {};
+  S.transactions.filter(t => t.type === 'expense' && t.date >= from && t.note && !SUBS_SKIP.test(t.category || '') && !(typeof skipAsExpense === 'function' && skipAsExpense(t))).forEach(t => {
+    const k = blockKey(t.note); if (!k || k.length < 2) return;
+    (groups[k] = groups[k] || []).push(t);
+  });
+  const lim = new Date(); lim.setDate(lim.getDate() - 45); const recent = lim.toISOString().slice(0, 10);
+  return Object.entries(groups).map(([key, L]) => {
+    const months = new Set(L.map(t => t.date.slice(0, 7))), am = L.map(t => t.amount).sort((a, b) => a - b), med = am[Math.floor(am.length / 2)];
+    const last = L.reduce((a, t) => t.date > a.date ? t : a);
+    return { key, name: last.note, cat: last.category, amt: med, months: months.size, year: Math.round(med * 12), last: last.date, rec: L.some(t => t.recurringId), stable: am[am.length - 1] <= am[0] * 1.3, perMonth: L.length / months.size };
+  }).filter(x => x.months >= 3 && x.amt >= 5 && x.amt <= 400 && x.stable && x.perMonth <= 1.5 && x.last >= recent).sort((a, b) => b.year - a.year);
+}
+const subsState = () => { const P = planS(); P.subs = P.subs || {}; return P.subs; };
+function subsOpen() {
+  const st = subsState(), yearAgo = new Date(); yearAgo.setFullYear(yearAgo.getFullYear() - 1); const ya = yearAgo.toISOString().slice(0, 10);
+  return subsFind().filter(x => !st[x.key] || (st[x.key].ans === 'keep' && st[x.key].at < ya));
+}
+function subsSection() {
+  const st = subsState(), open = subsOpen(), all = subsFind(), byKey = Object.fromEntries(all.map(x => [x.key, x]));
+  const cancel = Object.entries(st).filter(([, v]) => v.ans === 'cancel'), done = Object.entries(st).filter(([, v]) => v.ans === 'done');
+  // סומן "ביטלתי" אבל עדיין מגיע חיוב אחרי תאריך הביטול
+  const still = done.filter(([k, v]) => S.transactions.some(t => t.type === 'expense' && blockKey(t.note) === k && t.date > v.at));
+  const keep = Object.entries(st).filter(([, v]) => v.ans === 'keep');
+  const save1 = cancel.reduce((a, [k, v]) => a + (byKey[k] ? byKey[k].year : (v.amt || 0) * 12), 0);
+  const row = x => `<tr><td><b>${esc(x.name)}</b>${x.rec ? ' <span class="tag">🔁 קבועה</span>' : ''}<br><small class="sub">${esc(x.cat || '')}</small></td><td class="amount neg">${money(x.amt)}</td><td>${x.months} מתוך 6</td><td><b>${money(x.year)}</b></td>
+    <td class="subs-q"><button type="button" class="btn sm" data-action="subsAns" data-k="${esc(x.key)}" data-a="keep">✅ עדיין צריך</button><button type="button" class="btn sm danger" data-action="subsAns" data-k="${esc(x.key)}" data-a="cancel">✂️ לבטל</button></td></tr>`;
+  return `<section class="card" id="subsSec"><h2>🔎 מנויים וחיובים קטנים שחוזרים כל חודש</h2>
+    <p class="sub">חיובים קטנים וקבועים (עד ${money(400)} בחודש) שמופיעים ב־3 חודשים או יותר מתוך החצי שנה האחרונה. קל לשכוח מנוי שכבר לא צריך – ובשנה זה מצטבר. לכל אחד: עדיין צריך?</p>
+    ${still.length ? `<div class="dup-alert" style="margin:10px 0"><b class="neg">⚠️ סימנת שביטלת, אבל עדיין מגיע חיוב:</b> ${still.map(([, v]) => esc(v.name)).join(' · ')}. כדאי לבדוק מול החברה.</div>` : ''}
+    ${open.length ? `<div class="table-wrap"><table><thead><tr><th>חיוב</th><th>בחודש</th><th>הופיע</th><th>בשנה</th><th>עדיין צריך?</th></tr></thead><tbody>${open.map(row).join('')}</tbody></table></div>`
+      : `<p class="empty">${all.length ? 'עברנו על כל החיובים החוזרים ✔️' : 'לא נמצאו חיובים קטנים שחוזרים כל חודש'}</p>`}
+    ${cancel.length ? `<h3 style="margin-top:16px">✂️ לבטל (${cancel.length}) – חיסכון של כ־${money(save1)} בשנה</h3><ul class="subs-list">${cancel.map(([k, v]) => `<li><b>${esc(v.name)}</b> · ${money(byKey[k] ? byKey[k].amt : v.amt || 0)} בחודש
+      <button type="button" class="btn sm primary" data-action="subsAns" data-k="${esc(k)}" data-a="done">✔️ ביטלתי</button><button type="button" class="btn sm" data-action="subsAns" data-k="${esc(k)}" data-a="undo">↩️ החזרה</button></li>`).join('')}</ul>` : ''}
+    ${done.length || keep.length ? `<details style="margin-top:10px"><summary class="sub">כבר טופלו (${done.length + keep.length})</summary><ul class="subs-list">${[...done, ...keep].map(([k, v]) => `<li>${v.ans === 'done' ? '✔️ בוטל' : '✅ צריך'} – <b>${esc(v.name)}</b> <small class="sub">${gregDate(v.at)}</small> <button type="button" class="btn sm" data-action="subsAns" data-k="${esc(k)}" data-a="undo">↩️ לשאול שוב</button></li>`).join('')}</ul></details>` : ''}
+  </section>`;
+}
+const _planViewP6 = VIEWS.plan;
+VIEWS.plan = () => {
+  const h = _planViewP6(), s = subsSection(), open = subsOpen().length;
+  // כשיש שאלות פתוחות הכרטיס עולה למעלה, מתחת לכותרת
+  const i = open ? h.indexOf('<section') : -1;
+  return i >= 0 ? h.slice(0, i) + s + h.slice(i) : h + s;
+};
+function subsNudge() {
+  const P = planS(), open = subsOpen(); if (!open.length || P.subsLater === monthKey(new Date())) return '';
+  const y = open.reduce((a, x) => a + x.year, 0);
+  return `<div class="nudge subs-nudge" data-nu="subs"><span class="nu-ico" aria-hidden="true">🔎</span><div class="nu-body"><b>${open.length === 1 ? 'מצאנו חיוב קטן שחוזר כל חודש' : `מצאנו ${open.length} חיובים קטנים שחוזרים כל חודש`}</b>
+    <div class="nu-txt">${open.slice(0, 3).map(x => `${esc(x.name)} (${money(x.amt)})`).join(' · ')}${open.length > 3 ? ' ועוד' : ''} – בסך הכל כ־${money(y)} בשנה. עדיין צריך את כולם?</div>
+    <div class="nu-act"><button type="button" class="btn sm primary" data-action="subsGo">לבדיקה</button><button type="button" class="btn sm" data-action="subsLater">לא החודש</button></div></div></div>`;
+}
+const _dashViewP6 = VIEWS.dash;
+VIEWS.dash = () => {
+  const h = _dashViewP6(), c = subsNudge(); if (!c) return h;
+  const idx = ['<div class="nudge', '<section class="card first-steps', '<section class="card forecast', '<div class="stats">'].map(a => h.indexOf(a)).filter(i => i >= 0).sort((a, b) => a - b)[0];
+  return idx >= 0 ? h.slice(0, idx) + c + h.slice(idx) : c + h;
+};
+Object.assign(ACTIONS, {
+  subsAns: el => {
+    const st = subsState(), k = el.dataset.k, a = el.dataset.a, x = subsFind().find(s => s.key === k) || st[k] || {};
+    if (a === 'undo') delete st[k];
+    else st[k] = { ans: a, at: today(), name: x.name || (st[k] && st[k].name) || k, amt: x.amt || (st[k] && st[k].amt) || 0 };
+    save(); render();
+    toast(a === 'keep' ? 'סומן: עדיין צריך' : a === 'cancel' ? 'נוסף לרשימת "לבטל". אחרי שמבטלים מול החברה – לוחצים "ביטלתי"' : a === 'done' ? 'מצוין! אם יגיע עוד חיוב – נתריע' : 'הוחזר לשאלה');
+  },
+  subsLater: () => { planS().subsLater = monthKey(new Date()); save(); render(); toast('נזכיר בחודש הבא'); },
+  subsGo: () => { const b = document.querySelector('aside [data-tab="plan"]'); if (b) b.click(); setTimeout(() => { const s = document.getElementById('subsSec'); if (s) s.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60); }
 });
 
 /* ---------- חלון "התאמת מראה" ---------- */
