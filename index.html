@@ -504,6 +504,16 @@ html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *:
 .look-mini{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
 .look-mini button{width:34px;height:34px;border-radius:50%;border:3px solid var(--card);box-shadow:0 0 0 1.5px var(--border);cursor:pointer;padding:0}
 .look-mini button.on{box-shadow:0 0 0 2.5px var(--primary)}
+/* תיקון: קבועות צפויות בגרף ובכרטיסים */
+.bc-exp{fill-opacity:.22;stroke-width:1.5;stroke-dasharray:4 3}
+.bc-exp.inc{fill:var(--inc);stroke:var(--inc)}
+.bc-exp.exp{fill:var(--exp);stroke:var(--exp)}
+.bc-exp-note{margin:6px 0 0;font-size:12.5px}
+.bc-exp-key{display:inline-block;width:14px;height:12px;border:1.5px dashed var(--inc);background:var(--inc-soft);border-radius:3px;vertical-align:middle}
+.exp-more{font-weight:700;color:var(--primary)}
+.fm-quick{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.fm-quick button{font-size:12.5px;padding:4px 10px}
+@media print{.late-rec{display:none!important}}
 /* שלב 1: תזכורות בדשבורד, צעדים ראשונים, טיפ השבוע, רישום מהיר ומה חדש */
 .nudge{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-inline-start:4px solid var(--primary);border-radius:14px;padding:12px 14px;margin-bottom:12px}
 .nudge.warn{border-inline-start-color:var(--warn);background:var(--warn-soft)}
@@ -1467,7 +1477,7 @@ VIEWS.rec = () => {
     <label>קטגוריה${catField(type, ed && ed.category)}</label>
     <label>יום בחודש<input name="day" type="number" min="1" max="31" value="${ed ? ed.day : 1}" required></label>
     <label class="wide">תיאור<input name="note" maxlength="120" value="${ed ? esc(ed.note) : ''}" placeholder="למשל: שכר לימוד תלמוד תורה"></label>
-    <label>רישום מחודש<input name="fromMonth" type="month" value="${ed ? (ed.startMonth || '') : monthKey(new Date())}" title="אפשר לבחור חודש שעבר: הקבועה תירשם גם בחודשים הקודמים, בלי כפילויות"></label>
+    <label>רישום מחודש<input name="fromMonth" type="month" value="${ed ? (ed.startMonth || '') : monthKey(new Date())}" title="אפשר לבחור חודש שעבר: הקבועה תירשם גם בחודשים הקודמים, בלי כפילויות"><span class="fm-quick"><button type="button" class="btn sm" data-fm="${new Date().getFullYear()}-01">מתחילת השנה</button><button type="button" class="btn sm" data-fm="${monthKey(new Date())}">מהחודש הזה</button></span></label>
     <label>עד חודש (לא חובה)<input name="endMonth" type="month" value="${ed && ed.endMonth ? ed.endMonth : ''}" title="למשל הלוואה שמסתיימת. אחרי החודש הזה הקבועה לא תירשם יותר"></label>
     ${monthsPicker(ed && ed.months, 'recMonths')}
     <div class="actions"><button class="btn primary">${ed ? 'שמירה' : 'הוספה'}</button>${ed ? '<button type="button" class="btn" data-action="cancelRec">ביטול</button>' : ''}</div>
@@ -3934,6 +3944,117 @@ Object.assign(ACTIONS, {
   qaClose: () => qaClose(),
   wnClose: () => wnClose(),
   whatsNew: () => whatsNew(true)
+});
+
+/* ---------- תיקון: קבועות שעוד לא ירדו החודש, וקבועות שנרשמות רק מהחודש שבו הוגדרו ----------
+   1. בגרף "הכנסות מול הוצאות": בחודש הנוכחי מופיע גם מה שעוד צפוי מהקבועות (עמודה בהירה מקווקוות)
+   2. בכרטיסי ההכנסות וההוצאות: "+ צפוי עוד ..." עם שם הקבועה והיום שלה
+   3. קבועה שנרשמת רק מאמצע השנה: הודעה עם כפתור לרישום גם מתחילת השנה (בלי כפילויות)
+   4. בטופס הקבועה: כפתורים מהירים "מתחילת השנה" / "מהחודש הזה" ליד "רישום מחודש" */
+
+// הקבועות שעוד צפויות החודש (היום שלהן עוד לא הגיע, ועוד לא נרשמו)
+function recPendingNow(type) {
+  const now = new Date(), cur = monthKey(now), mm = now.getMonth() + 1, dim = new Date(now.getFullYear(), mm, 0).getDate();
+  return S.recurring.filter(r => r.active && r.type === type && !(r.endMonth && r.endMonth < cur) && !(r.startMonth && r.startMonth > cur) &&
+    (!r.months || r.months.includes(mm)) && Math.min(r.day, dim) > now.getDate() &&
+    !S.transactions.some(t => t.recurringId === r.id && t.date.startsWith(cur))).sort((a, b) => a.day - b.day);
+}
+
+barChart = function (end) {
+  const cur = monthKey(new Date());
+  const ms = []; for (let i = 11; i >= 0; i--) ms.push(shiftMonth(end, -i));
+  const data = ms.map(k => { const x = k === cur ? recExpected(k) : { inc: 0, exp: 0 }; return { k, i: sumMonth(k, 'income'), e: sumMonth(k, 'expense'), xi: x.inc, xe: x.exp }; });
+  const max = Math.max(1, ...data.map(d => Math.max(d.i + d.xi, d.e + d.xe)));
+  const W = 720, H = 240, pt = 10, pb = 26, ch = H - pt - pb, cw = W / 12, bw = Math.min(20, cw / 3);
+  let s = `<svg viewBox="0 0 ${W} ${H}" class="chart" role="img" aria-label="הכנסות מול הוצאות לפי חודש">`;
+  for (let g = 0; g <= 4; g++) { const y = pt + ch * g / 4; s += `<line x1="0" x2="${W}" y1="${y}" y2="${y}" class="grid"/>`; }
+  let anyExp = false;
+  data.forEach((d, idx) => {
+    const cx = W - idx * cw - cw / 2; // הסדר מימין לשמאל
+    const hi = d.i / max * ch, he = d.e / max * ch, hxi = d.xi / max * ch, hxe = d.xe / max * ch;
+    s += `<rect x="${cx + 1}" y="${pt + ch - hi}" width="${bw}" height="${hi}" rx="3" fill="var(--inc)" class="bc-bar" data-gm="${d.k}"><title>${monthName(d.k)} · הכנסות ${money(d.i)}</title></rect>`;
+    s += `<rect x="${cx - bw - 1}" y="${pt + ch - he}" width="${bw}" height="${he}" rx="3" fill="var(--exp)" class="bc-bar" data-gm="${d.k}"><title>${monthName(d.k)} · הוצאות ${money(d.e)}</title></rect>`;
+    if (hxi > 0) { anyExp = true; s += `<rect x="${cx + 1.5}" y="${pt + ch - hi - hxi}" width="${bw - 1}" height="${hxi}" rx="3" class="bc-exp inc" data-gm="${d.k}"><title>${monthName(d.k)} · הכנסות קבועות שעוד צפויות ${money(d.xi)}</title></rect>`; }
+    if (hxe > 0) { anyExp = true; s += `<rect x="${cx - bw - 0.5}" y="${pt + ch - he - hxe}" width="${bw - 1}" height="${hxe}" rx="3" class="bc-exp exp" data-gm="${d.k}"><title>${monthName(d.k)} · הוצאות קבועות שעוד צפויות ${money(d.xe)}</title></rect>`; }
+    s += `<text x="${cx}" y="${H - 6}" text-anchor="middle">${monthName(d.k, 'short')}</text>`;
+  });
+  return s + '</svg>' + (anyExp ? '<p class="sub bc-exp-note"><span class="bc-exp-key"></span> עמודה בהירה מקווקוות = קבועות שעוד צפויות החודש (נרשמות ביום שלהן)</p>' : '');
+};
+
+// קבועות שנרשמות רק מאמצע השנה: החודשים החסרים מתחילת השנה, רק כשאין באותו חודש עסקה באותו סכום (כדי לא לכפול ייבוא מהבנק)
+function lateRecMissing(r, from) {
+  const cur = monthKey(new Date()), out = [];
+  if (!r.active || !r.startMonth || r.startMonth <= from) return out;
+  for (let m = from; m < r.startMonth && m < cur; m = shiftMonth(m, 1)) {
+    if (r.endMonth && m > r.endMonth) break;
+    if (r.months && !r.months.includes(+m.slice(5))) continue;
+    if (S.transactions.some(t => t.type === r.type && t.date.startsWith(m) && Math.abs(t.amount - r.amount) < 1)) continue;
+    out.push(m);
+  }
+  return out;
+}
+function lateRecList() {
+  const from = new Date().getFullYear() + '-01';
+  return S.recurring.map(r => ({ r, miss: lateRecMissing(r, from) })).filter(x => x.miss.length);
+}
+function lateRecCard(inDash) {
+  if (S.settings.lateRecHidden === String(new Date().getFullYear())) return '';
+  const L = lateRecList(); if (!L.length) return '';
+  const n = L.reduce((a, x) => a + x.miss.length, 0), first = L.map(x => x.r.startMonth).sort()[0];
+  const names = L.slice(0, 4).map(x => `<b>${esc(x.r.note || x.r.category)}</b> (מ${monthName(x.r.startMonth)})`).join(' · ') + (L.length > 4 ? ` ועוד ${L.length - 4}` : '');
+  const btns = `<button type="button" class="btn sm primary" data-action="lateRecFill">📅 לרשום גם מתחילת השנה (${n} רישומים)</button>${inDash ? '<button type="button" class="btn sm" data-tab="rec">לקבועות</button>' : ''}`;
+  const body = `${L.length === 1 ? 'קבועה אחת נרשמת' : `${L.length} קבועות נרשמות`} רק מהחודש שבו הוגדרו, ולכן החודשים שלפני כן ריקים בגרף ובסיכומים: ${names}.
+    <br><span class="sub" style="margin:0">אפשר לרשום אותן גם בחודשים החסרים מינואר. חודש שכבר יש בו עסקה באותו סכום (למשל מייבוא מהבנק) לא נרשם שוב.</span>`;
+  return `<div class="nudge info late-rec" data-nu="lateRec"><span class="nu-ico" aria-hidden="true">🗓️</span><div class="nu-body"><b>החודשים מתחילת השנה עוד לא מלאים</b><div class="nu-txt">${body}</div><div class="nu-act">${btns}</div></div>
+    <button type="button" class="nu-x" data-action="lateRecHide" title="הסתרה" aria-label="הסתרת ההודעה">✕</button></div>`;
+}
+
+// הדשבורד: הודעת "מתחילת השנה", ו"צפוי עוד" בכרטיסי ההכנסות וההוצאות
+const _dashViewFix = VIEWS.dash;
+VIEWS.dash = () => {
+  let h = _dashViewFix();
+  const cur = monthKey(new Date());
+  if (ui.period !== 'year' && ui.month === cur) {
+    const mm = new Date().getMonth() + 1;
+    [['income', 's-inc'], ['expense', 's-exp']].forEach(([type, cls]) => {
+      const p = recPendingNow(type); if (!p.length) return;
+      const sum = p.reduce((a, r) => a + r.amount, 0), who = p.slice(0, 2).map(r => `${esc(r.note || r.category)} ב־${r.day}/${mm}`).join(', ') + (p.length > 2 ? ` ועוד ${p.length - 2}` : '');
+      h = h.replace(new RegExp(`(<div class="stat ${cls}">[\\s\\S]*?<div class="cmp">)`), `$1<span class="exp-more" title="קבועות שהיום שלהן עוד לא הגיע. הן נרשמות לבד ביום שלהן">+ צפוי עוד ${money(sum)} (${who})</span><br>`);
+    });
+  }
+  const late = lateRecCard(true);
+  if (late) {
+    const idx = ['<div class="nudge', '<section class="card first-steps', '<section class="card forecast', '<div class="stats">'].map(a => h.indexOf(a)).filter(i => i >= 0).sort((a, b) => a - b)[0];
+    if (idx >= 0) h = h.slice(0, idx) + late + h.slice(idx);
+  }
+  return h;
+};
+const _recViewFix = VIEWS.rec;
+VIEWS.rec = () => { const h = _recViewFix(), late = lateRecCard(false); if (!late) return h; const i = h.indexOf('<section'); return i >= 0 ? h.slice(0, i) + late + h.slice(i) : late + h; };
+
+// כפתורים מהירים בטופס הקבועה
+document.addEventListener('click', e => {
+  const b = e.target.closest && e.target.closest('[data-fm]'); if (!b) return;
+  e.preventDefault(); const f = b.closest('form'); if (f && f.elements.fromMonth) { f.elements.fromMonth.value = b.dataset.fm; f.elements.fromMonth.dispatchEvent(new Event('change', { bubbles: true })); }
+});
+
+Object.assign(ACTIONS, {
+  lateRecFill: () => {
+    const L = lateRecList(); if (!L.length) return;
+    const n = L.reduce((a, x) => a + x.miss.length, 0), from = new Date().getFullYear() + '-01';
+    if (!confirm(`לרשום ${n} רישומים של ${L.length} קבועות בחודשים החסרים מינואר?\n\n` + L.map(x => `• ${x.r.note || x.r.category}: ${x.miss.length} חודשים`).join('\n') + '\n\nאפשר לבטל אחר כך במסך העסקאות.')) return;
+    let added = 0;
+    L.forEach(({ r, miss }) => {
+      miss.forEach(m => {
+        const [y, mm] = m.split('-').map(Number), date = `${m}-${pad(Math.min(r.day, new Date(y, mm, 0).getDate()))}`;
+        if (recTaken(r, m, date)) return;
+        S.transactions.push({ id: uid(), type: r.type, amount: r.amount, date, category: r.category, note: r.note, recurringId: r.id }); added++;
+      });
+      if (r.startMonth > from) r.startMonth = from;
+    });
+    save(); render(); toast(`נרשמו ${added} רישומים מתחילת השנה`);
+  },
+  lateRecHide: () => { S.settings.lateRecHidden = String(new Date().getFullYear()); save(); render(); toast('ההודעה הוסתרה. אפשר תמיד לשנות "רישום מחודש" בעריכת קבועה'); }
 });
 
 /* ---------- חלון "התאמת מראה" ---------- */
