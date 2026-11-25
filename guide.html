@@ -32,11 +32,11 @@
 <body>
 <header>
   <b>📘 מדריך למשתמש – כספי הבית</b>
-  <span class="cnt">שקופית <span id="n">1</span> מתוך 15</span>
+  <span class="cnt">שקופית <span id="n">1</span> מתוך 17</span>
   <a href="מדריך-למשתמש-כספי-הבית.pdf" download>⬇️ הורדת PDF</a>
   <button type="button" class="x" id="x" title="סגירה" aria-label="סגירת המדריך">✕</button>
 </header>
-<main><img id="slide" src="assets/01.jpg" alt="שקופית 1 מתוך 15" width="1600" height="900"></main>
+<main><img id="slide" src="assets/01.jpg" alt="שקופית 1 מתוך 17" width="1600" height="900"></main>
 <nav>
   <a id="prev" href="?s=1">→ הקודם</a>
   <a id="next" href="?s=2">הבא ←</a>
@@ -44,7 +44,7 @@
 </nav>
 <script>
 (function () {
-  var N = 15, q = new URLSearchParams(location.search);
+  var N = 17, q = new URLSearchParams(location.search);
   var i = parseInt(q.get('s'), 10); if (!(i >= 1 && i <= N)) i = 1;
   function pad(k) { return (k < 10 ? '0' : '') + k; }
   function href(k) { return '?s=' + k; }
