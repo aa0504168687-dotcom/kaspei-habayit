@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- אבטחה: חוסם כל חיבור לאינטרנט וכל טעינת קוד או קבצים מבחוץ. החריג היחיד: שרת הצ'אט שרץ במחשב הזה (127.0.0.1), שמעביר שאלות לשירות SAI -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; font-src data:; connect-src https://formsubmit.co; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob: https://kaspei-habayit.goatcounter.com; font-src data:; connect-src https://formsubmit.co; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; form-action 'none'; base-uri 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>כספי הבית</title>
@@ -1826,7 +1826,7 @@ VIEWS.settings = () => topbar('הגדרות וגיבוי') + lookCard() + `<sect
     ${S.impBlock.length ? `<details style="margin-top:14px"><summary>🚫 תיאורים שלא ייובאו אף פעם (${S.impBlock.length})</summary>
       <p class="sub" style="margin-top:8px">שורה עם אחד התיאורים האלה מסומנת אוטומטית "לא לייבא אף פעם" בכל קובץ. מספרים ותאריכים בתוך התיאור לא משנים את ההתאמה. לחיצה על × מחזירה את התיאור לייבוא רגיל.</p>
       <div class="cats">${S.impBlock.map(b => `<span class="tag">${esc(b.text)} <button data-action="impUnblock" data-key="${esc(b.key)}" aria-label="החזרת ${esc(b.text)} לייבוא">×</button></span>`).join('')}</div></details>` : ''}</section>
-  <section class="card"><h2>גיבוי וייצוא</h2><p class="sub">הנתונים נשמרים רק בדפדפן הזה, במחשב הזה. מומלץ לשמור קובץ גיבוי מדי פעם.</p>
+  <section class="card"><h2>גיבוי וייצוא</h2><p class="sub">הנתונים נשמרים רק בדפדפן הזה, במחשב הזה, ושום נתון כספי או אישי לא נשלח לשום מקום. האתר סופר רק כניסות, באופן אנונימי. מומלץ לשמור קובץ גיבוי מדי פעם.</p>
     <div class="actions"><button class="btn primary" data-action="backup">שמירת קובץ גיבוי</button>
       <label class="btn" style="flex-direction:row;color:var(--text)">שחזור מגיבוי<input type="file" id="restoreFile" accept=".json" hidden></label>
       <button class="btn" data-action="exportXlsx">📊 ייצוא לאקסל (כל הנתונים)</button>
@@ -3562,6 +3562,21 @@ function gvClose() {
   document.body.style.overflow = '';
   if (gvBackFocus && gvBackFocus.focus) gvBackFocus.focus();
 }
+/* ---------- מונה כניסות אנונימי (GoatCounter) ----------
+   רק באתר הציבורי (github.io), פעם אחת לכל פתיחה. נשלחת בקשת תמונה קטנה בלבד: בלי סקריפט חיצוני, בלי עוגיות,
+   ובלי שום נתון כספי או אישי. מדיניות האבטחה מתירה רק את הכתובת של המונה (img-src), ושום חיבור אחר */
+(function kaspeiCount() {
+  try {
+    if (!/\.github\.io$/.test(location.hostname)) return;
+    if (sessionStorage.getItem('kaspei-counted')) return;
+    sessionStorage.setItem('kaspei-counted', '1');
+    const q = new URLSearchParams({ p: '/kaspei', t: 'כספי הבית', s: screen.width + ',' + screen.height, rnd: Math.random().toString(36).slice(2) });
+    const img = new Image();
+    img.referrerPolicy = 'no-referrer';
+    img.src = 'https://kaspei-habayit.goatcounter.com/count?' + q;
+  } catch (e) {}
+})();
+
 /* ---------- חלון "התאמת מראה" ---------- */
 const LOOK_OPTS = [
   ['mode', 'מצב תצוגה', [['light', '☀️ בהיר'], ['dark', '🌙 כהה'], ['auto', '🖥️ לפי המחשב']]],
