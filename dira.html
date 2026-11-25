@@ -607,6 +607,24 @@ html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *:
 .look-mini{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
 .look-mini button{width:34px;height:34px;border-radius:50%;border:3px solid var(--card);box-shadow:0 0 0 1.5px var(--border);cursor:pointer;padding:0}
 .look-mini button.on{box-shadow:0 0 0 2.5px var(--primary)}
+/* שלב 2: כלים בכותרת (הדפסה, מצגת), והדפסה מסודרת בגודל A4 */
+.tb-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+@media print{
+  @page{size:A4;margin:12mm}
+  .nudge,.tip-week,.first-steps,.guide-card,.backup-alert,.dup-alert,.tb-tools,.chat-fab,.fab,.qa,.lk,.lk-back,.pm,.cat-hint,.chart-tip,.gv{display:none!important}
+  .card:has(#txForm),.card:has(#recForm){display:none!important}
+  main{zoom:.92}
+  h1{font-size:22px}
+  .card{padding:12px 14px!important;margin-bottom:10px!important}
+  table{font-size:11px}
+  thead{display:table-header-group}
+  tr{break-inside:avoid}
+  h2{break-after:avoid}
+  .donut-wrap,.chart,.stat,.bar,.legend .dot{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  input,select,textarea{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important;appearance:none}
+  .print-foot{display:block!important;margin-top:14px;font-size:10px;color:#777;text-align:center}
+}
+.print-foot{display:none}
 /* שלב 1: תזכורות בדשבורד, צעדים ראשונים, טיפ השבוע, רישום מהיר ומה חדש */
 .nudge{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-inline-start:4px solid var(--primary);border-radius:14px;padding:12px 14px;margin-bottom:12px}
 .nudge.warn{border-inline-start-color:var(--warn);background:var(--warn-soft)}
@@ -5312,6 +5330,24 @@ Object.assign(ACTIONS, {
   nuHideD: el => { nuStore()[el.dataset.k] = today(); save(); render(); },
   wnClose: () => wnClose(),
   whatsNew: () => whatsNew(true)
+});
+
+/* ---------- שלב 2: כפתורי הדפסה (ומצגת בדשבורד) בכותרת של כל מסך ---------- */
+const _topbarP2 = topbar;
+topbar = function (title, extra = '') {
+  const pres = title === 'דשבורד' && typeof pmOpen === 'function'
+    ? '<button type="button" class="btn sm" data-action="pmOpen" title="סיכום החודש במסך מלא, לשיחה המשותפת">🖥️ מצגת החודש</button>' : '';
+  return _topbarP2(title, extra + `<div class="tb-tools no-print">${pres}<button type="button" class="btn sm" data-action="printScreen" title="הדפסת המסך על דף A4, או שמירה כ־PDF">🖨️ הדפסה</button></div>`);
+};
+Object.assign(ACTIONS, {
+  printScreen: () => {
+    document.body.classList.remove('print-doc');
+    let f = document.getElementById('printFoot');
+    if (!f) { f = document.createElement('div'); f.id = 'printFoot'; f.className = 'print-foot'; (document.querySelector('main') || document.body).appendChild(f); }
+    f.textContent = `הודפס ב־${gregDate(today())} · ${hebDate(today())}`;
+    toast('בחלון ההדפסה אפשר לבחור מדפסת, או "שמירה כ־PDF"');
+    setTimeout(() => window.print(), 150);
+  }
 });
 
 /* ---------- חלון "התאמת מראה" ---------- */

@@ -504,6 +504,69 @@ html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *:
 .look-mini{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
 .look-mini button{width:34px;height:34px;border-radius:50%;border:3px solid var(--card);box-shadow:0 0 0 1.5px var(--border);cursor:pointer;padding:0}
 .look-mini button.on{box-shadow:0 0 0 2.5px var(--primary)}
+/* שלב 2: כלים בכותרת (הדפסה, מצגת), והדפסה מסודרת בגודל A4 */
+.tb-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+@media print{
+  @page{size:A4;margin:12mm}
+  .nudge,.tip-week,.first-steps,.guide-card,.backup-alert,.dup-alert,.tb-tools,.chat-fab,.fab,.qa,.lk,.lk-back,.pm,.cat-hint,.chart-tip,.gv{display:none!important}
+  .card:has(#txForm),.card:has(#recForm){display:none!important}
+  main{zoom:.92}
+  h1{font-size:22px}
+  .card{padding:12px 14px!important;margin-bottom:10px!important}
+  table{font-size:11px}
+  thead{display:table-header-group}
+  tr{break-inside:avoid}
+  h2{break-after:avoid}
+  .donut-wrap,.chart,.stat,.bar,.legend .dot{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  input,select,textarea{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important;appearance:none}
+  .print-foot{display:block!important;margin-top:14px;font-size:10px;color:#777;text-align:center}
+}
+.print-foot{display:none}
+/* שלב 2: גרפים חיים, גרף ירידת חובות, מצגת החודש */
+.dn-slice,.dn-li,.bc-bar{cursor:pointer}
+.dn-slice{transition:stroke-width .12s}
+.dn-slice:hover{stroke-width:36}
+.dn-li:hover,.dn-li:focus-visible{background:var(--primary-soft);outline:none;border-radius:8px}
+.bc-bar:hover{opacity:.75}
+.chart-tip{position:fixed;z-index:40;pointer-events:none;background:var(--d1,#1e1b4b);color:#fff;font-size:13px;font-weight:600;padding:6px 10px;border-radius:9px;box-shadow:0 8px 22px rgba(0,0,0,.25);white-space:nowrap;transform:translate(-50%,calc(-100% - 12px))}
+.chart-tip small{display:block;font-weight:400;opacity:.8;font-size:11.5px}
+.debt-chart svg{width:100%;height:auto;display:block}
+.debt-chart .dc-area{fill:var(--exp-soft)}
+.debt-chart .dc-line{fill:none;stroke:var(--exp);stroke-width:3}
+.debt-chart text{font-size:11px;fill:var(--muted)}
+.debt-chart .grid{stroke:var(--border)}
+.debt-kpis{display:flex;flex-wrap:wrap;gap:10px 26px;margin:6px 0 12px}
+.debt-kpis b{display:block;font-size:20px}
+.debt-kpis small{color:var(--muted)}
+.pm{position:fixed;inset:0;z-index:28;display:flex;flex-direction:column;background:linear-gradient(150deg,var(--d0,#1e1b4b),var(--d1,#3730a3) 60%,var(--d2,#5b21b6));color:#fff}
+.pm-head{display:flex;align-items:center;gap:12px;padding:14px 22px}
+.pm-head b{font-size:16px;opacity:.85;margin-inline-end:auto}
+.pm-head button{width:40px;height:40px;border-radius:12px;border:0;background:rgba(255,255,255,.16);color:#fff;font-size:17px;cursor:pointer}
+.pm-stage{flex:1;display:flex;align-items:center;justify-content:center;padding:10px 6vw;overflow:auto}
+.pm-slide{width:min(1100px,100%);text-align:center}
+.pm-slide h1{font-size:clamp(34px,5vw,64px);margin:0 0 6px;color:#fff}
+.pm-slide h2{font-size:clamp(26px,3.2vw,42px);margin:0 0 26px;color:#fff}
+.pm-kicker{font-size:clamp(16px,1.8vw,22px);opacity:.75;letter-spacing:.5px}
+.pm-sub{font-size:clamp(16px,1.8vw,22px);opacity:.8;margin-top:8px}
+.pm-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+.pm-tile{background:rgba(255,255,255,.1);border-radius:20px;padding:22px 18px}
+.pm-tile small{display:block;font-size:17px;opacity:.8}
+.pm-tile b{display:block;font-size:clamp(30px,3.6vw,48px);margin:6px 0}
+.pm-tile span{font-size:15px;opacity:.85}
+.pm-good{color:#86efac}.pm-bad{color:#fca5a5}
+.pm-rows{display:grid;gap:12px;text-align:start}
+.pm-row{display:grid;grid-template-columns:minmax(120px,1.2fr) 3fr minmax(90px,auto);gap:14px;align-items:center;font-size:clamp(16px,1.7vw,21px)}
+.pm-bar{height:16px;border-radius:9px;background:rgba(255,255,255,.14);overflow:hidden}
+.pm-bar i{display:block;height:100%;border-radius:9px;background:#a5b4fc}
+.pm-bar i.over{background:#fca5a5}
+.pm-note{margin-top:22px;font-size:clamp(15px,1.6vw,19px);opacity:.85;line-height:1.6}
+.pm-foot{display:flex;align-items:center;justify-content:center;gap:14px;padding:14px}
+.pm-foot button.pm-nav{width:48px;height:48px;border-radius:50%;border:0;background:rgba(255,255,255,.18);color:#fff;font-size:24px;cursor:pointer}
+.pm-foot button.pm-nav:disabled{opacity:.3;cursor:default}
+.pm-dots{display:flex;gap:7px}
+.pm-dots button{width:11px;height:11px;border-radius:50%;border:0;padding:0;background:rgba(255,255,255,.3);cursor:pointer}
+.pm-dots button.on{background:#fff;transform:scale(1.25)}
+.kids-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
 /* תיקון: קבועות צפויות בגרף ובכרטיסים */
 .bc-exp{fill-opacity:.22;stroke-width:1.5;stroke-dasharray:4 3}
 .bc-exp.inc{fill:var(--inc);stroke:var(--inc)}
@@ -1195,7 +1258,8 @@ VIEWS.dash = () => {
 function donut(m, type) {
   const map = {};
   S.transactions.filter(t => t.type === type && t.date.startsWith(m) && !(type === 'expense' && skipAsExpense(t))).forEach(t => map[t.category] = (map[t.category] || 0) + t.amount);
-  return donutFromMap(map, `אין ${type === 'expense' ? 'הוצאות' : 'הכנסות'} להצגה ${m.length === 4 ? 'בשנה זו' : 'בחודש זה'}`, m.length === 7 ? catAvg3(m, type) : null, type);
+  donutCtx = { m, type };
+  try { return donutFromMap(map, `אין ${type === 'expense' ? 'הוצאות' : 'הכנסות'} להצגה ${m.length === 4 ? 'בשנה זו' : 'בחודש זה'}`, m.length === 7 ? catAvg3(m, type) : null, type); } finally { donutCtx = null; }
 }
 function donutFromMap(map, emptyMsg, avg, avgType) {
   const arr = Object.entries(map).filter(x => x[1] > 0).sort((a, b) => b[1] - a[1]), tot = arr.reduce((a, x) => a + x[1], 0);
@@ -1203,14 +1267,14 @@ function donutFromMap(map, emptyMsg, avg, avgType) {
   const r = 70, C = 2 * Math.PI * r; let off = 0, circles = '';
   arr.forEach(([c, v], i) => {
     const len = v / tot * C;
-    circles += `<circle r="${r}" cx="100" cy="100" fill="none" stroke="${COLORS[i % COLORS.length]}" stroke-width="30" stroke-dasharray="${len} ${C - len}" stroke-dashoffset="${-off}"><title>${esc(c)}: ${money(v)}</title></circle>`;
+    circles += `<circle r="${r}" cx="100" cy="100" fill="none" stroke="${COLORS[i % COLORS.length]}" stroke-width="30" stroke-dasharray="${len} ${C - len}" stroke-dashoffset="${-off}"${donutCtx ? ` class="dn-slice" data-dcat="${esc(c)}"` : ''}><title>${esc(c)}: ${money(v)}</title></circle>`;
     off += len;
   });
-  return `<div class="donut-wrap"><svg viewBox="0 0 200 200" class="chart" role="img" aria-label="פילוח לפי קטגוריה">
+  return `<div class="donut-wrap"${donutCtx ? ` data-dm="${donutCtx.m}" data-dt="${donutCtx.type}"` : ''}><svg viewBox="0 0 200 200" class="chart" role="img" aria-label="פילוח לפי קטגוריה">
     <g transform="rotate(-90 100 100)">${circles}</g>
     <text x="100" y="96" text-anchor="middle" style="font-size:12px">סה״כ</text>
     <text x="100" y="116" text-anchor="middle" style="font-size:15px;font-weight:700;fill:var(--text)">${money(tot)}</text></svg>
-    <ul class="legend">${arr.map(([c, v], i) => `<li><span class="dot" style="background:${COLORS[i % COLORS.length]}"></span>${esc(c)}<span class="v">${money(v)} · ${(v / tot * 100).toFixed(0)}%${avg ? avgNote(v, avg[c], avgType) : ''}</span></li>`).join('')}</ul></div>`;
+    <ul class="legend">${arr.map(([c, v], i) => `<li${donutCtx ? ` class="dn-li" data-dcat="${esc(c)}" tabindex="0" role="button" title="לחיצה: העסקאות של ${esc(c)}"` : ''}><span class="dot" style="background:${COLORS[i % COLORS.length]}"></span>${esc(c)}<span class="v">${money(v)} · ${(v / tot * 100).toFixed(0)}%${avg ? avgNote(v, avg[c], avgType) : ''}</span></li>`).join('')}</ul></div>`;
 }
 
 function barChart(end) {
@@ -2844,9 +2908,9 @@ function maaserCalc(prefix) {
   const deduct = S.transactions.filter(t => t.type === 'expense' && inTx(t) && ded.includes(t.category)).reduce((a, t) => a + t.amount, 0);
   // תוספת מרצון מעבר לאחוז: סכום שנרשם לכל חודש ומתווסף לנדרש באותו חודש
   const extra = Object.entries(st.maaserExtra || {}).filter(([m]) => !prefix || m.startsWith(prefix)).reduce((a, [, v]) => a + (+v || 0), 0);
-  const base = Math.max(0, inc - deduct), pctDue = base * st.maaserPct / 100, due = pctDue + extra;
+  const gross = maaserGross(prefix), base = Math.max(0, inc + gross - deduct), pctDue = base * st.maaserPct / 100, due = pctDue + extra;
   const given = S.transactions.filter(t => t.type === 'expense' && inTx(t) && t.category === st.maaserCategory).reduce((a, t) => a + t.amount, 0);
-  return { inc, deduct, base, pctDue, extra, due, given, bal: given - due };
+  return { inc, gross, deduct, base, pctDue, extra, due, given, bal: given - due };
 }
 VIEWS.maaser = () => {
   const st = S.settings, Y = ui.maaserYear || String(new Date().getFullYear());
@@ -2870,6 +2934,7 @@ VIEWS.maaser = () => {
     ${incRows.length ? `<div class="table-wrap"><table><thead><tr><th style="width:60px">נכלל</th><th>קטגוריה</th><th>הכנסות</th><th>נדרש ממנה (${st.maaserPct}%)</th></tr></thead><tbody>
       ${incRows.map(([c, v]) => { const on = !exInc.includes(c); return `<tr${on ? '' : ' style="opacity:.55"'}><td><input type="checkbox" data-incl="${esc(c)}"${on ? ' checked' : ''} style="width:auto"></td><td>${esc(c)}</td><td class="amount">${money(v)}</td><td class="amount">${on ? money(v * st.maaserPct / 100) : '—'}</td></tr>`; }).join('')}
       </tbody><tfoot><tr><td></td><td>סה״כ נכלל</td><td>${money(yr.inc)}</td><td>${money(yr.inc * st.maaserPct / 100)}</td></tr>
+      ${yr.gross ? `<tr><td></td><td>ועוד ניכויי שכר (ברוטו)</td><td>+${money(yr.gross)}</td><td>+${money(yr.gross * st.maaserPct / 100)}</td></tr>` : ''}
       ${yr.deduct ? `<tr><td></td><td>פחות ניכויים</td><td>−${money(yr.deduct)}</td><td>−${money(Math.min(yr.inc, yr.deduct) * st.maaserPct / 100)}</td></tr>` : ''}
       <tr><td></td><td><b>נדרש</b></td><td>${money(yr.base)}</td><td><b>${money(yr.due)}</b></td></tr></tfoot></table></div>` : '<p class="empty">לא נרשמו הכנסות בשנה הזו</p>'}</section>`;
   return topbar('מעשרות', `<label class="inline">שנה<select id="mYear" style="width:auto">${years.map(y => `<option${y === Y ? ' selected' : ''}>${y}</option>`).join('')}</select></label>`) + catWarn +
@@ -2891,13 +2956,13 @@ VIEWS.maaser = () => {
     ${Object.keys(byWho).length ? `<div class="table-wrap"><table><thead><tr><th>למי</th><th>פעמים</th><th>סכום</th><th style="width:30%">חלק</th></tr></thead><tbody>
       ${Object.entries(byWho).sort((a, b) => b[1].sum - a[1].sum).map(([k, v], i) => `<tr><td>${esc(k)}</td><td>${v.n}</td><td class="amount">${money(v.sum)}</td><td><div class="bar"><span style="width:${(v.sum / yr.given * 100).toFixed(1)}%;background:${COLORS[i % COLORS.length]}"></span></div></td></tr>`).join('')}
       </tbody></table></div>` : '<p class="empty">לא נרשמו נתינות בשנה הזו</p>'}
-    <div class="actions" style="margin-top:10px"><button class="btn sm" data-action="maaserAdd">+ רישום נתינה</button></div></section>
+    <div class="actions" style="margin-top:10px"><button class="btn sm" data-action="maaserAdd">+ רישום נתינה</button><button type="button" class="btn sm" data-action="repGo" data-id="donees" data-y="${Y}">🏛️ דוח נתינות לפי מקבל</button></div></section>
   <section class="card"><h2>הגדרות החישוב</h2>
     <p class="sub">את אופן החישוב, למשל מאיזה סכום מפרישים ואילו הוצאות מותר לנכות, כדאי לברר אצל הרב. התוכנה רק מחשבת לפי מה שמוגדר כאן.</p>
     <div class="grid-form">
       <label>אחוז<select id="mPct2"><option value="10"${st.maaserPct == 10 ? ' selected' : ''}>מעשר (10%)</option><option value="20"${st.maaserPct == 20 ? ' selected' : ''}>חומש (20%)</option></select></label>
       <label>קטגוריית הנתינות<select id="mCat2">${catOptions('expense', st.maaserCategory)}</select></label>
-      <label>יתרת פתיחה (₪)<input id="mOpen2" type="number" step="1" value="${opening}"></label></div>
+      <label>יתרת פתיחה (₪)<input id="mOpen2" type="number" step="1" value="${opening}"></label></div>${maaserMethodHtml()}
     <p class="sub" style="margin-top:14px"><b>הוצאות שמנוכות מההכנסה לפני החישוב</b></p>${checks(S.categories.expense.filter(c => c !== st.maaserCategory), 'maaserDeduct')}</section>`;
 };
 BIND.maaser = () => {
@@ -3199,7 +3264,7 @@ function buildReport(id) {
     const rows = monthsOf(periodTx).map(m => { const ml = periodTx.filter(t => t.date.startsWith(m));
       const i = ml.filter(t => t.type === 'income' && !ex.includes(t.category)).reduce((a, t) => a + t.amount, 0);
       const d = ml.filter(t => t.type === 'expense' && ded.includes(t.category)).reduce((a, t) => a + t.amount, 0);
-      const due = Math.max(0, i - d) * pct + (+(st.maaserExtra || {})[m] || 0), given =ml.filter(t => t.type === 'expense' && t.category === st.maaserCategory).reduce((a, t) => a + t.amount, 0);
+      const due = Math.max(0, i + maaserGross(m) - d) * pct + (+(st.maaserExtra || {})[m] || 0), given =ml.filter(t => t.type === 'expense' && t.category === st.maaserCategory).reduce((a, t) => a + t.amount, 0);
       return [monthName(m), { v: i, k: 'inc' }, d, due, { v: given, k: 'exp' }, given - due]; });
     const tot = k => rows.reduce((a, r) => a + (typeof r[k] === 'object' ? r[k].v : r[k]), 0), dueT = tot(3), givenT = tot(4);
     const all = maaserCalc(''), cum = all.bal + (+st.maaserOpening || 0);
@@ -3244,7 +3309,7 @@ function buildReport(id) {
     const ex = st.maaserExcludeInc || [], ded = st.maaserDeduct || [];
     const mInc = periodTx.filter(t => t.type === 'income' && !ex.includes(t.category)).reduce((a, t) => a + t.amount, 0), mDed = periodTx.filter(t => t.type === 'expense' && ded.includes(t.category)).reduce((a, t) => a + t.amount, 0);
     const mExtra = monthsOf(periodTx).reduce((a, m) => a + (+(st.maaserExtra || {})[m] || 0), 0);
-    const mDue = Math.max(0, mInc - mDed) * st.maaserPct / 100 + mExtra, mGiven = periodTx.filter(t => t.type === 'expense' && t.category === st.maaserCategory).reduce((a, t) => a + t.amount, 0);
+    const mDue = Math.max(0, mInc + monthsOf(periodTx).reduce((a, m) => a + maaserGross(m), 0) - mDed) * st.maaserPct / 100 + mExtra, mGiven = periodTx.filter(t => t.type === 'expense' && t.category === st.maaserCategory).reduce((a, t) => a + t.amount, 0);
     doc.kpis = [['הכנסות', inc, 'inc'], ['הוצאות', exp, 'exp'], ['יתרה', inc - exp, 'money'], ['שיעור חיסכון', inc ? (inc - exp) / inc : 0, 'pct'],
       ['הוצאות קבועות', fixed, 'exp'], [`מעשרות: נדרש (${st.maaserPct}%)`, mDue, 'money'], ['מעשרות: ניתן', mGiven, 'money'], ['ממוצע הוצאות לחודש', exp / nM, 'exp']];
     const rows = monthRows(list);
@@ -4114,6 +4179,306 @@ Object.assign(ACTIONS, {
     save(); render(); toast(`${L.length} עסקאות הועברו לחודש הנכון`);
   },
   nmSkip: () => { S.settings.nmSkip = [...new Set([...(S.settings.nmSkip || []), ...noteMonthList().map(x => x.t.id)])].slice(-500); save(); render(); toast('העסקאות נשארו בתאריך שלהן'); }
+});
+
+/* ---------- שלב 2: גרפים חיים, ירידת חובות, מעשרות (מקבלים, ברוטו), ילדים, דוח ליועץ, מצגת החודש ---------- */
+
+// 24. גרפים חיים: חלון קטן עם הסכום המדויק, ולחיצה על פרוסה בעוגה פותחת את העסקאות שלה
+var donutCtx = null;
+(function chartTips() {
+  let tip = null;
+  const show = (el, x, y) => {
+    if (!tip) { tip = document.createElement('div'); tip.className = 'chart-tip'; document.body.appendChild(tip); }
+    const t = el.querySelector(':scope > title');
+    if (t) { el.dataset.tip = t.textContent; t.remove(); }
+    if (!el.dataset.tip) return;
+    tip.innerHTML = esc(el.dataset.tip) + (el.dataset.dcat || el.dataset.gm ? `<small>${el.dataset.gm ? 'לחיצה: הנתונים של החודש' : 'לחיצה: העסקאות של הקטגוריה'}</small>` : '');
+    tip.style.left = x + 'px'; tip.style.top = y + 'px'; tip.hidden = false;
+  };
+  document.addEventListener('mousemove', e => {
+    const el = e.target.closest && e.target.closest('svg.chart circle, svg.chart rect');
+    if (el) show(el, e.clientX, e.clientY); else if (tip) tip.hidden = true;
+  });
+  document.addEventListener('scroll', () => { if (tip) tip.hidden = true; }, true);
+})();
+function catOpen(cat, m, type) {
+  const f = ui.filters;
+  if (m.length === 7) { f.period = 'month'; f.month = m; } else { f.period = 'year'; f.year = m; }
+  Object.assign(f, { type, cat, q: '', min: '', max: '' }); ui.txView = 'exp';
+  ui.tab = 'tx'; ui.editTx = null; ui.splitTx = null; render(); window.scrollTo(0, 0);
+  toast(`${type === 'income' ? 'הכנסות' : 'הוצאות'} "${cat}" · ${monthName(m.length === 7 ? m : m + '-01').replace(/^.* /, m.length === 7 ? monthName(m) : 'שנת ' + m)}`.replace(/ · .*$/, m.length === 7 ? ' · ' + monthName(m) : ' · שנת ' + m));
+}
+document.addEventListener('click', e => {
+  const el = e.target.closest && e.target.closest('[data-dcat],[data-gm]'); if (!el) return;
+  if (el.dataset.gm) { ui.month = el.dataset.gm; ui.period = 'month'; ui.tab = 'dash'; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+  const w = el.closest('.donut-wrap'); if (w && w.dataset.dm) catOpen(el.dataset.dcat, w.dataset.dm, w.dataset.dt);
+});
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const el = e.target.closest && e.target.closest('.dn-li[data-dcat]'); if (!el) return;
+  e.preventDefault(); const w = el.closest('.donut-wrap'); if (w && w.dataset.dm) catOpen(el.dataset.dcat, w.dataset.dm, w.dataset.dt);
+});
+
+// 64. גרף ירידת חובות: תחזית לפי היתרה, ההחזר החודשי והריבית של כל התחייבות
+function debtProjection() {
+  const cur = monthKey(new Date());
+  const items = S.assets.filter(a => a.kind === 'liability' && a.value > 0).map(a => ({ name: a.name, bal: +a.value, pay: +a.payment || 0, r: (+a.rate || 0) / 1200, end: a.endMonth || '' }));
+  if (!items.length) return null;
+  items.forEach(x => { if (!x.pay && x.end > cur) { let n = 0, m = cur; while (m < x.end && n < 600) { n++; m = shiftMonth(m, 1); } x.pay = x.bal / Math.max(1, n); } });
+  const live = items.filter(x => x.pay > x.bal * x.r + 0.01), stuck = items.filter(x => !live.includes(x));
+  if (!live.length) return { stuck, pts: [], live };
+  const pts = [{ m: cur, v: live.reduce((a, x) => a + x.bal, 0) }]; let m = cur;
+  for (let i = 1; i <= 480; i++) {
+    m = shiftMonth(m, 1);
+    live.forEach(x => { if (x.bal <= 0) return; x.bal = x.bal * (1 + x.r) - x.pay; if (x.bal <= 0.5) { x.bal = 0; x.doneAt = m; } });
+    const v = live.reduce((a, x) => a + x.bal, 0); pts.push({ m, v });
+    if (v <= 0) break;
+  }
+  return { pts, live, stuck, zero: pts[pts.length - 1].v <= 0 ? pts[pts.length - 1].m : null };
+}
+function debtCard() {
+  const p = debtProjection();
+  if (!p) return '';
+  const head = '<section class="card debt-chart"><h2>📉 ירידת החובות</h2>';
+  if (!p.pts.length) return head + `<p class="sub">כדי לראות מתי החובות נגמרים, ממלאים "החזר חודשי" (או "סיום ההלוואה") בעריכת כל התחייבות.</p></section>`;
+  const W = 720, H = 220, pt = 12, pb = 26, pl = 8, ch = H - pt - pb, n = p.pts.length - 1, max = Math.max(1, p.pts[0].v);
+  const X = i => W - pl - (n ? i / n : 0) * (W - pl * 2), Y = v => pt + ch - v / max * ch;
+  const line = p.pts.map((q, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(q.v).toFixed(1)}`).join('');
+  const step = Math.max(1, Math.ceil(n / 8));
+  let labels = '';
+  for (let i = 0; i <= n; i += step) labels += `<text x="${X(i)}" y="${H - 6}" text-anchor="middle">${monthName(p.pts[i].m, 'short')} ${p.pts[i].m.slice(2, 4)}</text>`;
+  const dots = p.pts.map((q, i) => i % step === 0 || i === n ? `<circle cx="${X(i)}" cy="${Y(q.v)}" r="4" fill="var(--exp)"><title>${monthName(q.m)}: ${money(q.v)}</title></circle>` : '').join('');
+  let grid = ''; for (let g = 0; g <= 4; g++) { const y = pt + ch * g / 4; grid += `<line x1="0" x2="${W}" y1="${y}" y2="${y}" class="grid"/>`; }
+  const monthly = p.live.reduce((a, x) => a + x.pay, 0);
+  const ends = p.live.filter(x => x.doneAt).sort((a, b) => a.doneAt.localeCompare(b.doneAt));
+  return head + `<p class="sub">תחזית לפי היתרה, ההחזר החודשי והריבית שמולאו בכל התחייבות. בלי הלוואות חדשות ובלי פירעון מוקדם.</p>
+    <div class="debt-kpis"><div><small>סך החובות היום</small><b class="neg">${money(p.pts[0].v)}</b></div><div><small>החזרים בחודש</small><b>${money(monthly)}</b></div>
+      <div><small>צפוי להגיע ל־0</small><b class="pos">${p.zero ? monthName(p.zero) : 'יותר מ־40 שנה'}</b></div></div>
+    <svg viewBox="0 0 ${W} ${H}" class="chart" role="img" aria-label="תחזית ירידת החובות">${grid}<path class="dc-area" d="${line}L${X(n)},${pt + ch}L${X(0)},${pt + ch}Z"/><path class="dc-line" d="${line}"/>${dots}${labels}</svg>
+    ${ends.length ? `<p class="sub" style="margin-top:8px">מתי כל התחייבות נגמרת: ${ends.map(x => `<b>${esc(x.name)}</b> ${monthName(x.doneAt)}`).join(' · ')}</p>` : ''}
+    ${p.stuck.length ? `<p class="sub">לא נכללו בתחזית (אין החזר חודשי, או שההחזר לא מכסה את הריבית): ${p.stuck.map(x => esc(x.name)).join(', ')}</p>` : ''}</section>`;
+}
+const _assetsViewP2 = VIEWS.assets;
+VIEWS.assets = () => _assetsViewP2() + debtCard();
+
+// 38. מעשרות מנטו או מברוטו: בברוטו מוסיפים לכל חודש עם הכנסה את ניכויי השכר (מס, ביטוח לאומי, פנסיה)
+function maaserGross(prefix) {
+  const st = S.settings;
+  if (st.maaserMethod !== 'gross' || !(+st.maaserGrossAdd > 0)) return 0;
+  const ex = st.maaserExcludeInc || [];
+  const months = new Set(S.transactions.filter(t => t.type === 'income' && !ex.includes(t.category) && (!prefix || t.date.startsWith(prefix))).map(t => t.date.slice(0, 7)));
+  return months.size * +st.maaserGrossAdd;
+}
+function maaserMethodHtml() {
+  const st = S.settings, gross = st.maaserMethod === 'gross';
+  return `<div class="grid-form" style="margin-top:12px">
+      <label>מאיזה סכום מפרישים<select id="mMethod"><option value="net"${gross ? '' : ' selected'}>נטו – ההכנסות כפי שנרשמו</option><option value="gross"${gross ? ' selected' : ''}>ברוטו – כולל ניכויי השכר</option></select></label>
+      ${gross ? `<label>ניכויי שכר בחודש (₪)<input id="mGrossAdd" type="number" min="0" step="1" value="${+st.maaserGrossAdd || ''}" placeholder="מס, ביטוח לאומי, פנסיה" title="ההפרש בין הברוטו לנטו בתלוש. נוסף לכל חודש שיש בו הכנסה"></label>` : ''}</div>
+    <p class="sub" style="margin-top:6px">${gross ? 'בברוטו, הסכום שנוכה מהמשכורת (ההפרש בין הברוטו לנטו בתלוש) מתווסף להכנסה בכל חודש שיש בו הכנסה.' : 'בנטו, החישוב לפי ההכנסות כפי שנכנסו לחשבון.'} מה נכון לנהוג – כדאי לשאול רב.</p>`;
+}
+document.addEventListener('change', e => {
+  const id = e.target && e.target.id;
+  if (id === 'mMethod') { S.settings.maaserMethod = e.target.value; save(); render(); toast(e.target.value === 'gross' ? 'המעשרות יחושבו מהברוטו. רשום את ניכויי השכר החודשיים' : 'המעשרות יחושבו מהנטו'); }
+  if (id === 'mGrossAdd') { S.settings.maaserGrossAdd = Math.max(0, parseFloat(e.target.value) || 0); save(); render(); toast('נשמר'); }
+  if (id === 'kidsNames') { S.settings.kids = e.target.value.split(/[,،\n]/).map(s => s.trim()).filter(Boolean).slice(0, 20); save(); render(); toast('שמות הילדים נשמרו'); }
+  if (e.target && e.target.dataset && e.target.dataset.educat !== undefined) {
+    const set = new Set(eduCats()); e.target.checked ? set.add(e.target.value) : set.delete(e.target.value);
+    S.settings.eduCats = [...set]; save(); toast('נשמר');
+  }
+});
+
+// 57. הוצאות חינוך לכל ילד: לפי שם הילד בהערה, בקטגוריות החינוך
+const EDU_RE = /חינוך|לימוד|תלמוד|ת["״]ת|בית יעקב|ישיב|סמינר|גן |גנים|הסע|חוג|צהרון|מעון|ספרים/;
+function eduCats() { return S.settings.eduCats || S.categories.expense.filter(c => EDU_RE.test(c + ' ')); }
+function kidsOf(t, kids) {
+  // שמות מוסדות שיש בהם שם של ילד ("בית יעקב", "אוהל משה") לא נחשבים לשם הילד
+  const note = (t.note || '').replace(/(?:^|\s)(בית|אוהל|היכל|תפארת|מאור|נחלת|זכרון|ישיבת|שערי|קהילת)\s+[֐-׿]+/g, ' ');
+  return kids.filter(k => new RegExp(`(?:^|[^\\u0590-\\u05FF])[ולבהמש]?${k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\u0590-\\u05FF])`).test(note));
+}
+function kidsCard() {
+  const st = S.settings, edu = eduCats();
+  return `<section class="card"><h2>👧👦 ילדים – הוצאות חינוך</h2>
+    <p class="sub">רושמים את שמות הילדים, מופרדים בפסיק. הוצאה בקטגוריות החינוך שבהערה שלה כתוב שם של ילד (למשל "תלמוד תורה – משה") נספרת לאותו ילד בדוח "הוצאות חינוך לכל ילד" במרכז הדוחות.</p>
+    <div class="grid-form"><label class="wide">שמות הילדים<input id="kidsNames" maxlength="300" value="${esc((st.kids || []).join(', '))}" placeholder="למשל: משה, רחל, יעקב"></label></div>
+    <p class="sub" style="margin:12px 0 0"><b>קטגוריות החינוך</b></p>
+    <div class="kids-chips">${S.categories.expense.map(c => `<label class="mchip"><input type="checkbox" data-educat value="${esc(c)}"${edu.includes(c) ? ' checked' : ''}>${esc(c)}</label>`).join('')}</div>
+    <div class="actions" style="margin-top:10px"><button type="button" class="btn sm" data-action="repGo" data-id="kids">📄 לדוח הוצאות החינוך</button></div></section>`;
+}
+const _settingsViewP2 = VIEWS.settings;
+VIEWS.settings = () => _settingsViewP2() + kidsCard();
+
+// 15 + 57 + 36: דוחות חדשים במרכז הדוחות
+REPORTS.push(
+  { id: 'donees', icon: '🏛️', title: 'נתינות לפי מקבל', desc: 'כמה ניתן לכל מוסד או אדם, עם פירוט כל נתינה. מתאים להדפסה שנתית ולבדיקת קבלות' },
+  { id: 'kids', icon: '🎒', title: 'הוצאות חינוך לכל ילד', desc: 'תלמוד תורה, בית יעקב, הסעות וחוגים – לפי שם הילד בהערה. השמות מוגדרים בהגדרות' },
+  { id: 'advisor', icon: '🧑‍💼', title: 'דוח ליועץ כלכלי / רו״ח', desc: 'הכל במסמך אחד: ממוצעים חודשיים, מקורות הכנסה, הוצאות, קבועות, נכסים והלוואות' }
+);
+const _buildReportP2 = buildReport;
+buildReport = function (id) {
+  if (!['donees', 'kids', 'advisor'].includes(id)) return _buildReportP2(id);
+  const { p, periodTx, list, filt } = repData(), rep = REPORTS.find(r => r.id === id), st = S.settings;
+  const doc = { title: rep.title, period: p.label, filt, sections: [] };
+  if (id === 'donees') {
+    doc.filt = '';
+    const norm = s => (s || '').replace(/\s+/g, ' ').trim() || 'ללא פירוט';
+    const gifts = periodTx.filter(t => t.type === 'expense' && t.category === st.maaserCategory), tot = gifts.reduce((a, t) => a + t.amount, 0);
+    if (!gifts.length) { doc.empty = `לא נרשמו נתינות בקטגוריה "${st.maaserCategory}" בתקופה שנבחרה`; return doc; }
+    const g = groupSum(gifts, t => norm(t.note));
+    doc.kpis = [['סה״כ ניתן', tot, 'exp'], ['מקבלים', g.length, 'num'], ['נתינות', gifts.length, 'num'], ['נתינה ממוצעת', tot / gifts.length, 'money']];
+    doc.sections.push({ h: 'סיכום לפי מקבל', table: { cols: [['מקבל', 'text'], ['פעמים', 'num'], ['סכום', 'exp'], ['חלק', 'bar']], rows: g.map(([w, v]) => [w, v.n, v.s, v.s / tot]), total: ['סה״כ', gifts.length, tot, 1] } });
+    const order = new Map(g.map(([w], i) => [w, i]));
+    doc.sections.push({ h: 'פירוט כל הנתינות', table: { cols: [['מקבל', 'text'], ['תאריך', 'date'], ['סכום', 'exp']],
+      rows: [...gifts].sort((a, b) => order.get(norm(a.note)) - order.get(norm(b.note)) || a.date.localeCompare(b.date)).map(t => [norm(t.note), t.date, t.amount]), total: ['סה״כ', '', tot] } });
+    doc.note = 'הדוח לפי ההערה שנרשמה בכל נתינה. לזיכוי ממס על תרומות (סעיף 46) צריך את הקבלות מהמוסדות עצמם.';
+    return doc;
+  }
+  if (id === 'kids') {
+    doc.filt = '';
+    const kids = st.kids || [], edu = eduCats();
+    if (!kids.length) { doc.empty = 'עוד לא נרשמו שמות הילדים. במסך "הגדרות וגיבוי", בכרטיס "ילדים – הוצאות חינוך", רושמים את השמות ובוחרים את קטגוריות החינוך.'; return doc; }
+    const el = periodTx.filter(t => t.type === 'expense' && edu.includes(t.category));
+    if (!el.length) { doc.empty = 'אין הוצאות בקטגוריות החינוך בתקופה שנבחרה'; return doc; }
+    const tot = el.reduce((a, t) => a + t.amount, 0), nM = Math.max(1, monthsOf(el).length), by = {}, shared = [];
+    kids.forEach(k => by[k] = { s: 0, n: 0, cats: {} });
+    el.forEach(t => { const w = kidsOf(t, kids); if (!w.length) return shared.push(t); w.forEach(k => { const part = t.amount / w.length; by[k].s += part; by[k].n++; by[k].cats[t.category] = (by[k].cats[t.category] || 0) + part; }); });
+    const sh = shared.reduce((a, t) => a + t.amount, 0);
+    doc.kpis = [['סה״כ חינוך', tot, 'exp'], ['ממוצע לחודש', tot / nM, 'money'], ['ילדים', kids.length, 'num'], ['משותף / לא שויך', sh, 'money']];
+    const rows = kids.map(k => [k, by[k].n, by[k].s, tot ? by[k].s / tot : 0, by[k].s / nM]);
+    if (shared.length) rows.push(['משותף / לא שויך לילד', shared.length, sh, sh / tot, sh / nM]);
+    doc.sections.push({ h: 'לפי ילד', table: { cols: [['ילד', 'text'], ['עסקאות', 'num'], ['סכום', 'exp'], ['חלק', 'bar'], ['ממוצע לחודש', 'money']], rows, total: ['סה״כ', el.length, tot, 1, tot / nM] } });
+    const kc = []; kids.forEach(k => Object.entries(by[k].cats).sort((a, b) => b[1] - a[1]).forEach(([c, v]) => kc.push([k, c, v])));
+    if (kc.length) doc.sections.push({ h: 'לפי ילד וקטגוריה', table: { cols: [['ילד', 'text'], ['קטגוריה', 'text'], ['סכום', 'exp']], rows: kc } });
+    doc.sections.push({ h: 'כל הוצאות החינוך', table: { cols: [['תאריך', 'date'], ['ילד', 'text'], ['קטגוריה', 'text'], ['תיאור', 'text'], ['סכום', 'exp']],
+      rows: el.map(t => [t.date, kidsOf(t, kids).join(', ') || 'משותף', t.category, t.note, t.amount]), total: ['סה״כ', '', '', '', tot] } });
+    doc.note = `קטגוריות החינוך: ${edu.join(', ') || 'לא נבחרו'}. הוצאה עם שמות של כמה ילדים מתחלקת ביניהם שווה בשווה.`;
+    return doc;
+  }
+  // advisor
+  const months = monthsOf(list), nM = Math.max(1, months.length), inc = sumOf(list, 'income'), exp = sumOf(list, 'expense'), nw = netWorth();
+  const liabs = S.assets.filter(a => a.kind === 'liability'), assets = S.assets.filter(a => a.kind === 'asset');
+  const pays = liabs.reduce((a, l) => a + (l.value > 0 ? +l.payment || 0 : 0), 0);
+  doc.kpis = [['ממוצע הכנסות לחודש', inc / nM, 'inc'], ['ממוצע הוצאות לחודש', exp / nM, 'exp'], ['חיסכון ממוצע לחודש', (inc - exp) / nM, 'money'], ['שיעור חיסכון', inc ? (inc - exp) / inc : 0, 'pct'],
+    ['שווי נקי', nw.n, 'money'], ['נכסים', nw.a, 'inc'], ['התחייבויות', nw.l, 'exp'], ['החזרי הלוואות בחודש', pays, 'exp']];
+  const gi = groupSum(list.filter(t => t.type === 'income'), t => t.category), ge = groupSum(list.filter(t => t.type === 'expense' && !skipAsExpense(t)), t => t.category);
+  if (gi.length) doc.sections.push({ h: 'מקורות הכנסה', table: { cols: [['קטגוריה', 'text'], ['סכום', 'inc'], ['ממוצע לחודש', 'money'], ['חלק', 'bar']], rows: gi.map(([c, v]) => [c, v.s, v.s / nM, inc ? v.s / inc : 0]), total: ['סה״כ', inc, inc / nM, 1] } });
+  if (ge.length) doc.sections.push({ h: 'הוצאות לפי קטגוריה', table: { cols: [['קטגוריה', 'text'], ['סכום', 'exp'], ['ממוצע לחודש', 'money'], ['חלק', 'bar']], rows: ge.map(([c, v]) => [c, v.s, v.s / nM, exp ? v.s / exp : 0]), total: ['סה״כ', exp, exp / nM, 1] } });
+  const rec = S.recurring.filter(r => r.active && !recEnded(r)).sort((a, b) => a.type.localeCompare(b.type) || b.amount - a.amount);
+  if (rec.length) doc.sections.push({ h: 'הכנסות והוצאות קבועות', table: { cols: [['תיאור', 'text'], ['סוג', 'center'], ['קטגוריה', 'text'], ['סכום חודשי', 'money'], ['חודשים', 'text'], ['עד חודש', 'center']],
+    rows: rec.map(r => [r.note || r.category, r.type === 'income' ? 'הכנסה' : 'הוצאה', r.category, { v: r.amount, k: r.type === 'income' ? 'inc' : 'exp' }, monthsText(r.months), r.endMonth ? shortMonth(r.endMonth) : '—']) } });
+  if (assets.length) doc.sections.push({ h: 'נכסים', table: { cols: [['נכס', 'text'], ['סוג', 'text'], ['שווי', 'inc']], rows: assets.map(a => [a.name, a.category || '', a.value]), total: ['סה״כ', '', nw.a] } });
+  if (liabs.length) doc.sections.push({ h: 'הלוואות והתחייבויות', table: { cols: [['התחייבות', 'text'], ['מלווה', 'text'], ['יתרה', 'exp'], ['החזר חודשי', 'money'], ['ריבית', 'center'], ['תשלומים שנותרו', 'num']],
+    rows: liabs.map(a => [a.name, a.lender || '', a.value, +a.payment || '', a.rate ? a.rate + '%' : '', a.payment > 0 && a.value > 0 ? Math.ceil(a.value / a.payment) : '']), total: ['סה״כ', '', nw.l, pays, '', ''] } });
+  let cum = 0;
+  const mrows = months.map(m => { const ml = list.filter(t => t.date.startsWith(m)), i = sumOf(ml, 'income'), e = sumOf(ml, 'expense'); cum += i - e; return [monthName(m), { v: i, k: 'inc' }, { v: e, k: 'exp' }, i - e, cum]; });
+  if (mrows.length) doc.sections.push({ h: 'חודש אחרי חודש', chart: mrows.map(r => [r[0], r[1].v, r[2].v]), table: { cols: [['חודש', 'text'], ['הכנסות', 'inc'], ['הוצאות', 'exp'], ['יתרה', 'money'], ['יתרה מצטברת', 'money']], rows: mrows, total: ['סה״כ', { v: inc, k: 'inc' }, { v: exp, k: 'exp' }, inc - exp, ''] } });
+  doc.note = 'הדוח מבוסס על מה שנרשם בתוכנה. הכנסות והוצאות לפי התקופה והסינון שנבחרו; נכסים, הלוואות וקבועות לפי המצב היום.';
+  if (!doc.sections.length) doc.empty = 'אין נתונים בתקופה ובסינון שנבחרו';
+  return doc;
+};
+
+// 67. מצגת החודש: סיכום במסך מלא לשיחה המשותפת
+let pmIdx = 0, pmList = [];
+function pmBuild(m) {
+  const prev = shiftMonth(m, -1), inc = sumMonth(m, 'income'), exp = sumMonth(m, 'expense'), pinc = sumMonth(prev, 'income'), pexp = sumMonth(prev, 'expense'), left = inc - exp;
+  const cmp = (v, o, upGood) => { if (!o) return ''; const d = v - o, good = upGood ? d >= 0 : d <= 0; return `<span class="${good ? 'pm-good' : 'pm-bad'}">${d >= 0 ? '▲' : '▼'} ${money(Math.abs(d))} מהחודש הקודם</span>`; };
+  const s = [];
+  s.push(`<div class="pm-kicker">סיכום החודש</div><h1>${monthName(m)}</h1><div class="pm-sub">${esc(hebKey(m + '-15'))}</div><p class="pm-note">ביחד, בנחת: מה נכנס, לאן זה הלך, ומה מתכננים לחודש הבא.</p>`);
+  s.push(`<h2>💰 מה נכנס ומה יצא</h2><div class="pm-tiles"><div class="pm-tile"><small>הכנסות</small><b>${money(inc)}</b>${cmp(inc, pinc, true)}</div>
+    <div class="pm-tile"><small>הוצאות</small><b>${money(exp)}</b>${cmp(exp, pexp, false)}</div>
+    <div class="pm-tile"><small>${left >= 0 ? 'נשאר' : 'חסר'}</small><b class="${left >= 0 ? 'pm-good' : 'pm-bad'}">${money(Math.abs(left))}</b><span>${inc ? `${Math.round(left / inc * 100)}% מההכנסות` : ''}</span></div></div>`);
+  const g = {}; S.transactions.filter(t => t.type === 'expense' && t.date.startsWith(m) && !skipAsExpense(t)).forEach(t => { g[t.category] = (g[t.category] || 0) + t.amount; });
+  const top = Object.entries(g).sort((a, b) => b[1] - a[1]).slice(0, 7), avg = catAvg3(m, 'expense'), mx = top.length ? top[0][1] : 1;
+  if (top.length) {
+    const up = top.filter(([c, v]) => avg[c] > 0 && v > avg[c] * 1.1).map(([c, v]) => `${esc(c)} (+${Math.round((v / avg[c] - 1) * 100)}%)`);
+    s.push(`<h2>🧭 לאן הלך הכסף</h2><div class="pm-rows">${top.map(([c, v]) => `<div class="pm-row"><span>${esc(c)}</span><div class="pm-bar"><i style="width:${(v / mx * 100).toFixed(1)}%"></i></div><b>${money(v)}</b></div>`).join('')}</div>
+      ${up.length ? `<p class="pm-note">מעל הממוצע של 3 החודשים הקודמים: ${up.join(' · ')}</p>` : '<p class="pm-note">אף קטגוריה לא עברה משמעותית את הממוצע של 3 החודשים הקודמים 👍</p>'}`);
+  }
+  const bud = Object.entries(S.budgets || {}).filter(([c, b]) => b > 0 && c !== S.settings.loanCategory).map(([c, b]) => ({ c, b, s: sumMonth(m, 'expense', c) })).sort((a, b) => b.s / b.b - a.s / a.b).slice(0, 7);
+  if (bud.length) {
+    const over = bud.filter(x => x.s > x.b);
+    s.push(`<h2>🎯 תקציב מול ביצוע</h2><div class="pm-rows">${bud.map(x => `<div class="pm-row"><span>${esc(x.c)}</span><div class="pm-bar"><i class="${x.s > x.b ? 'over' : ''}" style="width:${Math.min(100, x.s / x.b * 100).toFixed(1)}%"></i></div><b class="${x.s > x.b ? 'pm-bad' : ''}">${money(x.s)} / ${money(x.b)}</b></div>`).join('')}</div>
+      <p class="pm-note">${over.length ? `חריגה ב: ${over.map(x => `${esc(x.c)} (${money(x.s - x.b)})`).join(' · ')}` : 'כל הקטגוריות בתוך התקציב 👏'}</p>`);
+  }
+  const mc = maaserCalc(m), all = maaserCalc(''), cum = all.bal + (+S.settings.maaserOpening || 0);
+  if (mc.due || mc.given) s.push(`<h2>🤲 מעשרות</h2><div class="pm-tiles"><div class="pm-tile"><small>נדרש החודש</small><b>${money(mc.due)}</b></div><div class="pm-tile"><small>ניתן החודש</small><b>${money(mc.given)}</b></div>
+    <div class="pm-tile"><small>יתרה מצטברת</small><b class="${cum >= 0 ? 'pm-good' : 'pm-bad'}">${cum >= 0 ? '+' : '−'}${money(Math.abs(cum))}</b><span>${cum >= 0 ? 'עודף' : 'נותר לתת'}</span></div></div>`);
+  const nw = netWorth(), nwPrev = (S.nwHistory || {})[prev];
+  if (S.assets.length) s.push(`<h2>🏦 חסכונות וחובות</h2><div class="pm-tiles"><div class="pm-tile"><small>שווי נקי</small><b>${money(nw.n)}</b>${nwPrev != null ? cmp(nw.n, nwPrev, true) : ''}</div>
+    <div class="pm-tile"><small>נכסים</small><b>${money(nw.a)}</b></div><div class="pm-tile"><small>חובות</small><b class="pm-bad">${money(nw.l)}</b>${(() => { const d = debtProjection(); return d && d.zero ? `<span>צפוי להיגמר ב${monthName(d.zero)}</span>` : ''; })()}</div></div>`);
+  const next = shiftMonth(m, 1), nm = +next.slice(5);
+  const nrec = S.recurring.filter(r => r.active && r.type === 'expense' && !(r.endMonth && r.endMonth < next) && !(r.startMonth && r.startMonth > next) && (!r.months || r.months.includes(nm))).sort((a, b) => b.amount - a.amount);
+  s.push(`<h2>📅 החודש הבא: ${monthName(next)}</h2>${nrec.length ? `<div class="pm-rows">${nrec.slice(0, 6).map(r => `<div class="pm-row"><span>${esc(r.note || r.category)}</span><span style="opacity:.75">${r.day} בחודש</span><b>${money(r.amount)}</b></div>`).join('')}</div>
+    <p class="pm-note">סה״כ הוצאות קבועות צפויות: <b>${money(nrec.reduce((a, r) => a + r.amount, 0))}</b></p>` : '<p class="pm-note">לא הוגדרו הוצאות קבועות</p>'}
+    <p class="pm-note">💬 שאלה לשיחה: על מה נרצה לשמור או לחסוך בחודש הבא?</p>`);
+  return s;
+}
+function pmShow(i) {
+  const el = document.getElementById('pm'); if (!el) return;
+  pmIdx = Math.max(0, Math.min(pmList.length - 1, i));
+  el.querySelector('.pm-slide').innerHTML = pmList[pmIdx];
+  el.querySelector('[data-action="pmPrev"]').disabled = pmIdx === 0;
+  el.querySelector('[data-action="pmNext"]').disabled = pmIdx === pmList.length - 1;
+  el.querySelectorAll('.pm-dots button').forEach((b, k) => b.classList.toggle('on', k === pmIdx));
+}
+function pmOpen() {
+  if (document.getElementById('pm')) return;
+  const m = ui.month && ui.month.length === 7 ? ui.month : monthKey(new Date());
+  pmList = pmBuild(m); pmIdx = 0;
+  const el = document.createElement('div');
+  el.className = 'pm'; el.id = 'pm';
+  el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'מצגת החודש');
+  el.innerHTML = `<div class="pm-head"><b>₪ כספי הבית · מצגת ${monthName(m)}</b><button type="button" data-action="pmClose" title="סגירה (Esc)" aria-label="סגירת המצגת">✕</button></div>
+    <div class="pm-stage"><div class="pm-slide" aria-live="polite"></div></div>
+    <div class="pm-foot"><button type="button" class="pm-nav" dir="ltr" data-action="pmPrev" aria-label="השקופית הקודמת">›</button>
+      <div class="pm-dots">${pmList.map((_, k) => `<button type="button" data-action="pmGo" data-n="${k}" aria-label="שקופית ${k + 1}"></button>`).join('')}</div>
+      <button type="button" class="pm-nav" dir="ltr" data-action="pmNext" aria-label="השקופית הבאה">‹</button></div>`;
+  document.body.appendChild(el); document.body.style.overflow = 'hidden';
+  pmShow(0);
+  try { if (el.requestFullscreen) el.requestFullscreen().catch(() => {}); } catch (e) {}
+  el.querySelector('[data-action="pmNext"]').focus();
+}
+function pmClose() {
+  const el = document.getElementById('pm'); if (!el) return;
+  try { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); } catch (e) {}
+  el.remove(); document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('pm')) return;
+  const go = { ArrowLeft: 1, PageDown: 1, ' ': 1, ArrowRight: -1, PageUp: -1 }[e.key];
+  if (e.key === 'Escape') { e.preventDefault(); pmClose(); }
+  else if (go) { e.preventDefault(); pmShow(pmIdx + go); }
+});
+document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && document.getElementById('pm')) { /* יציאה ממסך מלא משאירה את המצגת פתוחה */ } });
+
+Object.assign(ACTIONS, {
+  pmOpen: () => pmOpen(),
+  pmClose: () => pmClose(),
+  pmPrev: () => pmShow(pmIdx - 1),
+  pmNext: () => pmShow(pmIdx + 1),
+  pmGo: el => pmShow(+el.dataset.n),
+  repGo: el => {
+    ui.tab = 'report'; ui.repMode = 'center'; ui.repSel = el.dataset.id;
+    if (el.dataset.y) { const f = repState(); f.period = 'year'; f.year = el.dataset.y; }
+    render(); window.scrollTo(0, 0);
+  }
+});
+
+/* ---------- שלב 2: כפתורי הדפסה (ומצגת בדשבורד) בכותרת של כל מסך ---------- */
+const _topbarP2 = topbar;
+topbar = function (title, extra = '') {
+  const pres = title === 'דשבורד' && typeof pmOpen === 'function'
+    ? '<button type="button" class="btn sm" data-action="pmOpen" title="סיכום החודש במסך מלא, לשיחה המשותפת">🖥️ מצגת החודש</button>' : '';
+  return _topbarP2(title, extra + `<div class="tb-tools no-print">${pres}<button type="button" class="btn sm" data-action="printScreen" title="הדפסת המסך על דף A4, או שמירה כ־PDF">🖨️ הדפסה</button></div>`);
+};
+Object.assign(ACTIONS, {
+  printScreen: () => {
+    document.body.classList.remove('print-doc');
+    let f = document.getElementById('printFoot');
+    if (!f) { f = document.createElement('div'); f.id = 'printFoot'; f.className = 'print-foot'; (document.querySelector('main') || document.body).appendChild(f); }
+    f.textContent = `הודפס ב־${gregDate(today())} · ${hebDate(today())}`;
+    toast('בחלון ההדפסה אפשר לבחור מדפסת, או "שמירה כ־PDF"');
+    setTimeout(() => window.print(), 150);
+  }
 });
 
 /* ---------- חלון "התאמת מראה" ---------- */
