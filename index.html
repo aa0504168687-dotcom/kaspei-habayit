@@ -508,6 +508,11 @@ html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *:
 .look-mini{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
 .look-mini button{width:34px;height:34px;border-radius:50%;border:3px solid var(--card);box-shadow:0 0 0 1.5px var(--border);cursor:pointer;padding:0}
 .look-mini button.on{box-shadow:0 0 0 2.5px var(--primary)}
+/* לוח שנה משולב */
+.hc-sec{font-size:15px;font-weight:500;opacity:.65;margin-inline-start:6px}
+.hc-modes .btn{min-width:88px}
+.hc-d small.hc-new{opacity:1;font-weight:700;color:var(--primary,#4f46e5)}
+.hcal .hc-d small:not(.hc-new){font-size:12.5px;opacity:.78}
 /* שלב 7: פרטי מסך וסקר */
 .req-snap{display:grid;gap:6px;margin:4px 0 8px;font-size:14px}
 .req-snap-chk{display:flex!important;flex-direction:row!important;gap:8px;align-items:flex-start;font-weight:600}
@@ -5408,6 +5413,45 @@ Object.assign(ACTIONS, {
   },
   subsLater: () => { planS().subsLater = monthKey(new Date()); save(); render(); toast('נזכיר בחודש הבא'); },
   subsGo: () => { const b = document.querySelector('aside [data-tab="plan"]'); if (b) b.click(); setTimeout(() => { const s = document.getElementById('subsSec'); if (s) s.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60); }
+});
+
+/* ---------- לוח שנה משולב: עברי ולועזי ---------- */
+// הלוח יכול להיות מסודר לפי חודש עברי או לפי חודש לועזי. בכל יום רואים את שני התאריכים, ובכותרת את שני החודשים
+function hcalGregDays(off) {
+  const t = new Date(), s = new Date(t.getFullYear(), t.getMonth() + off, 1), n = new Date(s.getFullYear(), s.getMonth() + 1, 0).getDate();
+  return Array.from({ length: n }, (_, i) => `${s.getFullYear()}-${pad(s.getMonth() + 1)}-${pad(i + 1)}`);
+}
+const GREG_SHORT = ['ינו׳', 'פבר׳', 'מרץ', 'אפר׳', 'מאי', 'יוני', 'יולי', 'אוג׳', 'ספט׳', 'אוק׳', 'נוב׳', 'דצמ׳'];
+hcalCard = function () {
+  if (!plHebFmt) return '';
+  const greg = (S.settings || {}).hcalMode === 'greg', off = ui.hcal || 0, days = greg ? hcalGregDays(off) : hcalMonth(off), t = today();
+  const a = days[0], z = days[days.length - 1], ha = plHeb(a), hz = plHeb(z);
+  // שם החודש השני: טווח, כי חודש עברי חוצה שני חודשים לועזיים ולהפך
+  const gA = monthName(a.slice(0, 7)), gZ = monthName(z.slice(0, 7));
+  const gRange = gA === gZ ? gA : (a.slice(0, 4) === z.slice(0, 4) ? monthName(a.slice(0, 7), 'long').replace(/\s*\d{4}$/, '') + '–' + gZ : gA + ' – ' + gZ);
+  const hRange = ha.m === hz.m ? `${ha.m} ${ha.y}` : (ha.y === hz.y ? `${ha.m}–${hz.m} ${hz.y}` : `${ha.m} ${ha.y} – ${hz.m} ${hz.y}`);
+  const main = greg ? gA : `${ha.m} ${ha.y}`, second = greg ? hRange : gRange;
+  const first = new Date(a + 'T12:00:00').getDay();
+  let inc = 0, exp = 0;
+  const cells = Array(first).fill('<div class="hc-cell hc-empty"></div>').concat(days.map(iso => {
+    const h = plHeb(iso), wd = new Date(iso + 'T12:00:00').getDay(), rs = recOnDate(iso), gd = +iso.slice(8), gm = +iso.slice(5, 7);
+    rs.forEach(r => r.type === 'income' ? inc += r.amount : exp += r.amount);
+    // התאריך הראשי גדול, והשני קטן. ביום הראשון של החודש השני מופיע גם שם החודש
+    const big = greg ? gd : (HEB_DAY[h.d] || h.d);
+    const small = greg ? `${HEB_DAY[h.d] || h.d}${h.d === 1 ? ' ' + h.m : ''}` : `${gd}${gd === 1 ? ' ' + GREG_SHORT[gm - 1] : '/' + gm}`;
+    const mark = greg ? h.d === 1 : gd === 1;
+    return `<div class="hc-cell${wd === 6 ? ' hc-shabbat' : ''}${iso === t ? ' hc-today' : ''}" title="${esc(hebDate(iso) + ' · ' + gregDate(iso))}"><div class="hc-d"><b>${big}</b><small${mark ? ' class="hc-new"' : ''}>${esc(small)}</small></div>
+      ${rs.map(r => `<div class="hc-r ${r.type === 'income' ? 'inc' : 'exp'}" title="${esc((r.note || r.category) + ' · ' + money(r.amount))}">${esc(r.note || r.category)} <b>${money(r.amount)}</b></div>`).join('')}</div>`;
+  })).join('');
+  const tab = (v, l) => `<button type="button" class="btn sm${(greg ? 'greg' : 'heb') === v ? ' primary' : ''}" data-action="hcalMode" data-v="${v}" aria-pressed="${(greg ? 'greg' : 'heb') === v}">${l}</button>`;
+  return `<section class="card hcal"><div class="hc-top"><h2>📅 לוח שנה · ${esc(main)} <small class="hc-sec">${esc(second)}</small></h2>
+      <div class="inline hc-modes" role="group" aria-label="סידור הלוח">${tab('heb', 'חודש עברי')}${tab('greg', 'חודש לועזי')}</div>
+      <div class="inline"><button type="button" class="btn sm" data-action="hcalGo" data-d="-1" aria-label="החודש הקודם">› הקודם</button>${off ? '<button type="button" class="btn sm" data-action="hcalGo" data-d="0">החודש</button>' : ''}<button type="button" class="btn sm" data-action="hcalGo" data-d="1" aria-label="החודש הבא">הבא ‹</button></div></div>
+    <p class="sub">בכל יום מופיעים התאריך העברי והלועזי, והקבועות שיורדות או נכנסות בו. ${inc ? `הכנסות קבועות: <b class="pos">${money(inc)}</b>` : ''} ${exp ? ` · הוצאות קבועות: <b class="neg">${money(exp)}</b>` : ''}</p>
+    <div class="hc-grid">${['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'].map(n => `<div class="hc-wd">${n}</div>`).join('')}${cells}</div></section>`;
+};
+Object.assign(ACTIONS, {
+  hcalMode: el => { S.settings.hcalMode = el.dataset.v; ui.hcal = 0; save(); render(); const c = document.querySelector('.hcal'); if (c) c.scrollIntoView({ block: 'start' }); }
 });
 
 /* ---------- חלון "התאמת מראה" ---------- */
