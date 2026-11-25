@@ -504,6 +504,21 @@ html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *:
 .look-mini{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
 .look-mini button{width:34px;height:34px;border-radius:50%;border:3px solid var(--card);box-shadow:0 0 0 1.5px var(--border);cursor:pointer;padding:0}
 .look-mini button.on{box-shadow:0 0 0 2.5px var(--primary)}
+/* שלב 3: תכנון וחיסכון */
+.pl-list{display:grid;gap:12px;margin-top:14px}
+.pl-item{border:1px solid var(--border,#e5e7eb);border-radius:14px;padding:14px 16px;background:var(--card-2,rgba(127,127,127,.04))}
+.pl-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.pl-top b{font-size:1.05em}
+.pl-kpis{display:flex;gap:22px;flex-wrap:wrap;margin:8px 0}
+.pl-kpis>div{display:flex;flex-direction:column;gap:2px}
+.pl-kpis small{opacity:.7}
+.pl-kpis b{font-size:1.15em}
+.pl-item .inline{flex-wrap:wrap;gap:8px}
+tr.pl-late td{background:rgba(224,49,49,.07)}
+.ch-weeks{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}
+.ch-weeks span{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-weight:700;font-size:13px}
+.ch-weeks .ok{background:rgba(15,157,88,.15);color:#0f9d58}
+.ch-weeks .no{background:rgba(224,49,49,.12);color:#e03131}
 /* שלב 2: כלים בכותרת (הדפסה, מצגת), והדפסה מסודרת בגודל A4 */
 .tb-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 @media print{
@@ -785,6 +800,7 @@ try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change
     <button data-tab="rec">🔁 הוצאות והכנסות קבועות</button>
     <button data-tab="budget">💼 תקציב</button>
     <button data-tab="report">📑 דוחות</button>    <button data-tab="maaser">🤲 מעשרות</button>
+    <button data-tab="plan">🎯 תכנון וחיסכון</button>
     <div class="nav-group">הון</div>
     <button data-tab="assets">🏠 נכסים והתחייבויות</button>
     <div class="nav-group">כללי</div>
@@ -4479,6 +4495,224 @@ Object.assign(ACTIONS, {
     toast('בחלון ההדפסה אפשר לבחור מדפסת, או "שמירה כ־PDF"');
     setTimeout(() => window.print(), 150);
   }
+});
+
+/* ---------- שלב 3: מסך "תכנון וחיסכון" – יעדים, חגים, אתגר, חובות קטנים, אירועים משפחתיים ---------- */
+function planS() { S.plan = S.plan || {}; const p = S.plan; p.debts = p.debts || []; p.events = p.events || []; p.hol = p.hol || {}; return p; }
+const plIso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const plAdd = (iso, n) => { const [y, m, d] = iso.split('-').map(Number); return plIso(new Date(y, m - 1, d + n, 12)); };
+const plDays = (a, b) => Math.round((new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / 864e5);
+const plExp = (from, to, cats) => S.transactions.filter(t => t.type === 'expense' && t.date >= from && t.date <= to && !skipAsExpense(t) && (!cats || cats.includes(t.category))).reduce((a, t) => a + t.amount, 0);
+const plMonthsTo = iso => { const c = monthKey(new Date()), k = iso.slice(0, 7); let n = 0, m = c; while (m < k && n < 600) { n++; m = shiftMonth(m, 1); } return n; };
+const plBar = (v, max, over) => `<div class="bar ${over ? 'over' : v >= max && max > 0 ? 'done' : ''}"><span style="width:${max > 0 ? Math.min(100, v / max * 100).toFixed(1) : 0}%"></span></div>`;
+
+// 12. יעדי חיסכון (משתמש בקופות הקיימות S.funds, עם תאריך יעד)
+function goalsSection() {
+  if (typeof applyFundDeposits === 'function') applyFundDeposits();
+  const funds = S.funds || [];
+  const rows = funds.map(f => {
+    const b = fundBal(f), t = +f.target || 0, left = Math.max(0, t - b), mon = +f.monthly || 0;
+    let when = '';
+    if (t && b >= t) when = '<b class="pos">היעד הושג ✓</b>';
+    else if (f.due) { const n = Math.max(1, plMonthsTo(f.due + '-01')); when = `יעד ל${monthName(f.due)} · צריך להפריש <b>${money(left / n)}</b> בחודש${mon ? (mon >= left / n ? ' <span class="pos">– ההפקדה הנוכחית מספיקה</span>' : ` <span class="neg">– ההפקדה הנוכחית (${money(mon)}) לא מספיקה</span>`) : ''}`; }
+    else if (t && mon) when = `בקצב של ${money(mon)} בחודש, היעד יושג ב<b>${monthName(shiftMonth(monthKey(new Date()), Math.ceil(left / mon)))}</b>`;
+    else if (t) when = 'כדי לדעת מתי היעד יושג, רושמים הפקדה חודשית או תאריך יעד';
+    return `<div class="pl-item"><div class="pl-top"><b>🎯 ${esc(f.name)}</b><span>${money(b)}${t ? ` מתוך ${money(t)}` : ''}</span></div>
+      ${t ? plBar(b, t) : ''}<p class="sub" style="margin:6px 0">${when}</p>
+      <div class="inline"><input type="number" min="0" step="1" id="gAmt-${f.id}" placeholder="סכום" style="width:110px" aria-label="סכום להפקדה ב${esc(f.name)}">
+        <button type="button" class="btn sm" data-action="goalMove" data-id="${f.id}" data-sign="1">הפקדה</button><button type="button" class="btn sm" data-action="goalMove" data-id="${f.id}" data-sign="-1">שימוש</button>
+        <label class="inline sub" style="margin:0">הפקדה חודשית<input type="number" min="0" step="1" data-gmon="${f.id}" value="${mon || ''}" placeholder="0" style="width:95px"></label>
+        <label class="inline sub" style="margin:0">תאריך יעד<input type="month" data-gdue="${f.id}" value="${f.due || ''}" style="width:150px"></label>
+        <button type="button" class="btn sm danger" data-action="goalDel" data-id="${f.id}">מחיקה</button></div></div>`;
+  }).join('');
+  return `<section class="card" id="plGoals"><h2>🎯 יעדי חיסכון</h2>
+    <p class="sub">כסף שמפרישים למטרה: חתונה, קרן לפסח, קרן חירום. זה מעקב בלבד – ההפקדה לא נרשמת כהוצאה. "הפקדה חודשית" מתווספת לבד בתחילת כל חודש.</p>
+    <form id="goalForm" class="grid-form"><label>שם היעד<input name="name" required maxlength="40" placeholder="למשל: חתונה"></label>
+      <label>סכום יעד (₪)<input name="target" type="number" min="1" step="1" required placeholder="40000"></label>
+      <label>עד תאריך<input name="due" type="month"></label>
+      <label>הפקדה חודשית (₪)<input name="monthly" type="number" min="0" step="1" placeholder="לא חובה"></label>
+      <label>כבר נאסף (₪)<input name="start" type="number" min="0" step="1" value="0"></label>
+      <div class="actions"><button class="btn primary">+ יעד חדש</button></div></form>
+    ${rows ? `<div class="pl-list">${rows}</div>` : '<p class="empty">עוד לא הוגדרו יעדים</p>'}</section>`;
+}
+
+// 13. חגים ומועדים: התקופה לפי הלוח העברי, ההוצאות בה מול השנה שעברה ומול תקציב
+const plHebFmt = (() => { try { return new Intl.DateTimeFormat('he-IL-u-ca-hebrew', { day: 'numeric', month: 'long', year: 'numeric' }); } catch (e) { return null; } })();
+const plHebCache = {};
+function plHeb(iso) {
+  if (plHebCache[iso]) return plHebCache[iso];
+  if (!plHebFmt) return null;
+  const [y, m, d] = iso.split('-').map(Number), p = plHebFmt.formatToParts(new Date(y, m - 1, d, 12)), g = t => (p.find(x => x.type === t) || {}).value || '';
+  return plHebCache[iso] = { d: parseInt(g('day'), 10), m: g('month').replace(/^ב/, ''), y: parseInt(g('year').replace(/\D/g, ''), 10) };
+}
+const HOLS = [
+  { k: 'pesach', n: 'פסח', ico: '🍷', hint: 'מאמצע אדר ועד אחרי החג', yr: h => (h.m === 'ניסן' && h.d <= 22) || (h.m.startsWith('אדר') && !h.m.slice(3).includes('א') && h.d >= 15) ? h.y : 0 },
+  { k: 'tishrei', n: 'חגי תשרי', ico: '🍎', hint: 'מאמצע אלול ועד אחרי סוכות', yr: h => h.m === 'תשרי' && h.d <= 23 ? h.y : h.m === 'אלול' && h.d >= 15 ? h.y + 1 : 0 },
+  { k: 'chanuka', n: 'חנוכה', ico: '🕎', hint: 'מי׳ בכסלו ועד ג׳ בטבת', yr: h => (h.m === 'כסלו' && h.d >= 10) || (h.m === 'טבת' && h.d <= 3) ? h.y : 0 }
+];
+let plHolMemo = null;
+function holWindows() {
+  const t = today();
+  if (plHolMemo && plHolMemo.t === t) return plHolMemo.w;
+  const w = {}; HOLS.forEach(h => w[h.k] = {});
+  if (plHebFmt) for (let iso = plAdd(t, -800); iso <= plAdd(t, 420); iso = plAdd(iso, 1)) {
+    const h = plHeb(iso); if (!h || !h.y) continue;
+    HOLS.forEach(H => { const y = H.yr(h); if (!y) return; const o = w[H.k][y] = w[H.k][y] || { from: iso, to: iso, y }; o.to = iso; });
+  }
+  plHolMemo = { t, w };
+  return w;
+}
+function holSection() {
+  const t = today(), W = holWindows(), P = planS();
+  if (!plHebFmt) return '<section class="card"><h2>🕯️ חגים ומועדים</h2><p class="empty">הדפדפן הזה לא תומך בלוח העברי</p></section>';
+  const rows = HOLS.map(H => {
+    const all = Object.values(W[H.k]).sort((a, b) => a.y - b.y), next = all.find(x => x.to >= t);
+    if (!next) return null;
+    const prev = W[H.k][next.y - 1], len = plDays(next.from, next.to) + 1, bud = +P.hol[H.k] || 0;
+    const started = next.from <= t, spent = started ? plExp(next.from, next.to) : 0;
+    const prevSpent = prev ? plExp(prev.from, prev.to) : 0;
+    const prevNormal = prev ? plExp(plAdd(prev.from, -90), plAdd(prev.from, -1)) / 90 * len : 0;
+    const hasPrevData = prev && S.transactions.some(x => x.date >= plAdd(prev.from, -90) && x.date <= prev.to);
+    const status = started ? `<b>עכשיו בתקופת ${H.n}</b> · עד ${gregDate(next.to)}` : `בעוד <b>${plDays(t, next.from)}</b> ימים · ${gregDate(next.from)}–${gregDate(next.to)}`;
+    const monthsLeft = Math.max(1, plMonthsTo(next.from));
+    return { from: next.from, h: `<div class="pl-item"><div class="pl-top"><b>${H.ico} ${H.n} ${next.y}</b><span class="sub" style="margin:0">${status}</span></div>
+      <div class="pl-kpis"><div><small>${started ? 'הוצאות עד עכשיו' : 'הוצאות'}</small><b>${started ? money(spent) : '—'}</b></div>
+        <div><small>בשנה שעברה</small><b>${hasPrevData ? money(prevSpent) : '—'}</b>${hasPrevData && prevSpent > prevNormal ? `<span class="sub" style="margin:0">כ־${money(prevSpent - prevNormal)} מעל הרגיל</span>` : ''}</div>
+        <div><small>תקציב</small><input type="number" min="0" step="1" data-holb="${H.k}" value="${bud || ''}" placeholder="${hasPrevData ? Math.round(prevSpent / 100) * 100 : 'סכום'}" style="width:120px" aria-label="תקציב ל${H.n}"></div></div>
+      ${bud ? plBar(spent, bud, spent > bud) + `<p class="sub" style="margin:6px 0">${started ? (spent > bud ? `<span class="neg">חריגה של ${money(spent - bud)}</span>` : `נשארו ${money(bud - spent)} בתקציב`) : `כדי להגיע מוכנים: להפריש כ־<b>${money(bud / monthsLeft)}</b> בחודש (${monthsLeft} ${monthsLeft === 1 ? 'חודש' : 'חודשים'})`}</p>` : ''}
+      <p class="sub" style="margin:4px 0 0">התקופה: ${H.hint}. נספרות כל ההוצאות בתקופה הזו.</p></div>` };
+  }).filter(Boolean).sort((a, b) => a.from.localeCompare(b.from)).map(x => x.h).join('');
+  return `<section class="card"><h2>🕯️ חגים ומועדים</h2><p class="sub">כמה עולה כל תקופת חג, לעומת השנה שעברה, ומה התקציב השנה.</p><div class="pl-list">${rows || '<p class="empty">אין נתונים</p>'}</div></section>`;
+}
+
+// 51. אתגר חיסכון: תקרה שבועית לקטגוריה, או חודש בלי הוצאות בקטגוריות מיותרות
+const plWeekStart = iso => { const [y, m, d] = iso.split('-').map(Number); return plAdd(iso, -new Date(y, m - 1, d, 12).getDay()); };
+function chSection() {
+  const P = planS(), ch = P.ch, t = today();
+  if (!ch) {
+    const kind = ui.chKind || 'week';
+    return `<section class="card"><h2>🏆 אתגר חיסכון</h2><p class="sub">אתגר קטן שעוזר לשים לב להוצאות. אפשר לבחור תקרה שבועית לקטגוריה (למשל אוכל), או חודש בלי הוצאות בקטגוריות שאפשר לוותר עליהן.</p>
+      <form id="chForm" class="grid-form"><label>סוג האתגר<select id="chKind" name="kind"><option value="week"${kind === 'week' ? ' selected' : ''}>תקרה שבועית</option><option value="avoid"${kind === 'avoid' ? ' selected' : ''}>חודש בלי קניות מיותרות</option></select></label>
+        ${kind === 'week' ? `<label>קטגוריה<select name="cat" required>${catOptions('expense')}</select></label><label>תקרה לשבוע (₪)<input name="cap" type="number" min="1" step="1" required placeholder="800"></label>`
+          : `<div class="wide"><span class="sub">על מה מוותרים החודש?</span><div class="cats">${S.categories.expense.map(c => `<label class="mchip"><input type="checkbox" name="cats" value="${esc(c)}">${esc(c)}</label>`).join('') || '<span class="sub">אין קטגוריות</span>'}</div></div>`}
+        <div class="actions"><button class="btn primary">🚀 להתחיל</button></div></form></section>`;
+  }
+  let body = '';
+  if (ch.kind === 'week') {
+    const ws = plWeekStart(t), spent = plExp(ws, plAdd(ws, 6), [ch.cat]), left = 6 - plDays(ws, t);
+    const weeks = []; for (let w = plWeekStart(ch.start); w < ws; w = plAdd(w, 7)) weeks.push({ w, s: plExp(w, plAdd(w, 6), [ch.cat]) });
+    const ok = weeks.filter(x => x.s <= ch.cap).length; let streak = 0; for (let i = weeks.length - 1; i >= 0 && weeks[i].s <= ch.cap; i--) streak++;
+    body = `<div class="pl-top"><b>תקרה של ${money(ch.cap)} בשבוע ל"${esc(ch.cat)}"</b><span class="sub" style="margin:0">מ־${gregDate(ch.start)}</span></div>
+      <p class="sub" style="margin:8px 0 4px">השבוע: ${money(spent)} מתוך ${money(ch.cap)} · ${left ? `עוד ${left} ימים עד מוצאי שבת` : 'היום האחרון בשבוע'}</p>${plBar(spent, ch.cap, spent > ch.cap)}
+      <p class="sub" style="margin:8px 0">${spent > ch.cap ? `<span class="neg">עברנו את התקרה ב־${money(spent - ch.cap)}. לא נורא – שבוע הבא מתחילים מחדש.</span>` : `נשארו <b>${money(ch.cap - spent)}</b> לשבוע הזה.`}</p>
+      ${weeks.length ? `<div class="ch-weeks">${weeks.slice(-12).map(x => `<span class="${x.s <= ch.cap ? 'ok' : 'no'}" title="שבוע ${gregDate(x.w)}: ${money(x.s)}">${x.s <= ch.cap ? '✓' : '✗'}</span>`).join('')}</div>
+        <p class="sub" style="margin:6px 0 0">${ok} מתוך ${weeks.length} שבועות בתוך התקרה${streak > 1 ? ` · ${streak} שבועות ברצף 🔥` : ''}</p>` : ''}`;
+  } else {
+    const m = monthKey(new Date()), from = m + '-01', days = plDays(from, t) + 1, cats = ch.cats || [];
+    const bad = new Set(S.transactions.filter(x => x.type === 'expense' && x.date >= from && x.date <= t && cats.includes(x.category)).map(x => x.date));
+    const spent = plExp(from, t, cats), avg = [1, 2, 3].reduce((a, i) => a + sumMonthCats(shiftMonth(m, -i), cats), 0) / 3, dim = new Date(+m.slice(0, 4), +m.slice(5), 0).getDate();
+    body = `<div class="pl-top"><b>חודש בלי קניות מיותרות · ${monthName(m)}</b><span class="sub" style="margin:0">${cats.map(esc).join(', ')}</span></div>
+      <div class="pl-kpis"><div><small>ימים נקיים</small><b class="pos">${days - bad.size} / ${days}</b></div><div><small>הוצא החודש בקטגוריות</small><b>${money(spent)}</b></div>
+        <div><small>ממוצע 3 חודשים קודמים</small><b>${money(avg)}</b></div></div>
+      ${avg > 0 ? `<p class="sub" style="margin:6px 0">${spent < avg * days / dim ? `בקצב הזה החודש נחסוך כ־<b class="pos">${money(Math.max(0, avg - spent / days * dim))}</b> 👏` : 'בינתיים הקצב דומה לחודשים הקודמים. עוד אפשר לשפר!'}</p>` : ''}`;
+  }
+  return `<section class="card"><h2>🏆 אתגר חיסכון</h2>${body}<div class="actions" style="margin-top:10px"><button type="button" class="btn sm" data-action="chStop">סיום האתגר</button></div></section>`;
+}
+function sumMonthCats(m, cats) { return S.transactions.filter(t => t.type === 'expense' && t.date.startsWith(m) && cats.includes(t.category)).reduce((a, t) => a + t.amount, 0); }
+
+// 32. חובות קטנים: הלוויתי / אני חייב, עם תאריך להחזרה
+const debtLeft = d => d.amount - (d.paid || []).reduce((a, p) => a + p.amount, 0);
+function smallDebtsSection() {
+  const P = planS(), open = P.debts.filter(d => debtLeft(d) > 0.004), closed = P.debts.filter(d => debtLeft(d) <= 0.004), t = today();
+  const toUs = open.filter(d => d.dir === 'lent').reduce((a, d) => a + debtLeft(d), 0), onUs = open.filter(d => d.dir === 'owe').reduce((a, d) => a + debtLeft(d), 0);
+  const row = d => { const l = debtLeft(d), late = d.due && d.due < t && l > 0;
+    return `<tr${late ? ' class="pl-late"' : ''}><td>${d.dir === 'lent' ? '⬅️ חייבים לנו' : '➡️ אנחנו חייבים'}</td><td><b>${esc(d.who)}</b>${d.note ? `<div class="sub" style="margin:0">${esc(d.note)}</div>` : ''}</td><td class="amount">${money(l)}${l < d.amount ? `<div class="sub" style="margin:0">מתוך ${money(d.amount)}</div>` : ''}</td>
+      <td>${gregDate(d.date)}</td><td>${d.due ? `${gregDate(d.due)}${late ? ' <b class="neg">עבר המועד</b>' : ''}` : '—'}</td>
+      <td class="actions">${l > 0 ? `<button type="button" class="btn sm" data-action="sdPay" data-id="${d.id}" data-all="1">הוחזר</button><button type="button" class="btn sm" data-action="sdPay" data-id="${d.id}">החזר חלקי</button>` : '✓ הוחזר'}<button type="button" class="btn sm danger" data-action="sdDel" data-id="${d.id}">מחיקה</button></td></tr>`; };
+  return `<section class="card"><h2>🤝 חובות קטנים</h2><p class="sub">הלוואות קטנות בין אנשים: "הלוויתי לשכן ₪500", "חייב לגמ״ח ₪2,000". כשמגיע המועד מופיעה תזכורת בדשבורד. זה מעקב בלבד, לא נרשם כהוצאה או הכנסה.</p>
+    <div class="pl-kpis"><div><small>חייבים לנו</small><b class="pos">${money(toUs)}</b></div><div><small>אנחנו חייבים</small><b class="neg">${money(onUs)}</b></div></div>
+    <form id="sdForm" class="grid-form" style="margin-top:12px"><label>סוג<select name="dir"><option value="lent">הלוויתי ל... (חייבים לי)</option><option value="owe">לוויתי מ... (אני חייב)</option></select></label>
+      <label>למי / ממי<input name="who" required maxlength="50" placeholder="למשל: השכן, גמ״ח יד אליעזר"></label>
+      <label>סכום (₪)<input name="amount" type="number" min="1" step="1" required></label>
+      <label>תאריך<input name="date" type="date" value="${t}"></label><label>להחזיר עד<input name="due" type="date"></label>
+      <label class="wide">הערה<input name="note" maxlength="100"></label><div class="actions"><button class="btn primary">+ הוספה</button></div></form>
+    ${open.length ? `<div class="table-wrap" style="margin-top:12px"><table><thead><tr><th>סוג</th><th>מי</th><th>יתרה</th><th>תאריך</th><th>להחזיר עד</th><th></th></tr></thead><tbody>${open.sort((a, b) => (a.due || '9999').localeCompare(b.due || '9999')).map(row).join('')}</tbody></table></div>` : '<p class="empty">אין חובות פתוחים</p>'}
+    ${closed.length ? `<details style="margin-top:10px"><summary class="sub">חובות שהוחזרו (${closed.length})</summary><div class="table-wrap"><table><tbody>${closed.slice(-30).reverse().map(row).join('')}</tbody></table></div></details>` : ''}</section>`;
+}
+
+// 56. אירועים משפחתיים: שמחות שבדרך, עם תקציב והפרשה מראש
+function eventsSection() {
+  const P = planS(), t = today(), up = P.events.filter(e => e.date >= t).sort((a, b) => a.date.localeCompare(b.date)), past = P.events.filter(e => e.date < t);
+  const card = e => { const saved = (e.saved || []).reduce((a, x) => a + x.amount, 0), left = Math.max(0, e.budget - saved), n = Math.max(1, plMonthsTo(e.date));
+    return `<div class="pl-item"><div class="pl-top"><b>🎉 ${esc(e.name)}</b><span class="sub" style="margin:0">${gregDate(e.date)} · ${esc(hebDate(e.date))}${e.date >= t ? ` · בעוד ${plDays(t, e.date)} ימים` : ''}</span></div>
+      <p class="sub" style="margin:6px 0 4px">הופרש ${money(saved)} מתוך תקציב ${money(e.budget)}</p>${plBar(saved, e.budget)}
+      <p class="sub" style="margin:6px 0">${left ? (e.date >= t ? `כדי להגיע מוכנים: להפריש כ־<b>${money(left / n)}</b> בחודש (${n} ${n === 1 ? 'חודש' : 'חודשים'})` : `חסרו ${money(left)}`) : '<b class="pos">כל התקציב הופרש ✓</b>'}</p>
+      <div class="inline"><input type="number" min="0" step="1" id="evAmt-${e.id}" placeholder="סכום" style="width:110px" aria-label="סכום להפרשה ל${esc(e.name)}"><button type="button" class="btn sm" data-action="evSave" data-id="${e.id}">הפרשה</button>
+        <button type="button" class="btn sm danger" data-action="evDel" data-id="${e.id}">מחיקה</button></div></div>`; };
+  return `<section class="card"><h2>🎉 אירועים משפחתיים</h2><p class="sub">שמחות שבדרך – בר מצווה, חתונה, ברית. רושמים תאריך ותקציב, והתוכנה מחשבת כמה להפריש כל חודש. מעקב בלבד; ההוצאות עצמן נרשמות כעסקאות רגילות.</p>
+    <form id="evForm" class="grid-form"><label>שם האירוע<input name="name" required maxlength="50" placeholder="למשל: בר מצווה של משה"></label>
+      <label>תאריך<input name="date" type="date" required></label><label>תקציב (₪)<input name="budget" type="number" min="1" step="1" required></label>
+      <label>כבר הופרש (₪)<input name="start" type="number" min="0" step="1" value="0"></label><div class="actions"><button class="btn primary">+ אירוע</button></div></form>
+    ${up.length ? `<div class="pl-list">${up.map(card).join('')}</div>` : '<p class="empty">אין אירועים קרובים</p>'}
+    ${past.length ? `<details style="margin-top:10px"><summary class="sub">אירועים שהיו (${past.length})</summary><div class="pl-list">${past.map(card).join('')}</div></details>` : ''}</section>`;
+}
+
+VIEWS.plan = () => topbar('תכנון וחיסכון') + goalsSection() + eventsSection() + holSection() + chSection() + smallDebtsSection();
+
+// תזכורות בדשבורד: חוב שהגיע מועדו, אירוע קרוב שעוד לא הופרש לו
+function planNudge() {
+  const P = S.plan; if (!P) return '';
+  const t = today(), soon = plAdd(t, 3), L = [];
+  (P.debts || []).filter(d => d.due && d.due <= soon && debtLeft(d) > 0).forEach(d => L.push(`${d.dir === 'lent' ? `<b>${esc(d.who)}</b> צריך להחזיר לנו` : `צריך להחזיר ל<b>${esc(d.who)}</b>`} ${money(debtLeft(d))} ${d.due < t ? '<b class="neg">(עבר המועד)</b>' : `עד ${gregDate(d.due)}`}`));
+  (P.events || []).filter(e => e.date >= t && plDays(t, e.date) <= 60).forEach(e => { const s = (e.saved || []).reduce((a, x) => a + x.amount, 0); if (s < e.budget) L.push(`<b>${esc(e.name)}</b> בעוד ${plDays(t, e.date)} ימים – הופרש ${money(s)} מתוך ${money(e.budget)}`); });
+  if (!L.length) return '';
+  return `<div class="nudge plan-nudge" data-nu="plan"><span class="nu-ico" aria-hidden="true">📌</span><div class="nu-body"><b>תזכורות מתכנון וחיסכון</b><div class="nu-txt">${L.slice(0, 5).join('<br>')}</div>
+    <div class="nu-act"><button type="button" class="btn sm" data-tab="plan">למסך התכנון</button></div></div></div>`;
+}
+const _dashViewPl = VIEWS.dash;
+VIEWS.dash = () => {
+  const h = _dashViewPl(), c = planNudge(); if (!c) return h;
+  const idx = ['<div class="nudge', '<section class="card first-steps', '<section class="card forecast', '<div class="stats">'].map(a => h.indexOf(a)).filter(i => i >= 0).sort((a, b) => a - b)[0];
+  return idx >= 0 ? h.slice(0, idx) + c + h.slice(idx) : c + h;
+};
+
+const plNum = v => Math.max(0, parseFloat(v) || 0);
+document.addEventListener('submit', e => {
+  const f = e.target, id = f && f.id; if (!['goalForm', 'chForm', 'sdForm', 'evForm'].includes(id)) return;
+  e.preventDefault(); const E = f.elements, P = planS();
+  if (id === 'goalForm') {
+    const start = plNum(E.start.value); S.funds = S.funds || [];
+    S.funds.push({ id: uid(), name: E.name.value.trim(), target: plNum(E.target.value), monthly: plNum(E.monthly.value), due: E.due.value || '', lastAuto: monthKey(new Date()), entries: start ? [{ id: uid(), date: today(), amount: start, note: 'נאסף עד היום' }] : [] });
+    toast('היעד נוסף');
+  }
+  if (id === 'chForm') {
+    if (E.kind.value === 'week') P.ch = { kind: 'week', cat: E.cat.value, cap: plNum(E.cap.value), start: today() };
+    else { const cats = [...f.querySelectorAll('input[name=cats]:checked')].map(i => i.value); if (!cats.length) return toast('צריך לבחור לפחות קטגוריה אחת'); P.ch = { kind: 'avoid', cats, start: today() }; }
+    toast('האתגר התחיל. בהצלחה!');
+  }
+  if (id === 'sdForm') { P.debts.push({ id: uid(), dir: E.dir.value, who: E.who.value.trim(), amount: plNum(E.amount.value), date: E.date.value || today(), due: E.due.value || '', note: E.note.value.trim(), paid: [] }); toast('נוסף'); }
+  if (id === 'evForm') { const s = plNum(E.start.value); P.events.push({ id: uid(), name: E.name.value.trim(), date: E.date.value, budget: plNum(E.budget.value), saved: s ? [{ date: today(), amount: s }] : [] }); toast('האירוע נוסף'); }
+  save(); render();
+});
+document.addEventListener('change', e => {
+  const el = e.target; if (!el || !el.dataset) return;
+  if (el.id === 'chKind') { ui.chKind = el.value; render(); return; }
+  if (el.dataset.holb) { planS().hol[el.dataset.holb] = plNum(el.value); save(); render(); toast('התקציב נשמר'); }
+  if (el.dataset.gmon) { const f = (S.funds || []).find(x => x.id === el.dataset.gmon); if (f) { f.monthly = plNum(el.value); if (!f.lastAuto) f.lastAuto = monthKey(new Date()); save(); render(); toast('עודכן'); } }
+  if (el.dataset.gdue !== undefined) { const f = (S.funds || []).find(x => x.id === el.dataset.gdue); if (f) { f.due = el.value || ''; save(); render(); toast('עודכן'); } }
+});
+Object.assign(ACTIONS, {
+  goalMove: el => { const f = S.funds.find(x => x.id === el.dataset.id), i = document.getElementById('gAmt-' + f.id), v = plNum(i && i.value); if (!v) return toast('צריך לרשום סכום');
+    f.entries = f.entries || []; f.entries.push({ id: uid(), date: today(), amount: v * +el.dataset.sign, note: +el.dataset.sign > 0 ? 'הפקדה' : 'שימוש' }); save(); render(); toast(+el.dataset.sign > 0 ? 'ההפקדה נרשמה' : 'השימוש נרשם'); },
+  goalDel: el => { const f = S.funds.find(x => x.id === el.dataset.id); if (!f || !confirm(`למחוק את היעד "${f.name}" ואת ההיסטוריה שלו?`)) return; S.funds = S.funds.filter(x => x !== f); save(); render(); toast('היעד נמחק'); },
+  chStop: () => { if (!confirm('לסיים את האתגר?')) return; planS().ch = null; save(); render(); toast('האתגר הסתיים'); },
+  sdPay: el => { const d = planS().debts.find(x => x.id === el.dataset.id); if (!d) return; const l = debtLeft(d);
+    let v = l; if (!el.dataset.all) { const a = prompt(`כמה הוחזר? (נשארו ${money(l)})`, ''); if (a === null) return; v = Math.min(l, plNum(a)); if (!v) return; }
+    d.paid = d.paid || []; d.paid.push({ date: today(), amount: v }); save(); render(); toast(v >= l ? 'סומן שהחוב הוחזר' : `נרשם החזר של ${money(v)}`); },
+  sdDel: el => { const P = planS(), d = P.debts.find(x => x.id === el.dataset.id); if (!d || !confirm(`למחוק את החוב של "${d.who}"?`)) return; P.debts = P.debts.filter(x => x !== d); save(); render(); },
+  evSave: el => { const e = planS().events.find(x => x.id === el.dataset.id), i = document.getElementById('evAmt-' + el.dataset.id), v = plNum(i && i.value); if (!e || !v) return toast('צריך לרשום סכום');
+    e.saved = e.saved || []; e.saved.push({ date: today(), amount: v }); save(); render(); toast('ההפרשה נרשמה'); },
+  evDel: el => { const P = planS(), e = P.events.find(x => x.id === el.dataset.id); if (!e || !confirm(`למחוק את האירוע "${e.name}"?`)) return; P.events = P.events.filter(x => x !== e); save(); render(); }
 });
 
 /* ---------- חלון "התאמת מראה" ---------- */
