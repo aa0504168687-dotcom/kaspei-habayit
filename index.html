@@ -4057,6 +4057,65 @@ Object.assign(ACTIONS, {
   lateRecHide: () => { S.settings.lateRecHidden = String(new Date().getFullYear()); save(); render(); toast('ההודעה הוסתרה. אפשר תמיד לשנות "רישום מחודש" בעריכת קבועה'); }
 });
 
+/* ---------- תיקון: עסקה שבהערה שלה כתוב חודש אחר מהתאריך ----------
+   משתמש רשם "משכורת ינואר" בלי לשנות את שדה התאריך (שנשאר על היום), ולכן כל ההכנסות נרשמו בחודש הנוכחי.
+   1. ברישום חדש (טופס העסקה והרישום המהיר): שאלה "לרשום בינואר?", והתאריך מתוקן לפני השמירה
+   2. עסקאות שכבר נרשמו כך: הודעה בדשבורד ובמסך העסקאות עם כפתור להעברה לחודש שכתוב בהערה */
+const NM_NAMES = ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'];
+const NM_RE = new RegExp(`(?:^|[^\\u0590-\\u05FF])[ולבהמש]?(${NM_NAMES.join('|')}|מרס)(?![\\u0590-\\u05FF])(?:\\s*['׳]?(\\d{2,4}))?`);
+// החודש שכתוב בהערה (1-12) ושנה אם נכתבה, או null
+function noteMonth(note) {
+  const m = NM_RE.exec(note || ''); if (!m) return null;
+  let y = m[2] ? +m[2] : null; if (y && y < 100) y += 2000; if (y && (y < 2000 || y > 2100)) y = null;
+  return { mi: m[1] === 'מרס' ? 3 : NM_NAMES.indexOf(m[1]) + 1, y, name: m[1] === 'מרס' ? 'מרץ' : m[1] };
+}
+// התאריך המתאים לחודש שבהערה: אותה שנה, או השנה הקודמת אם החודש עוד לא הגיע
+function noteMonthDate(note, date) {
+  const nm = noteMonth(note); if (!nm || !/^\d{4}-\d{2}-\d{2}$/.test(date || '')) return null;
+  const dy = +date.slice(0, 4), dm = +date.slice(5, 7), dd = +date.slice(8, 10);
+  if (nm.mi === dm && (!nm.y || nm.y === dy)) return null;
+  const y = nm.y || (nm.mi <= dm ? dy : dy - 1), dim = new Date(y, nm.mi, 0).getDate();
+  return { date: `${y}-${pad(nm.mi)}-${pad(Math.min(dd, dim))}`, label: `${nm.name} ${y}` };
+}
+// לפני שמירה בטופס: שואלים, ומתקנים את התאריך לפני שהטופס קורא אותו
+document.addEventListener('submit', e => {
+  const f = e.target; if (!f || (f.id !== 'txForm' && f.id !== 'qaForm')) return;
+  if (f.id === 'txForm' && ui.editTx) return;
+  const note = f.elements.note && f.elements.note.value, d = f.elements.date && f.elements.date.value, fix = noteMonthDate(note, d);
+  if (!fix) return;
+  if (confirm(`בהערה כתוב "${noteMonth(note).name}", אבל התאריך שנבחר הוא ${gregDate(d)}.\n\nלרשום את העסקה ב${fix.label} (${gregDate(fix.date)})?\n\nאישור = לרשום ב${fix.label} · ביטול = להשאיר ${gregDate(d)}`)) f.elements.date.value = fix.date;
+}, true);
+
+// עסקאות קיימות שבהערה שלהן כתוב חודש אחר
+function noteMonthList() {
+  const skip = new Set(S.settings.nmSkip || []);
+  return S.transactions.filter(t => !t.recurringId && !skip.has(t.id)).map(t => ({ t, fix: noteMonthDate(t.note, t.date) })).filter(x => x.fix);
+}
+function noteMonthCard() {
+  const L = noteMonthList(); if (!L.length) return '';
+  const show = L.slice(0, 5).map(({ t, fix }) => `<b>${esc(t.note)}</b> ${money(t.amount)} – רשום ב־${gregDate(t.date)}, יועבר ל${fix.label}`).join('<br>') + (L.length > 5 ? `<br>ועוד ${L.length - 5}` : '');
+  return `<div class="nudge warn note-month" data-nu="noteMonth"><span class="nu-ico" aria-hidden="true">📆</span><div class="nu-body"><b>${L.length === 1 ? 'עסקה אחת רשומה' : `${L.length} עסקאות רשומות`} בחודש אחר ממה שכתוב בהערה</b>
+    <div class="nu-txt">כנראה התאריך נשאר על היום ולא שונה לחודש הנכון, ולכן בגרף ובסיכומים הן מופיעות בחודש הלא נכון:<br>${show}</div>
+    <div class="nu-act"><button type="button" class="btn sm primary" data-action="nmFix">📆 להעביר כל אחת לחודש שכתוב בהערה</button><button type="button" class="btn sm" data-action="nmSkip">הן רשומות נכון, להשאיר</button></div></div></div>`;
+}
+const _dashViewNm = VIEWS.dash;
+VIEWS.dash = () => {
+  let h = _dashViewNm(); const c = noteMonthCard(); if (!c) return h;
+  const idx = ['<div class="nudge', '<section class="card first-steps', '<section class="card forecast', '<div class="stats">'].map(a => h.indexOf(a)).filter(i => i >= 0).sort((a, b) => a - b)[0];
+  return idx >= 0 ? h.slice(0, idx) + c + h.slice(idx) : c + h;
+};
+const _txViewNm = VIEWS.tx;
+VIEWS.tx = () => { const h = _txViewNm(), c = noteMonthCard(); if (!c) return h; const i = h.indexOf('<section'); return i >= 0 ? h.slice(0, i) + c + h.slice(i) : c + h; };
+Object.assign(ACTIONS, {
+  nmFix: () => {
+    const L = noteMonthList(); if (!L.length) return;
+    if (!confirm(`להעביר ${L.length} עסקאות לחודש שכתוב בהערה שלהן?\n\n` + L.slice(0, 12).map(({ t, fix }) => `• ${t.note}: ${gregDate(t.date)} ← ${gregDate(fix.date)}`).join('\n'))) return;
+    L.forEach(({ t, fix }) => { t.date = fix.date; });
+    save(); render(); toast(`${L.length} עסקאות הועברו לחודש הנכון`);
+  },
+  nmSkip: () => { S.settings.nmSkip = [...new Set([...(S.settings.nmSkip || []), ...noteMonthList().map(x => x.t.id)])].slice(-500); save(); render(); toast('העסקאות נשארו בתאריך שלהן'); }
+});
+
 /* ---------- חלון "התאמת מראה" ---------- */
 const LOOK_OPTS = [
   ['mode', 'מצב תצוגה', [['light', '☀️ בהיר'], ['dark', '🌙 כהה'], ['auto', '🖥️ לפי המחשב']]],
