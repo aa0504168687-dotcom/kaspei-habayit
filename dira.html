@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- אבטחה: חוסם כל חיבור לאינטרנט וכל טעינת קוד או קבצים מבחוץ. החריג היחיד: שרת הצ'אט שרץ במחשב הזה (127.0.0.1), שמעביר שאלות לשירות SAI -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; manifest-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob: https://kaspei-habayit.goatcounter.com; font-src data:; connect-src https://formsubmit.co; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; manifest-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob: https://kaspei-habayit.goatcounter.com; font-src data:; connect-src https://formsubmit.co; media-src 'self'; object-src 'none'; frame-src 'none'; worker-src 'none'; form-action 'none'; base-uri 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%230d9488%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230891b2%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22url(%23g)%22%2F%3E%3Cpath%20d%3D%22M32%2013%20L53%2031%20H46.5%20V51%20H36%20V40%20H28%20V51%20H17.5%20V31%20H11%20Z%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fsvg%3E">
@@ -611,6 +611,50 @@ html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *:
 .look-mini{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
 .look-mini button{width:34px;height:34px;border-radius:50%;border:3px solid var(--card);box-shadow:0 0 0 1.5px var(--border);cursor:pointer;padding:0}
 .look-mini button.on{box-shadow:0 0 0 2.5px var(--primary)}
+/* שלב 10: שתפו חבר */
+.side-share{margin-top:6px;border:1px dashed var(--side-hover)!important}
+.sh-dlg{width:min(520px,94vw)}
+.sh-lead{margin:0;font-size:15.5px;line-height:1.6}
+.sh-dlg textarea{width:100%;font:inherit;font-size:14px;line-height:1.55;resize:vertical;min-height:150px}
+.sh-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sh-btns .btn{justify-content:center;font-weight:700}
+.sh-wa{background:#25d366!important;color:#fff!important;border-color:transparent!important}
+.sh-mail{background:var(--primary-soft)}
+.sh-card{display:flex;gap:18px;align-items:center;flex-wrap:wrap;background:linear-gradient(135deg,rgba(244,114,182,.13),var(--card) 60%);border:1px solid var(--border)}
+.sh-card .sh-ico{font-size:42px;width:64px;height:64px;display:grid;place-items:center;background:var(--card);border-radius:18px;box-shadow:0 6px 18px rgba(0,0,0,.08);font-family:Segoe UI Emoji,Segoe UI,sans-serif}
+.sh-card .sh-body{flex:1;min-width:240px}
+.sh-card h2{margin:0 0 4px}
+@media print{.sh-card,.sh-dlg{display:none!important}}
+/* שלב 9: סרטוני הדרכה בתוך התוכנה */
+.vv{position:fixed;inset:0;z-index:25;display:flex;flex-direction:column;background:rgba(15,12,40,.96);color:#fff}
+.vv[hidden]{display:none}
+.vv .gv-head{display:flex;align-items:center;gap:10px;padding:10px 16px;background:linear-gradient(135deg,var(--d0,#1e1b4b),var(--d1,#312e81))}
+.vv .gv-head b{font-size:16px}
+.vv .gv-cnt{color:#c7c9f5;font-size:14px;margin-inline-end:auto}
+.vv .gv-ib{width:38px;height:38px;display:grid;place-items:center;border-radius:10px;background:rgba(255,255,255,.14);color:#fff;border:0;cursor:pointer;font-size:17px}
+.vv .gv-ib:hover{background:rgba(255,255,255,.28)}
+.vv-body{flex:1;min-height:0;display:grid;grid-template-columns:1fr 300px;gap:18px;padding:18px}
+.vv.one .vv-body{grid-template-columns:1fr}
+.vv.one .vv-list{display:none}
+.vv-main{min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.vv-main video{width:100%;max-height:calc(100vh - 210px);aspect-ratio:16/10;background:#000;border-radius:14px;box-shadow:0 14px 44px rgba(0,0,0,.5)}
+.vv-info{width:100%;display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px}
+.vv-info h3{margin:0;font-size:20px;color:#fff}
+.vv-info p{margin:0;flex:1 1 260px;color:#c7c9f5;font-size:15px}
+.vv-list{overflow:auto;display:flex;flex-direction:column;gap:10px}
+.vv-list button{display:grid;grid-template-columns:104px 1fr;gap:10px;align-items:center;text-align:start;background:rgba(255,255,255,.07);border:2px solid transparent;border-radius:14px;padding:8px;color:#fff;cursor:pointer;font:inherit}
+.vv-list button:hover{background:rgba(255,255,255,.14)}
+.vv-list button.on{border-color:var(--primary,#6366f1);background:rgba(99,102,241,.22)}
+.vv-list img{width:104px;height:65px;object-fit:cover;border-radius:9px;background:#fff}
+.vv-list b{display:block;font-size:14.5px;line-height:1.35}
+.vv-list small{color:#c7c9f5;font-size:12.5px}
+.vv-ok{font-style:normal;color:#86efac}
+.side-vid{margin-top:6px;border:1px dashed var(--side-hover)!important}
+.guide-card .vid-btn{background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;border-color:transparent}
+.sm-help{display:flex;justify-content:center;margin:0 0 16px}
+.sm-help .btn{display:inline-flex;align-items:center;gap:8px}
+@media (max-width:820px){.vv-body{grid-template-columns:1fr;padding:10px;gap:10px}.vv-list{flex-direction:row;overflow-x:auto}.vv-list button{grid-template-columns:1fr;min-width:150px}.vv-list img{width:100%;height:auto}}
+@media print{.vv{display:none!important}}
 /* שלב 7: פרטי מסך וסקר */
 .req-snap{display:grid;gap:6px;margin:4px 0 8px;font-size:14px}
 .req-snap-chk{display:flex!important;flex-direction:row!important;gap:8px;align-items:flex-start;font-weight:600}
@@ -902,6 +946,8 @@ try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change
     <button data-tab="report">📊 דוח</button>
     <div class="nav-group">כללי</div>
     <button data-tab="settings">⚙️ הגדרות וגיבוי</button>
+    <button type="button" class="side-look side-share" data-action="shareOpen">💝 שתפו חבר</button>
+    <button type="button" class="side-look side-vid" data-action="vidOpen">🎬 סרטוני הדרכה</button>
     <button type="button" class="side-look" data-action="lookOpen">🎨 התאמת מראה</button>
   </aside>
   <div class="content-shell">
@@ -5536,9 +5582,9 @@ function installCard() {
   if (local) return '';
   return `<section class="card"><h2>📲 התקנה כאפליקציה</h2>
     ${standalone ? '<p class="sub">התוכנה פתוחה כאפליקציה מותקנת ✓</p>'
-      : `<p class="sub">אפשר להתקין את התוכנה, ואז היא נפתחת מאייקון בשולחן העבודה או במסך הבית של הטלפון, בחלון נקי בלי שורת הכתובת. הנתונים נשארים אותם נתונים.</p>
-      ${p4Install ? '<button type="button" class="btn primary" data-action="installApp">📲 להתקין עכשיו</button>'
-        : '<p class="sub">במחשב (כרום או אדג׳): בתפריט ⋮ של הדפדפן בוחרים "התקנת אפליקציה" / "אפליקציות ← התקנה". בטלפון: בתפריט הדפדפן בוחרים "הוספה למסך הבית".</p>'}`}</section>`;
+      : `<p class="sub">אפשר להתקין את התוכנה, ואז היא נפתחת מאייקון בשולחן העבודה, בחלון נקי בלי שורת הכתובת. הנתונים נשארים אותם נתונים.</p>
+      ${p4Install ? '<button type="button" class="btn primary" data-action="installApp">💻 להתקין עכשיו</button>'
+        : '<p class="sub">במחשב (כרום או אדג׳): בתפריט ⋮ של הדפדפן בוחרים "התקנת אפליקציה" / "אפליקציות ← התקנה".</p>'}`}</section>`;
 }
 
 // 45. הקראה בקול של סיכום החודש
@@ -5718,7 +5764,7 @@ function defectsView() {
     <div class="df-print-head"><h2>רשימת ליקויים${c.contractor ? ' – לכבוד ' + esc(c.contractor) : ''}</h2><p>תאריך: ${gregDate(today())} · ${esc(hebDate(today()))}. ${open.length} ליקויים פתוחים${hard.length ? `, מתוכם ${hard.length} חמורים` : ''}.</p></div>
     <div class="stats"><div class="stat s-exp s-hero"><div class="lbl">לא תוקנו</div><div class="val">${open.length}</div><div class="cmp">${hard.length ? hard.length + ' חמורים' : 'אין ליקויים חמורים'}</div></div>
       <div class="stat s-inc"><div class="lbl">תוקנו</div><div class="val">${fixed.length}</div><div class="cmp">${L.length ? Math.round(fixed.length / L.length * 100) + '% מהרשימה' : ''}</div></div></div>
-    <section class="card no-print"><h2>➕ ליקוי חדש</h2><p class="sub">בסיור המסירה עוברים חדר אחרי חדר. כל ליקוי עם תמונה ומיקום, ובסוף מפיקים רשימה מסודרת לקבלן. אפשר לצלם ישירות מהטלפון.</p>
+    <section class="card no-print"><h2>➕ ליקוי חדש</h2><p class="sub">בסיור המסירה עוברים חדר אחרי חדר. כל ליקוי עם תמונה ומיקום, ובסוף מפיקים רשימה מסודרת לקבלן.</p>
       <form id="dfForm" class="grid-form"><label>איפה<select name="room">${DEF_ROOMS.map(r => `<option>${r}</option>`).join('')}</select></label>
         <label class="wide">מה הליקוי<input name="text" required maxlength="140" placeholder="למשל: סדק בטיח מעל החלון"></label>
         <label>חומרה<select name="sev"><option value="normal">רגיל</option><option value="hard">חמור</option></select></label>
@@ -5762,6 +5808,125 @@ Object.assign(ACTIONS, {
   dfDel: el => { const h = HX(), x = h.defects.find(i => i.id === el.dataset.id); if (!x || !confirm(`למחוק את הליקוי "${x.text}"?`)) return; h.defects = h.defects.filter(i => i !== x); save(); render(); },
   dfPrint: () => { ui.dfF = 'open'; render(); document.body.classList.add('df-printing'); setTimeout(() => { window.print(); setTimeout(() => document.body.classList.remove('df-printing'), 500); }, 150); }
 });
+
+const VID_TITLE = 'סרטון הדרכה – דירה חדשה';
+const VID_LIST = [{ f: 'video-6-dira', t: 'ציוד לדירה וליקויים למסירה', d: 'רשימת ציוד לפי חדרים עם תקציב, ורשימת ליקויים מסודרת לקבלן לפני המסירה.', len: '49 שניות' }];
+/* ---------- שלב 9: סרטוני הדרכה בתוך התוכנה ----------
+   הסרטונים בתיקייה assets שליד הקובץ (כמו שקופיות המדריך), ונטענים רק מהאתר עצמו (media-src 'self').
+   החלון נפתח מעל המסך ומתחת למסך הנעילה. VID_LIST ו-VID_TITLE מוגדרים לפני הקוד הזה, לכל תוכנה בנפרד */
+const VID_SEEN_KEY = VID_TITLE.includes('דירה') ? 'dira_vid_seen' : 'kaspei_vid_seen';
+let vvIdx = 0, vvBackFocus = null;
+function vvSeen() { try { return JSON.parse(localStorage.getItem(VID_SEEN_KEY) || '[]'); } catch (e) { return []; } }
+function vvMarkSeen(f) { const s = vvSeen(); if (!s.includes(f)) { s.push(f); try { localStorage.setItem(VID_SEEN_KEY, JSON.stringify(s)); } catch (e) {} } }
+function vvEl() {
+  let el = document.getElementById('vv');
+  if (el) return el;
+  el = document.createElement('div');
+  el.id = 'vv'; el.className = 'vv' + (VID_LIST.length < 2 ? ' one' : ''); el.hidden = true;
+  el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', VID_TITLE);
+  el.innerHTML = `<div class="gv-head"><b>🎬 ${VID_TITLE}</b><span class="gv-cnt" id="vvCnt"></span>
+    <button type="button" class="gv-ib" data-action="vidClose" title="סגירה (Esc)" aria-label="סגירת הסרטונים">✕</button></div>
+    <div class="vv-body"><div class="vv-main"><video id="vvVideo" controls playsinline preload="metadata"></video>
+      <div class="vv-info"><h3 id="vvT"></h3><p id="vvD"></p><button type="button" class="btn primary vv-next" data-action="vidNext" hidden>לסרטון הבא ←</button></div></div>
+      <nav class="vv-list" aria-label="רשימת הסרטונים">${VID_LIST.map((v, k) => `<button type="button" data-action="vidGo" data-n="${k}">
+        ${v.poster ? `<img src="assets/${v.poster}" alt="" loading="lazy">` : ''}<span><b>${k + 1}. ${v.t}</b><small>${v.len}<i class="vv-ok" hidden> · ✓ נצפה</i></small></span></button>`).join('')}</nav></div>`;
+  document.body.appendChild(el);
+  const vid = el.querySelector('#vvVideo');
+  vid.addEventListener('ended', () => { vvMarkSeen(VID_LIST[vvIdx].f); vvPaint(); el.querySelector('.vv-next').hidden = vvIdx >= VID_LIST.length - 1; });
+  vid.addEventListener('error', () => { $('#vvD').textContent = 'הסרטון לא נטען. אפשר לנסות שוב מאוחר יותר.'; });
+  return el;
+}
+function vvPaint() {
+  const el = vvEl(), seen = vvSeen();
+  el.querySelectorAll('.vv-list button').forEach((b, k) => { b.classList.toggle('on', k === vvIdx); b.querySelector('.vv-ok').hidden = !seen.includes(VID_LIST[k].f); });
+}
+function vvShow(k, play) {
+  const el = vvEl(), v = VID_LIST[Math.max(0, Math.min(VID_LIST.length - 1, k || 0))];
+  vvIdx = VID_LIST.indexOf(v);
+  const vid = el.querySelector('#vvVideo');
+  vid.pause();
+  if (v.poster) vid.poster = 'assets/' + v.poster; else vid.removeAttribute('poster');
+  vid.src = 'assets/' + v.f + '.mp4' + (v.poster ? '' : '#t=1.5');
+  el.querySelector('#vvT').textContent = (VID_LIST.length > 1 ? (vvIdx + 1) + '. ' : '') + v.t;
+  el.querySelector('#vvD').textContent = v.d;
+  el.querySelector('#vvCnt').textContent = VID_LIST.length > 1 ? 'סרטון ' + (vvIdx + 1) + ' מתוך ' + VID_LIST.length : v.len;
+  el.querySelector('.vv-next').hidden = true;
+  vvPaint();
+  if (play) { const p = vid.play(); if (p && p.catch) p.catch(() => {}); }
+}
+function vvOpen(k) {
+  const el = vvEl();
+  vvBackFocus = document.activeElement;
+  el.hidden = false;
+  document.body.style.overflow = 'hidden';
+  vvShow(k || 0);
+  el.querySelector('[data-action="vidClose"]').focus();
+}
+function vvClose() {
+  const el = document.getElementById('vv');
+  if (!el || el.hidden) return;
+  el.querySelector('#vvVideo').pause();
+  el.hidden = true;
+  document.body.style.overflow = '';
+  if (vvBackFocus && vvBackFocus.focus) vvBackFocus.focus();
+}
+document.addEventListener('keydown', e => {
+  const el = document.getElementById('vv');
+  if (!el || el.hidden || e.key !== 'Escape') return;
+  e.preventDefault(); vvClose();
+});
+Object.assign(ACTIONS, {
+  vidOpen: el => vvOpen(+((el && el.dataset.n) || 0)),
+  vidGo: el => vvShow(+el.dataset.n, true),
+  vidNext: () => vvShow(vvIdx + 1, true),
+  vidClose: () => vvClose()
+});
+
+const SHARE_IS_DIRA = true;
+/* ---------- שלב 10: "שתפו חבר" – שליחת קישור לחברים, לזיכוי הרבים ----------
+   חלון עם הודעה מוכנה (אפשר לערוך), ושליחה במייל או העתקת ההודעה.
+   שום נתון אישי לא נשלח: רק הקישור לדף הנחיתה והטקסט שהמשתמש רואה */
+const SHARE_URL = 'https://aa0504168687-dotcom.github.io/kaspei-habayit/welcome.html';
+const SHARE_TEXT = SHARE_IS_DIRA
+  ? `שלום! 👋\nמצאתי תוכנה נהדרת למי שקונה דירה – "דירה חדשה": חוזה ותשלומים לקבלן, משכנתא, ציוד לדירה ורשימת ליקויים למסירה. הכל בעברית, בחינם ובלי פרסומות, והנתונים נשארים אצלך ומוצפנים בסיסמה.\nיש שם גם את "כספי הבית" לניהול הכסף של הבית.\nשווה לנסות 👇\n${SHARE_URL}`
+  : `שלום! 👋\nמצאתי תוכנה נהדרת לניהול כספי הבית – "כספי הבית": רואים כל חודש מה נכנס, מה יצא וכמה נשאר, כולל מעשרות, תכנון לחגים ולשמחות וייבוא ישיר מהבנק. הכל בעברית, בחינם ובלי פרסומות, והנתונים נשארים אצלך ומוצפנים בסיסמה.\nשווה לנסות 👇\n${SHARE_URL}`;
+function shareClose() { ['shDlg', 'shBack'].forEach(id => { const x = document.getElementById(id); if (x) x.remove(); }); }
+function shareMsg() { const t = document.getElementById('shText'); return (t ? t.value : SHARE_TEXT).trim(); }
+function shareOpen() {
+  shareClose();
+  const back = document.createElement('div'); back.className = 'lk-back'; back.id = 'shBack'; back.dataset.action = 'shareClose';
+  const el = document.createElement('div'); el.className = 'qa sh-dlg'; el.id = 'shDlg';
+  el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'שתפו חבר');
+  el.innerHTML = `<div class="lk-head"><b>💝 שתפו חבר – זיכוי הרבים</b><button type="button" data-action="shareClose" aria-label="סגירה" title="סגירה (Esc)">✕</button></div>
+    <div class="qa-body">
+      <p class="sh-lead">נהניתם מהתוכנה? שלחו את הקישור לחברים ולמשפחה – <b>בחינם וללא עלות</b>, ותזכו גם אתם בזיכוי הרבים 🙏</p>
+      <label>ההודעה שתישלח (אפשר לשנות)<textarea id="shText" rows="7">${esc(SHARE_TEXT)}</textarea></label>
+      <div class="sh-btns">
+        <button type="button" class="btn sh-mail" data-action="shareGo" data-to="mail">✉️ מייל</button>
+        <button type="button" class="btn" data-action="shareGo" data-to="copy">📋 העתקת ההודעה</button>
+      </div>
+      <p class="sub" style="margin:0">🔒 נשלח רק הקישור וההודעה שלמעלה – אף נתון שלכם לא נשלח.</p>
+    </div>`;
+  document.body.append(back, el);
+  el.querySelector('.sh-mail').focus();
+}
+function shareCopy(text) {
+  const done = () => toast('ההודעה הועתקה – אפשר להדביק בכל מקום');
+  if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text).then(done, () => shareCopyOld(text, done));
+  shareCopyOld(text, done);
+}
+function shareCopyOld(text, done) { const t = document.getElementById('shText') || document.createElement('textarea'); if (!t.parentNode) { t.value = text; document.body.appendChild(t); } t.select(); try { document.execCommand('copy'); done(); } catch (e) { toast('לא הצלחנו להעתיק – אפשר לסמן ולהעתיק ידנית'); } if (t.id !== 'shText') t.remove(); }
+Object.assign(ACTIONS, {
+  shareOpen: () => shareOpen(),
+  shareClose: () => shareClose(),
+  shareGo: el => {
+    const text = shareMsg(), to = el.dataset.to;
+    if (to === 'mail') window.open('mailto:?subject=' + encodeURIComponent(SHARE_IS_DIRA ? 'תוכנה מומלצת למי שקונה דירה' : 'תוכנה מומלצת לניהול כספי הבית') + '&body=' + encodeURIComponent(text), '_self');
+    else shareCopy(text);
+    try { localStorage.setItem('sai_shared', '1'); } catch (e) {}
+  }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.getElementById('shDlg')) { e.preventDefault(); shareClose(); } });
 
 /* ---------- חלון "התאמת מראה" ---------- */
 const LOOK_OPTS = [
@@ -6055,6 +6220,7 @@ const QR = (() => {
           <label style="align-self:center"><span><input type="checkbox" name="saved" required> רשמתי את קוד השחזור</span></label>
           <div class="actions"><button class="btn primary">אישור והפעלה</button><button type="button" class="btn" id="tfaCancel">ביטול</button></div></form></section>`;
     }
+    return ''; /* שלב 12: המשתמשים עם טלפונים כשרים – לא מציעים להפעיל אימות כפול */
     return `<section class="card" id="tfaCard"><h2>🔐 אימות כפול</h2>
       <p class="sub">הגנה נוספת מעבר לסיסמה: בכל כניסה מבקשים גם קוד בן 6 ספרות מאפליקציית אימות בטלפון (Google Authenticator או Microsoft Authenticator). הקוד נוצר בטלפון עצמו, בלי SMS ובלי לשלוח שום פרט לשום מקום. מתאים לטלפון חכם.</p>
       <div class="actions"><button type="button" class="btn primary" id="tfaStart">הפעלת אימות כפול</button></div></section>`;

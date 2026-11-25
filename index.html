@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- אבטחה: חוסם כל חיבור לאינטרנט וכל טעינת קוד או קבצים מבחוץ. החריג היחיד: שרת הצ'אט שרץ במחשב הזה (127.0.0.1), שמעביר שאלות לשירות SAI -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; manifest-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob: https://kaspei-habayit.goatcounter.com; font-src data:; connect-src https://formsubmit.co; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; manifest-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob: https://kaspei-habayit.goatcounter.com; font-src data:; connect-src https://formsubmit.co; media-src 'self'; object-src 'none'; frame-src 'none'; worker-src 'none'; form-action 'none'; base-uri 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%234f46e5%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%237c3aed%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22url(%23g)%22%2F%3E%3Ctext%20x%3D%2232%22%20y%3D%2245%22%20font-size%3D%2238%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22700%22%20text-anchor%3D%22middle%22%20fill%3D%22%23fff%22%3E%E2%82%AA%3C%2Ftext%3E%3C%2Fsvg%3E">
@@ -508,6 +508,162 @@ html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *:
 .look-mini{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
 .look-mini button{width:34px;height:34px;border-radius:50%;border:3px solid var(--card);box-shadow:0 0 0 1.5px var(--border);cursor:pointer;padding:0}
 .look-mini button.on{box-shadow:0 0 0 2.5px var(--primary)}
+/* שלב 10: שתפו חבר */
+.side-share{margin-top:6px;border:1px dashed var(--side-hover)!important}
+.sh-dlg{width:min(520px,94vw)}
+.sh-lead{margin:0;font-size:15.5px;line-height:1.6}
+.sh-dlg textarea{width:100%;font:inherit;font-size:14px;line-height:1.55;resize:vertical;min-height:150px}
+.sh-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sh-btns .btn{justify-content:center;font-weight:700}
+.sh-wa{background:#25d366!important;color:#fff!important;border-color:transparent!important}
+.sh-mail{background:var(--primary-soft)}
+.sh-card{display:flex;gap:18px;align-items:center;flex-wrap:wrap;background:linear-gradient(135deg,rgba(244,114,182,.13),var(--card) 60%);border:1px solid var(--border)}
+.sh-card .sh-ico{font-size:42px;width:64px;height:64px;display:grid;place-items:center;background:var(--card);border-radius:18px;box-shadow:0 6px 18px rgba(0,0,0,.08);font-family:Segoe UI Emoji,Segoe UI,sans-serif}
+.sh-card .sh-body{flex:1;min-width:240px}
+.sh-card h2{margin:0 0 4px}
+@media print{.sh-card,.sh-dlg{display:none!important}}
+/* שלב 9: סרטוני הדרכה בתוך התוכנה */
+.vv{position:fixed;inset:0;z-index:25;display:flex;flex-direction:column;background:rgba(15,12,40,.96);color:#fff}
+.vv[hidden]{display:none}
+.vv .gv-head{display:flex;align-items:center;gap:10px;padding:10px 16px;background:linear-gradient(135deg,var(--d0,#1e1b4b),var(--d1,#312e81))}
+.vv .gv-head b{font-size:16px}
+.vv .gv-cnt{color:#c7c9f5;font-size:14px;margin-inline-end:auto}
+.vv .gv-ib{width:38px;height:38px;display:grid;place-items:center;border-radius:10px;background:rgba(255,255,255,.14);color:#fff;border:0;cursor:pointer;font-size:17px}
+.vv .gv-ib:hover{background:rgba(255,255,255,.28)}
+.vv-body{flex:1;min-height:0;display:grid;grid-template-columns:1fr 300px;gap:18px;padding:18px}
+.vv.one .vv-body{grid-template-columns:1fr}
+.vv.one .vv-list{display:none}
+.vv-main{min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.vv-main video{width:100%;max-height:calc(100vh - 210px);aspect-ratio:16/10;background:#000;border-radius:14px;box-shadow:0 14px 44px rgba(0,0,0,.5)}
+.vv-info{width:100%;display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px}
+.vv-info h3{margin:0;font-size:20px;color:#fff}
+.vv-info p{margin:0;flex:1 1 260px;color:#c7c9f5;font-size:15px}
+.vv-list{overflow:auto;display:flex;flex-direction:column;gap:10px}
+.vv-list button{display:grid;grid-template-columns:104px 1fr;gap:10px;align-items:center;text-align:start;background:rgba(255,255,255,.07);border:2px solid transparent;border-radius:14px;padding:8px;color:#fff;cursor:pointer;font:inherit}
+.vv-list button:hover{background:rgba(255,255,255,.14)}
+.vv-list button.on{border-color:var(--primary,#6366f1);background:rgba(99,102,241,.22)}
+.vv-list img{width:104px;height:65px;object-fit:cover;border-radius:9px;background:#fff}
+.vv-list b{display:block;font-size:14.5px;line-height:1.35}
+.vv-list small{color:#c7c9f5;font-size:12.5px}
+.vv-ok{font-style:normal;color:#86efac}
+.side-vid{margin-top:6px;border:1px dashed var(--side-hover)!important}
+.guide-card .vid-btn{background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;border-color:transparent}
+.sm-help{display:flex;justify-content:center;margin:0 0 16px}
+.sm-help .btn{display:inline-flex;align-items:center;gap:8px}
+@media (max-width:820px){.vv-body{grid-template-columns:1fr;padding:10px;gap:10px}.vv-list{flex-direction:row;overflow-x:auto}.vv-list button{grid-template-columns:1fr;min-width:150px}.vv-list img{width:100%;height:auto}}
+@media print{.vv{display:none!important}}
+/* שלב 9: מצגת חודשית ושנתית חדשה */
+.pm{background:radial-gradient(1200px 600px at 85% -10%,rgba(167,139,250,.35),transparent 60%),radial-gradient(900px 500px at 0% 110%,rgba(45,212,191,.18),transparent 60%),linear-gradient(150deg,var(--d0,#1e1b4b),var(--d1,#3730a3) 60%,var(--d2,#5b21b6))}
+.pm-prog{height:4px;background:rgba(255,255,255,.12)}
+.pm-prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#fbbf24,#f472b6);transition:width .35s}
+.pm-head{flex-wrap:wrap}
+.pm-head .pm-ttl{font-size:16px;opacity:.9;margin-inline-end:auto}
+.pm-seg{display:flex;background:rgba(255,255,255,.12);border-radius:12px;padding:3px}
+.pm-seg button,.pm-head .pm-seg button{width:auto;height:34px;padding:0 14px;border-radius:9px;background:transparent;font-size:14.5px;font-weight:700;color:#fff;border:0;cursor:pointer}
+.pm-seg button.on{background:#fff;color:var(--d1,#3730a3)}
+.pm-pernav{display:flex;align-items:center;gap:6px}
+.pm-pernav .pm-per{min-width:118px;text-align:center;font-weight:700;font-size:15px}
+.pm-head .pm-pernav button{width:34px;height:34px;font-size:20px;line-height:1}
+.pm-head button:disabled{opacity:.3;cursor:default}
+.pm-head .pm-hb{font-family:Segoe UI Emoji,Segoe UI,sans-serif}
+.pm-head button:hover:not(:disabled){background:rgba(255,255,255,.28)}
+.pm-num{font-size:14px;opacity:.75;min-width:70px;text-align:center}
+.pm-slide.pm-in{animation:pmIn .45s ease both}
+@keyframes pmIn{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes pmPop{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes pmGrowW{from{width:0}}
+@keyframes pmGrowH{from{height:0}}
+@keyframes pmDraw{from{stroke-dasharray:0 999}}
+.pm-cover h1{font-size:clamp(44px,7vw,92px);letter-spacing:-1px;background:linear-gradient(90deg,#fff,#c4b5fd 60%,#fbcfe8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.pm-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin:30px 0 8px}
+.pm-chips span{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:14px 26px;min-width:170px;animation:pmPop .5s ease both;animation-delay:var(--d,0ms)}
+.pm-chips small{display:block;font-size:15px;opacity:.8}
+.pm-chips b{display:block;font-size:clamp(24px,2.8vw,36px)}
+.pm-mood{font-size:clamp(18px,2vw,26px);margin:22px 0 0;font-weight:700}
+.pm-tile{border:1px solid rgba(255,255,255,.14);animation:pmPop .5s ease both}
+.pm-tile:nth-child(2){animation-delay:.1s}.pm-tile:nth-child(3){animation-delay:.2s}
+.pm-tile.inc{box-shadow:inset 0 4px 0 #34d399}.pm-tile.exp{box-shadow:inset 0 4px 0 #f472b6}
+.pm-cmp{display:block;font-size:15px}
+.pm-split{height:22px;border-radius:12px;background:#34d399;overflow:hidden;margin:26px auto 0;max-width:820px}
+.pm-split i{display:block;height:100%;width:var(--w);background:#f472b6;border-radius:12px 0 0 12px;margin-inline-start:auto;animation:pmGrowW 1s .2s ease both}
+.pm-bar i{width:var(--w,0);animation:pmGrowW .9s ease both;animation-delay:var(--d,0ms)}
+.pm-bar i.goal{background:linear-gradient(90deg,#2dd4bf,#818cf8)}
+.pm-row3{grid-template-columns:minmax(120px,1.4fr) 1fr minmax(90px,auto)}
+.pm-dim{opacity:.75}
+.pm-donut{display:grid;grid-template-columns:minmax(200px,300px) 1fr;gap:34px;align-items:center;text-align:start}
+.pm-donut svg{width:100%;height:auto}
+.pm-arc{animation:pmDraw 1s ease both;animation-delay:var(--d,0ms)}
+.pm-dn-l{fill:rgba(255,255,255,.75);font-size:13px}
+.pm-dn-v{fill:#fff;font-size:21px;font-weight:800}
+.pm-legend{list-style:none;margin:0;padding:0;display:grid;gap:10px;max-width:520px}
+.pm-legend li{display:grid;grid-template-columns:16px 1fr auto 52px;gap:12px;align-items:center;font-size:clamp(15px,1.6vw,20px);animation:pmPop .45s ease both;animation-delay:var(--d,0ms)}
+.pm-legend i{width:16px;height:16px;border-radius:5px}
+.pm-legend small{opacity:.75;text-align:end}
+.pm-trend{display:flex;gap:10px;align-items:flex-end;justify-content:center;height:min(42vh,320px);padding-top:10px}
+.pm-tc{flex:1;max-width:84px;height:100%;display:flex;flex-direction:column;align-items:center;gap:6px}
+.pm-tb{flex:1;width:100%;display:flex;gap:4px;align-items:flex-end;justify-content:center}
+.pm-tb i{width:42%;height:var(--h);min-height:2px;border-radius:7px 7px 2px 2px;animation:pmGrowH .9s ease both;animation-delay:var(--d,0ms)}
+.pm-tb i.inc,.pm-key i.inc{background:#34d399}
+.pm-tb i.exp,.pm-key i.exp{background:#f472b6}
+.pm-tc small{font-size:14px;opacity:.85}
+.pm-tc em{font-style:normal;font-size:12.5px;font-weight:700;white-space:nowrap}
+.pm-tc.cur{background:rgba(255,255,255,.08);border-radius:12px}
+.pm-key{display:flex;gap:18px;justify-content:center;margin-top:16px;font-size:15px;opacity:.85;flex-wrap:wrap}
+.pm-key i{display:inline-block;width:14px;height:14px;border-radius:4px;margin-inline-end:6px;vertical-align:-2px}
+.pm-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.pm-fact{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:20px 22px;text-align:start;display:grid;grid-template-columns:54px 1fr;column-gap:14px;align-items:center;animation:pmPop .5s ease both;animation-delay:var(--d,0ms)}
+.pm-fi{grid-row:span 3;font-size:34px;width:54px;height:54px;display:grid;place-items:center;background:rgba(255,255,255,.12);border-radius:16px;font-family:Segoe UI Emoji,Segoe UI,sans-serif}
+.pm-fact small{font-size:15px;opacity:.75}
+.pm-fact b{font-size:clamp(22px,2.4vw,32px);line-height:1.25}
+.pm-fact em{font-style:normal;font-size:15px;opacity:.85}
+.pm-ask{margin:26px auto 0;max-width:820px;background:rgba(251,191,36,.16);border:1px solid rgba(251,191,36,.45);border-radius:18px;padding:16px 22px;font-size:clamp(16px,1.8vw,22px);font-weight:600}
+.pm-end h1{font-size:clamp(40px,6vw,76px)}
+@media (max-width:760px){.pm-donut{grid-template-columns:1fr}.pm-donut svg{max-width:240px;margin:0 auto}.pm-facts{grid-template-columns:1fr}.pm-tc em{display:none}.pm-pernav .pm-per{min-width:90px}}
+@media (prefers-reduced-motion:reduce){.pm *,.pm-slide.pm-in{animation:none!important}}
+/* הדפסת המצגת: כל שקופית בעמוד A4 לרוחב, רקע לבן וצבעים חסכוניים בדיו */
+#pmPrint{display:none}
+@page pmland{size:A4 landscape;margin:9mm}
+@media print{
+  body.print-pm>*:not(#pmPrint){display:none!important}
+  body.print-pm #pmPrint{display:block}
+  #pmPrint .pp{page:pmland;break-after:page;height:186mm;display:flex;flex-direction:column;border:1.5px solid #c7d2fe;border-radius:6mm;overflow:hidden;color:#1f1d3a;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #pmPrint .pp:last-child{break-after:auto}
+  #pmPrint .pp-head{display:flex;justify-content:space-between;padding:3mm 6mm;background:linear-gradient(90deg,#312e81,#6d28d9);color:#fff;font-size:11pt;font-weight:700}
+  #pmPrint .pp-body{flex:1;display:flex;flex-direction:column;justify-content:center;padding:6mm 12mm;width:auto;zoom:.8}
+  #pmPrint *{animation:none!important;transition:none!important}
+  #pmPrint h1,#pmPrint h2{color:#312e81}
+  #pmPrint .pm-cover h1{background:none;color:#312e81}
+  #pmPrint .pm-tile,#pmPrint .pm-fact,#pmPrint .pm-chips span{background:#f5f3ff;border-color:#ddd6fe;color:#1f1d3a}
+  #pmPrint .pm-fi{background:#ede9fe}
+  #pmPrint .pm-bar{background:#e5e7eb}
+  #pmPrint .pm-bar i{background:#6366f1}
+  #pmPrint .pm-bar i.over{background:#e03131}
+  #pmPrint .pm-good{color:#0f9d58}#pmPrint .pm-bad{color:#e03131}
+  #pmPrint .pm-dn-l{fill:#5b5f7a}#pmPrint .pm-dn-v{fill:#1f1d3a}
+  #pmPrint .pm-tc.cur{background:#f5f3ff}
+  #pmPrint .pm-trend{height:95mm}
+  #pmPrint .pm-ask{background:#fffbeb;border-color:#fbbf24}
+  #pmPrint .pm-note,#pmPrint .pm-key,#pmPrint .pm-kicker,#pmPrint .pm-sub{opacity:1;color:#4b4f6a}
+}
+/* שלב 9: לוח שנה – גרירה, קבוצות ותזכורות */
+.hcal .hc-r[draggable]{cursor:grab}
+.hcal .hc-r[draggable]:hover{outline:2px solid var(--primary);outline-offset:1px}
+.hcal .hc-r:focus-visible{outline:2px solid var(--primary)}
+.hcal .hc-r.hc-g{font-weight:700;border-inline-start:3px solid currentColor;white-space:normal;line-height:1.3}
+.hcal .hc-r.hc-g.exp{color:#b42318}.hcal .hc-r.hc-g.inc{color:#0b7a43}
+.hcal .hc-dragging{opacity:.45}
+.hcal .hc-cell.hc-over{outline:3px dashed var(--primary);outline-offset:-3px;background:var(--primary-soft)}
+.hc-help{margin-top:12px}
+.hc-groups{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
+.hc-gtag{cursor:pointer;border:0;font:inherit;font-size:13.5px}
+.hc-gtag:hover{filter:brightness(.95);outline:2px solid var(--primary)}
+.hc-mem{display:grid;gap:4px;background:var(--primary-soft);border-radius:12px;padding:10px 12px;font-size:14px}
+.hc-mem .hc-tot{border-top:1px solid var(--border);padding-top:4px;margin-top:2px}
+.hc-rem h2{margin-bottom:8px}
+.hc-rem .hc-remrow{margin-top:6px;background:rgba(245,158,11,.12)}
+.sm-rem{margin:0 0 16px}
+html[data-mode=dark] .hcal .hc-r.hc-g.exp{color:#fca5a5}html[data-mode=dark] .hcal .hc-r.hc-g.inc{color:#86efac}
+@media print{.hc-help,.hc-rem{display:none!important}}
 /* לוח שנה משולב */
 .hc-sec{font-size:15px;font-weight:500;opacity:.65;margin-inline-start:6px}
 .hc-modes .btn{min-width:88px}
@@ -730,6 +886,88 @@ tr.pl-late td{background:rgba(224,49,49,.07)}
   html[data-fs] .layout{zoom:1}
   .lk,.lk-back{display:none!important}
 }
+/* שלב 11: מצגת בעיצוב בהיר, צבעוני ומזמין */
+.pm{color:#1f1d3a;background:radial-gradient(700px 420px at 92% 6%,rgba(244,114,182,.28),transparent 65%),radial-gradient(640px 420px at 4% 96%,rgba(45,212,191,.26),transparent 65%),radial-gradient(520px 360px at 70% 100%,rgba(251,191,36,.22),transparent 65%),radial-gradient(560px 380px at 0% 0%,rgba(129,140,248,.25),transparent 65%),#fbf9ff}
+.pm-prog{height:6px;background:rgba(99,102,241,.12)}
+.pm-prog i{background:linear-gradient(90deg,#f472b6,#a78bfa,#2dd4bf)}
+.pm-head{margin:10px 14px 0;padding:10px 14px;background:rgba(255,255,255,.82);backdrop-filter:blur(8px);border-radius:18px;box-shadow:0 6px 24px rgba(49,46,129,.1);border:1px solid rgba(99,102,241,.12)}
+.pm-head .pm-ttl{color:#312e81;opacity:1;font-size:17px}
+.pm-head button,.pm-head .pm-hb{background:#f1efff;color:#3730a3}
+.pm-head button:hover:not(:disabled){background:#e0dcff}
+.pm-seg{background:#f1efff}
+.pm-seg button,.pm-head .pm-seg button{color:#4338ca;background:transparent}
+.pm-seg button.on,.pm-head .pm-seg button.on{background:linear-gradient(135deg,#6366f1,#a855f7);color:#fff;box-shadow:0 4px 12px rgba(99,102,241,.35)}
+.pm-pernav .pm-per{color:#312e81}
+.pm-stage{padding:18px 4vw}
+.pm-slide{--a1:#6366f1;--a2:#a855f7;--soft:#eef2ff;position:relative;background:#fff;border-radius:32px;padding:clamp(26px,3.4vw,48px) clamp(22px,3.6vw,56px);box-shadow:0 24px 70px rgba(49,46,129,.16),0 2px 0 rgba(255,255,255,.9) inset;border:1px solid rgba(99,102,241,.1);overflow:hidden}
+.pm-slide::before{content:"";position:absolute;inset:0 0 auto 0;height:8px;background:linear-gradient(90deg,var(--a1),var(--a2))}
+.pm-slide::after{content:"";position:absolute;width:260px;height:260px;border-radius:50%;inset:auto auto -120px -90px;background:radial-gradient(circle,var(--soft),transparent 70%);pointer-events:none}
+.pm-slide>*{position:relative;z-index:1}
+.pm-slide[data-k="1"]{--a1:#10b981;--a2:#14b8a6;--soft:#ecfdf5}
+.pm-slide[data-k="2"]{--a1:#ec4899;--a2:#f97316;--soft:#fdf2f8}
+.pm-slide[data-k="3"]{--a1:#0ea5e9;--a2:#6366f1;--soft:#e0f2fe}
+.pm-slide[data-k="4"]{--a1:#f59e0b;--a2:#ef4444;--soft:#fffbeb}
+.pm-slide[data-k="5"]{--a1:#8b5cf6;--a2:#ec4899;--soft:#f5f3ff}
+.pm-slide h1{color:#1e1b4b}
+.pm-slide h2{color:#1e1b4b;display:inline-block;margin-bottom:30px;padding-bottom:12px;background:linear-gradient(90deg,var(--a1),var(--a2)) bottom/64px 5px no-repeat;background-position:center bottom}
+.pm-kicker{color:var(--a1);opacity:1;font-weight:800;letter-spacing:.3px}
+.pm-sub{color:#5b5f7a;opacity:1}
+.pm-cover h1{background:linear-gradient(90deg,#4338ca,#a855f7 55%,#ec4899);-webkit-background-clip:text;background-clip:text;color:transparent}
+.pm-cover::marker{content:none}
+.pm-chips span{background:#f5f3ff;border:0;box-shadow:0 8px 22px rgba(49,46,129,.08);color:#1f1d3a}
+.pm-chips span:nth-child(1){background:linear-gradient(135deg,#ecfdf5,#d1fae5)}
+.pm-chips span:nth-child(2){background:linear-gradient(135deg,#eef2ff,#e0e7ff)}
+.pm-chips span:nth-child(3){background:linear-gradient(135deg,#fffbeb,#fef3c7)}
+.pm-chips small{color:#5b5f7a;opacity:1;font-weight:600}
+.pm-mood{display:inline-block;background:linear-gradient(135deg,#fdf2f8,#f5f3ff);color:#4c1d95;border-radius:999px;padding:12px 28px;box-shadow:0 6px 18px rgba(168,85,247,.15)}
+.pm-good{color:#059669}.pm-bad{color:#e11d48}
+.pm-tile{background:#fff;border:1px solid #ecebf7;box-shadow:0 10px 28px rgba(49,46,129,.08);color:#1f1d3a;position:relative;overflow:hidden}
+.pm-tile::before{content:"";position:absolute;inset:0 0 auto 0;height:6px;background:linear-gradient(90deg,var(--a1),var(--a2))}
+.pm-tile.inc{background:linear-gradient(180deg,#f0fdf4,#fff 70%);box-shadow:0 10px 28px rgba(16,185,129,.12)}
+.pm-tile.inc::before{background:linear-gradient(90deg,#10b981,#34d399)}
+.pm-tile.exp{background:linear-gradient(180deg,#fdf2f8,#fff 70%);box-shadow:0 10px 28px rgba(236,72,153,.12)}
+.pm-tile.exp::before{background:linear-gradient(90deg,#ec4899,#f472b6)}
+.pm-tile small{color:#5b5f7a;opacity:1;font-weight:600}
+.pm-tile span{opacity:1;color:#5b5f7a}
+.pm-split{background:linear-gradient(90deg,#34d399,#10b981);box-shadow:inset 0 1px 3px rgba(0,0,0,.1)}
+.pm-split i{background:linear-gradient(90deg,#f472b6,#ec4899)}
+.pm-note{color:#4b4f6a;opacity:1}
+.pm-note b{color:#1e1b4b}
+.pm-rows{background:#fafaff;border-radius:20px;padding:18px 20px}
+.pm-row span{color:#2e2b55}
+.pm-bar{background:#eceefa;height:18px}
+.pm-bar i{background:linear-gradient(90deg,var(--a1),var(--a2))}
+.pm-bar i.over{background:linear-gradient(90deg,#fb7185,#e11d48)}
+.pm-bar i.goal{background:linear-gradient(90deg,#2dd4bf,#6366f1)}
+.pm-dim{color:#6b6f8a;opacity:1}
+.pm-dn-l{fill:#6b6f8a}.pm-dn-v{fill:#1e1b4b}
+.pm-donut svg{filter:drop-shadow(0 10px 22px rgba(49,46,129,.15))}
+.pm-legend li{background:#fafaff;border-radius:12px;padding:6px 12px;color:#2e2b55}
+.pm-legend small{color:#6b6f8a;opacity:1}
+.pm-tb i.inc,.pm-key i.inc{background:linear-gradient(180deg,#34d399,#10b981)}
+.pm-tb i.exp,.pm-key i.exp{background:linear-gradient(180deg,#f9a8d4,#ec4899)}
+.pm-tc small{color:#4b4f6a;opacity:1;font-weight:600}
+.pm-tc.cur{background:linear-gradient(180deg,#eef2ff,#f5f3ff)}
+.pm-key{color:#4b4f6a;opacity:1}
+.pm-fact{background:#fff;border:1px solid #ecebf7;box-shadow:0 10px 26px rgba(49,46,129,.08);color:#1f1d3a}
+.pm-fact:nth-child(1){background:linear-gradient(135deg,#eef2ff,#fff 70%)}
+.pm-fact:nth-child(2){background:linear-gradient(135deg,#ecfdf5,#fff 70%)}
+.pm-fact:nth-child(3){background:linear-gradient(135deg,#fdf2f8,#fff 70%)}
+.pm-fact:nth-child(4){background:linear-gradient(135deg,#fffbeb,#fff 70%)}
+.pm-fi{background:#fff;box-shadow:0 6px 16px rgba(49,46,129,.12)}
+.pm-fact small{color:#5b5f7a;opacity:1;font-weight:600}
+.pm-fact b{color:#1e1b4b}
+.pm-fact em{color:#5b5f7a;opacity:1}
+.pm-ask{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:0;color:#78350f;box-shadow:0 8px 22px rgba(245,158,11,.18)}
+.pm-end h1{background:linear-gradient(90deg,#059669,#6366f1 50%,#ec4899);-webkit-background-clip:text;background-clip:text;color:transparent}
+.pm-foot{gap:16px}
+.pm-nav{background:#fff!important;color:#4338ca!important;box-shadow:0 8px 22px rgba(49,46,129,.15);border:1px solid #ecebf7!important}
+.pm-nav:hover:not(:disabled){background:linear-gradient(135deg,#6366f1,#a855f7)!important;color:#fff!important}
+.pm-dots button{background:#d9d6f5!important}
+.pm-dots button.on{background:linear-gradient(90deg,#6366f1,#ec4899)!important;width:26px!important;border-radius:99px!important;transform:none!important}
+.pm-num{color:#4b4f6a;opacity:1;font-weight:600}
+@media print{#pmPrint .pm-slide{box-shadow:none;border:0;border-radius:0;overflow:visible}#pmPrint .pm-slide::after{display:none}#pmPrint .pm-slide h2{margin-bottom:18px}}
+.pm-nav:focus{outline:none}.pm-nav:focus-visible{outline:3px solid #c4b5fd!important;outline-offset:3px}
 </style>
 <script>
 /* ---------- התאמת מראה: רץ לפני שהדף מצויר, כדי שלא יהבהב בצבעים הקודמים ----------
@@ -888,8 +1126,8 @@ try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change
   <aside>
     <div class="logo"><span class="logo-ico">₪</span>כספי הבית</div>
     <div class="nav-group">תזרים חודשי</div>
+    <button data-tab="simple">⚡ מבט מהיר</button>
     <button data-tab="dash">📊 דשבורד</button>
-    <button data-tab="simple">🟢 מצב פשוט</button>
     <button data-tab="tx">📝 עסקאות</button>
     <button data-tab="rec">🔁 הוצאות והכנסות קבועות</button>
     <button data-tab="budget">💼 תקציב</button>
@@ -899,6 +1137,8 @@ try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change
     <button data-tab="assets">🏠 נכסים והתחייבויות</button>
     <div class="nav-group">כללי</div>
     <button data-tab="settings">⚙️ הגדרות וגיבוי</button>
+    <button type="button" class="side-look side-share" data-action="shareOpen">💝 שתפו חבר</button>
+    <button type="button" class="side-look side-vid" data-action="vidOpen">🎬 סרטוני הדרכה</button>
     <button type="button" class="side-look" data-action="lookOpen">🎨 התאמת מראה</button>
   </aside>
   <main id="view"></main>
@@ -1334,7 +1574,7 @@ VIEWS.dash = () => {
   (ui.guideClosed ? '' : `<section class="card guide-card"><div class="guide-ico">📘</div><div class="guide-body">
     <h2>מדריך למשתמש – כספי הבית</h2>
     <p class="sub">מצגת קצרה עם צילומי מסך: איך להתחיל, איך עובד כל מסך, ואיך שומרים על הנתונים. מומלץ לעבור עליה פעם אחת, ואפשר לשמור אותה כקובץ PDF.</p>
-    <div class="actions"><button type="button" class="btn primary" data-action="guideOpen"><span style="font-family:Segoe UI Emoji,Segoe UI,Apple Color Emoji,sans-serif">👁️</span> צפייה במדריך</button><a class="btn guide-dl" data-action="guidePdf" href="${GUIDE_PDF()}" download="מדריך-למשתמש-כספי-הבית.pdf" rel="noopener" title="הורדת המדריך כקובץ PDF" aria-label="הורדת המדריך כקובץ PDF"><span style="font-family:Segoe UI Emoji,Segoe UI,Apple Color Emoji,sans-serif">⬇️</span></a><button class="btn" data-action="guideClose">הסתרה</button></div></div></section>`) +
+    <div class="actions"><button type="button" class="btn primary" data-action="guideOpen"><span style="font-family:Segoe UI Emoji,Segoe UI,Apple Color Emoji,sans-serif">👁️</span> צפייה במדריך</button><button type="button" class="btn vid-btn" data-action="vidOpen">🎬 סרטוני הדרכה</button><a class="btn guide-dl" data-action="guidePdf" href="${GUIDE_PDF()}" download="מדריך-למשתמש-כספי-הבית.pdf" rel="noopener" title="הורדת המדריך כקובץ PDF" aria-label="הורדת המדריך כקובץ PDF"><span style="font-family:Segoe UI Emoji,Segoe UI,Apple Color Emoji,sans-serif">⬇️</span></a><button class="btn" data-action="guideClose">הסתרה</button></div></div></section>`) +
   /* התזכורת "החזרי חוב לא סומנו" הוסרה לבקשת המשתמש: ההחזרים מתנהלים במסך ההתחייבויות בלבד ואינם נרשמים בהוצאות */
   `<div class="stats">
     <div class="stat s-flow s-hero"><div class="lbl">${year ? 'תזרים שנתי' : 'תזרים חודשי'}</div><div class="val ${flow >= 0 ? 'pos' : 'neg'}">${money(flow)}</div><div class="cmp">${cmpText(flow, pflow, true, prevLabel)}</div></div>
@@ -2090,7 +2330,7 @@ VIEWS.settings = () => topbar('הגדרות וגיבוי') + lookCard() + `<sect
       <button class="btn" data-action="exportXlsx">📊 ייצוא לאקסל (כל הנתונים)</button>
       <button class="btn danger" data-action="clearAll">מחיקת כל הנתונים</button></div></section>
   <section class="card"><h2>מדריך למשתמש</h2><p class="sub">מצגת עם צילומי מסך של כל חלקי התוכנה. הכרטיס מוצג בדשבורד; משם אפשר להסתיר אותו.</p>
-    <div class="actions"><button type="button" class="btn primary" data-action="guideOpen">👁 צפייה במדריך</button>
+    <div class="actions"><button type="button" class="btn primary" data-action="guideOpen">👁 צפייה במדריך</button><button type="button" class="btn vid-btn" data-action="vidOpen">🎬 סרטוני הדרכה</button>
       <a class="btn" data-action="guidePdf" href="${GUIDE_PDF()}" download="מדריך-למשתמש-כספי-הבית.pdf" rel="noopener">⬇️ הורדת המדריך כ-PDF</a>
       <button class="btn" data-action="guideShow">הצגת הכרטיס בדשבורד</button></div></section>`;
 BIND.settings = () => {
@@ -3770,7 +4010,7 @@ function render() {
    השקופיות הן תמונות בתיקייה assets שליד הקובץ. מדיניות האבטחה מתירה תמונות רק מהאתר עצמו ('self'),
    כך ששום דבר לא נטען מבחוץ. החלון נפתח מעל הדשבורד ומתחת למסך הנעילה. */
 const GUIDE = {
-  n: 28, pdf: 'מדריך-למשתמש-כספי-הבית.pdf',
+  n: 31, pdf: 'מדריך-למשתמש-כספי-הבית.pdf',
   img: k => 'assets/' + (k < 10 ? '0' : '') + k + '.jpg'
 };
 const GUIDE_PDF = () => GUIDE.pdf;
@@ -4935,9 +5175,9 @@ function installCard() {
   if (local) return '';
   return `<section class="card"><h2>📲 התקנה כאפליקציה</h2>
     ${standalone ? '<p class="sub">התוכנה פתוחה כאפליקציה מותקנת ✓</p>'
-      : `<p class="sub">אפשר להתקין את התוכנה, ואז היא נפתחת מאייקון בשולחן העבודה או במסך הבית של הטלפון, בחלון נקי בלי שורת הכתובת. הנתונים נשארים אותם נתונים.</p>
-      ${p4Install ? '<button type="button" class="btn primary" data-action="installApp">📲 להתקין עכשיו</button>'
-        : '<p class="sub">במחשב (כרום או אדג׳): בתפריט ⋮ של הדפדפן בוחרים "התקנת אפליקציה" / "אפליקציות ← התקנה". בטלפון: בתפריט הדפדפן בוחרים "הוספה למסך הבית".</p>'}`}</section>`;
+      : `<p class="sub">אפשר להתקין את התוכנה, ואז היא נפתחת מאייקון בשולחן העבודה, בחלון נקי בלי שורת הכתובת. הנתונים נשארים אותם נתונים.</p>
+      ${p4Install ? '<button type="button" class="btn primary" data-action="installApp">💻 להתקין עכשיו</button>'
+        : '<p class="sub">במחשב (כרום או אדג׳): בתפריט ⋮ של הדפדפן בוחרים "התקנת אפליקציה" / "אפליקציות ← התקנה".</p>'}`}</section>`;
 }
 
 // 45. הקראה בקול של סיכום החודש
@@ -5060,8 +5300,8 @@ Object.assign(ACTIONS, {
 /* ---------- שלב 4 (כספי הבית): מצב פשוט, דשבורד שאפשר לסדר, לוח שנה עברי ---------- */
 
 // 46. מצב פשוט: שלושה כפתורים גדולים. התפריט נשאר גלוי, ואפשר לחזור לתוכנה המלאה בכל רגע
-const SIMPLE_KEY = 'kaspei_simple_start';
-function simpleStart() { try { return localStorage.getItem(SIMPLE_KEY) === '1'; } catch (e) { return false; } }
+const SIMPLE_KEY = 'kaspei_quick_start';
+function simpleStart() { try { return localStorage.getItem(SIMPLE_KEY) !== '0'; } catch (e) { return true; } }
 if (simpleStart()) ui.tab = 'simple';
 VIEWS.simple = () => {
   const m = monthKey(new Date()), inc = sumMonth(m, 'income'), exp = sumMonth(m, 'expense'), left = inc - exp;
@@ -5069,6 +5309,7 @@ VIEWS.simple = () => {
   return `<div class="simple">
     <div class="sm-head"><div><h1>שלום! 👋</h1><div class="sub" style="margin:0">${esc(hebDate(today()))} · ${gregDate(today())}</div></div>
       <button type="button" class="btn" data-tab="dash">לתוכנה המלאה ←</button></div>
+    <div class="sm-help"><button type="button" class="btn" data-action="vidOpen">🎬 איך משתמשים? סרטונים קצרים</button><button type="button" class="btn" data-action="shareOpen">💝 שתפו חבר</button></div>
     <div class="sm-left ${left >= 0 ? 'pos' : 'neg'}" id="smLeft"><small>${left >= 0 ? 'נשאר החודש' : 'חסר החודש'} · ${monthName(m)}</small><b>${money(Math.abs(left))}</b>
       <span>נכנס ${money(inc)} · יצא ${money(exp)}</span></div>
     <div class="sm-btns">
@@ -5076,10 +5317,10 @@ VIEWS.simple = () => {
       <button type="button" class="sm-btn exp" data-action="smAdd" data-t="expense"><span>➖</span>הוצאה</button>
       <button type="button" class="sm-btn left" data-action="smLeft"><span>💰</span>כמה נשאר?</button></div>
     ${last.length ? `<section class="card sm-last"><h2>רשמתי לאחרונה</h2>${last.map(t => `<div class="sm-row"><span>${gregDate(t.date)}</span><span>${esc(t.note || t.category)}</span><b class="${t.type === 'income' ? 'pos' : 'neg'}">${t.type === 'income' ? '+' : '−'}${money(t.amount)}</b></div>`).join('')}</section>` : ''}
-    <label class="sm-start"><input type="checkbox" id="smStart"${simpleStart() ? ' checked' : ''}> לפתוח תמיד במצב פשוט (במחשב הזה)</label></div>`;
+    <label class="sm-start"><input type="checkbox" id="smStart"${simpleStart() ? ' checked' : ''}> לפתוח תמיד במבט מהיר (במחשב הזה)</label></div>`;
 };
 document.addEventListener('change', e => {
-  if (e.target && e.target.id === 'smStart') { try { localStorage.setItem(SIMPLE_KEY, e.target.checked ? '1' : '0'); } catch (x) {} toast(e.target.checked ? 'התוכנה תיפתח במצב פשוט' : 'התוכנה תיפתח בדשבורד'); }
+  if (e.target && e.target.id === 'smStart') { try { localStorage.setItem(SIMPLE_KEY, e.target.checked ? '1' : '0'); } catch (x) {} toast(e.target.checked ? 'התוכנה תיפתח במבט מהיר' : 'התוכנה תיפתח בדשבורד'); }
 });
 
 // 65. דשבורד שאפשר לסדר: הזזה למעלה ולמטה והסתרה של כרטיסים
@@ -5454,6 +5695,503 @@ Object.assign(ACTIONS, {
   hcalMode: el => { S.settings.hcalMode = el.dataset.v; ui.hcal = 0; save(); render(); const c = document.querySelector('.hcal'); if (c) c.scrollIntoView({ block: 'start' }); }
 });
 
+const VID_TITLE = 'סרטוני הדרכה – כספי הבית';
+const VID_LIST = [
+  { f: 'video-1-start', poster: 'vposter-1.jpg', t: 'התחלה מהירה', d: 'בחירת סיסמה, הדשבורד, ורישום הוצאה ראשונה בכפתור +.', len: 'דקה' },
+  { f: 'video-2-import', poster: 'vposter-2.jpg', t: 'ייבוא מהבנק ומכרטיס האשראי', d: 'מורידים קובץ תנועות מהבנק, גוררים לתוכנה, בודקים ומאשרים.', len: '48 שניות' },
+  { f: 'video-3-recurring', poster: 'vposter-3.jpg', t: 'הוצאות קבועות ולוח שנה', d: 'מגדירים פעם אחת – ונרשם לבד כל חודש. לוח עברי ולועזי.', len: '39 שניות' },
+  { f: 'video-4-plan', poster: 'vposter-4.jpg', t: 'תכנון וחיסכון', d: 'מנויים שנשכחו, ויעדי חיסכון לשמחות ולחגים.', len: '50 שניות' },
+  { f: 'video-5-simple', poster: 'vposter-5.jpg', t: 'מבט מהיר', d: 'המסך שנפתח ראשון: כמה נשאר, ורישום הכנסה או הוצאה בלחיצה.', len: '40 שניות' }
+];
+/* ---------- שלב 9: סרטוני הדרכה בתוך התוכנה ----------
+   הסרטונים בתיקייה assets שליד הקובץ (כמו שקופיות המדריך), ונטענים רק מהאתר עצמו (media-src 'self').
+   החלון נפתח מעל המסך ומתחת למסך הנעילה. VID_LIST ו-VID_TITLE מוגדרים לפני הקוד הזה, לכל תוכנה בנפרד */
+const VID_SEEN_KEY = VID_TITLE.includes('דירה') ? 'dira_vid_seen' : 'kaspei_vid_seen';
+let vvIdx = 0, vvBackFocus = null;
+function vvSeen() { try { return JSON.parse(localStorage.getItem(VID_SEEN_KEY) || '[]'); } catch (e) { return []; } }
+function vvMarkSeen(f) { const s = vvSeen(); if (!s.includes(f)) { s.push(f); try { localStorage.setItem(VID_SEEN_KEY, JSON.stringify(s)); } catch (e) {} } }
+function vvEl() {
+  let el = document.getElementById('vv');
+  if (el) return el;
+  el = document.createElement('div');
+  el.id = 'vv'; el.className = 'vv' + (VID_LIST.length < 2 ? ' one' : ''); el.hidden = true;
+  el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', VID_TITLE);
+  el.innerHTML = `<div class="gv-head"><b>🎬 ${VID_TITLE}</b><span class="gv-cnt" id="vvCnt"></span>
+    <button type="button" class="gv-ib" data-action="vidClose" title="סגירה (Esc)" aria-label="סגירת הסרטונים">✕</button></div>
+    <div class="vv-body"><div class="vv-main"><video id="vvVideo" controls playsinline preload="metadata"></video>
+      <div class="vv-info"><h3 id="vvT"></h3><p id="vvD"></p><button type="button" class="btn primary vv-next" data-action="vidNext" hidden>לסרטון הבא ←</button></div></div>
+      <nav class="vv-list" aria-label="רשימת הסרטונים">${VID_LIST.map((v, k) => `<button type="button" data-action="vidGo" data-n="${k}">
+        ${v.poster ? `<img src="assets/${v.poster}" alt="" loading="lazy">` : ''}<span><b>${k + 1}. ${v.t}</b><small>${v.len}<i class="vv-ok" hidden> · ✓ נצפה</i></small></span></button>`).join('')}</nav></div>`;
+  document.body.appendChild(el);
+  const vid = el.querySelector('#vvVideo');
+  vid.addEventListener('ended', () => { vvMarkSeen(VID_LIST[vvIdx].f); vvPaint(); el.querySelector('.vv-next').hidden = vvIdx >= VID_LIST.length - 1; });
+  vid.addEventListener('error', () => { $('#vvD').textContent = 'הסרטון לא נטען. אפשר לנסות שוב מאוחר יותר.'; });
+  return el;
+}
+function vvPaint() {
+  const el = vvEl(), seen = vvSeen();
+  el.querySelectorAll('.vv-list button').forEach((b, k) => { b.classList.toggle('on', k === vvIdx); b.querySelector('.vv-ok').hidden = !seen.includes(VID_LIST[k].f); });
+}
+function vvShow(k, play) {
+  const el = vvEl(), v = VID_LIST[Math.max(0, Math.min(VID_LIST.length - 1, k || 0))];
+  vvIdx = VID_LIST.indexOf(v);
+  const vid = el.querySelector('#vvVideo');
+  vid.pause();
+  if (v.poster) vid.poster = 'assets/' + v.poster; else vid.removeAttribute('poster');
+  vid.src = 'assets/' + v.f + '.mp4' + (v.poster ? '' : '#t=1.5');
+  el.querySelector('#vvT').textContent = (VID_LIST.length > 1 ? (vvIdx + 1) + '. ' : '') + v.t;
+  el.querySelector('#vvD').textContent = v.d;
+  el.querySelector('#vvCnt').textContent = VID_LIST.length > 1 ? 'סרטון ' + (vvIdx + 1) + ' מתוך ' + VID_LIST.length : v.len;
+  el.querySelector('.vv-next').hidden = true;
+  vvPaint();
+  if (play) { const p = vid.play(); if (p && p.catch) p.catch(() => {}); }
+}
+function vvOpen(k) {
+  const el = vvEl();
+  vvBackFocus = document.activeElement;
+  el.hidden = false;
+  document.body.style.overflow = 'hidden';
+  vvShow(k || 0);
+  el.querySelector('[data-action="vidClose"]').focus();
+}
+function vvClose() {
+  const el = document.getElementById('vv');
+  if (!el || el.hidden) return;
+  el.querySelector('#vvVideo').pause();
+  el.hidden = true;
+  document.body.style.overflow = '';
+  if (vvBackFocus && vvBackFocus.focus) vvBackFocus.focus();
+}
+document.addEventListener('keydown', e => {
+  const el = document.getElementById('vv');
+  if (!el || el.hidden || e.key !== 'Escape') return;
+  e.preventDefault(); vvClose();
+});
+Object.assign(ACTIONS, {
+  vidOpen: el => vvOpen(+((el && el.dataset.n) || 0)),
+  vidGo: el => vvShow(+el.dataset.n, true),
+  vidNext: () => vvShow(vvIdx + 1, true),
+  vidClose: () => vvClose()
+});
+
+/* ---------- שלב 9: מצגת חודשית ושנתית חדשה ----------
+   גרפים (עוגה, מגמה), עובדות מעניינות, אנימציה עדינה, מעבר בין חודשים ושנים, והדפסה מסודרת: כל שקופית בעמוד A4 לרוחב */
+let pmMode = 'month', pmKey = '';
+const PM_COLORS = ['#818cf8', '#f472b6', '#34d399', '#fbbf24', '#60a5fa', '#fb923c', '#a78bfa', '#2dd4bf'];
+const pmPct = (a, b) => b > 0 ? Math.round(a / b * 100) : 0;
+function pmExpByCat(prefix) {
+  const g = {};
+  S.transactions.filter(t => t.type === 'expense' && t.date.startsWith(prefix) && !skipAsExpense(t)).forEach(t => { g[t.category || 'ללא קטגוריה'] = (g[t.category || 'ללא קטגוריה'] || 0) + t.amount; });
+  return Object.entries(g).sort((a, b) => b[1] - a[1]);
+}
+function pmHebSpan(a, b) {
+  try {
+    const p = hebParts(a), q = hebParts(b);
+    if (p.m === q.m && p.y === q.y) return `${p.m} ${p.y}`;
+    return p.y === q.y ? `${p.m}–${q.m} ${q.y}` : `${p.m} ${p.y} – ${q.m} ${q.y}`;
+  } catch (e) { return ''; }
+}
+function pmLastDay(m) { const [y, mm] = m.split('-').map(Number); return m + '-' + String(new Date(y, mm, 0).getDate()).padStart(2, '0'); }
+function pmCmp(v, o, upGood, word) {
+  if (!o) return '';
+  const d = v - o, good = upGood ? d >= 0 : d <= 0;
+  return `<span class="pm-cmp ${good ? 'pm-good' : 'pm-bad'}">${d >= 0 ? '▲' : '▼'} ${money(Math.abs(d))} ${word}</span>`;
+}
+// עוגה: 6 הקטגוריות הגדולות ועוד "אחר"
+function pmDonut(list) {
+  const total = list.reduce((a, x) => a + x[1], 0);
+  const top = list.slice(0, 6), rest = list.slice(6).reduce((a, x) => a + x[1], 0);
+  if (rest > 0) top.push(['אחר', rest]);
+  const R = 78, C = 2 * Math.PI * R; let off = 0;
+  const arcs = top.map(([, v], i) => {
+    const len = total ? v / total * C : 0;
+    const s = `<circle class="pm-arc" r="${R}" cx="110" cy="110" fill="none" stroke="${PM_COLORS[i % 8]}" stroke-width="34" stroke-dasharray="${len.toFixed(2)} ${(C - len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" style="--d:${i * 90}ms"/>`;
+    off += len; return s;
+  }).join('');
+  return `<div class="pm-donut"><svg viewBox="0 0 220 220" role="img" aria-label="חלוקת ההוצאות לפי קטגוריות"><g transform="rotate(-90 110 110)">${arcs}</g>
+      <text x="110" y="102" text-anchor="middle" class="pm-dn-l">סה״כ הוצאות</text><text x="110" y="130" text-anchor="middle" class="pm-dn-v">${money(total)}</text></svg>
+    <ul class="pm-legend">${top.map(([c, v], i) => `<li style="--d:${200 + i * 70}ms"><i style="background:${PM_COLORS[i % 8]}"></i><span>${esc(c)}</span><b>${money(v)}</b><small>${pmPct(v, total)}%</small></li>`).join('')}</ul></div>`;
+}
+// עמודות הכנסות מול הוצאות לאורך כמה חודשים
+function pmTrend(months, cur) {
+  const data = months.map(m => ({ m, i: sumMonth(m, 'income'), e: sumMonth(m, 'expense') }));
+  const mx = Math.max(1, ...data.map(d => Math.max(d.i, d.e)));
+  return `<div class="pm-trend">${data.map((d, k) => `<div class="pm-tc${d.m === cur ? ' cur' : ''}"><div class="pm-tb">
+      <i class="inc" style="--h:${(d.i / mx * 100).toFixed(1)}%;--d:${k * 55}ms" title="הכנסות: ${money(d.i)}"></i><i class="exp" style="--h:${(d.e / mx * 100).toFixed(1)}%;--d:${k * 55 + 25}ms" title="הוצאות: ${money(d.e)}"></i></div>
+      <small>${monthName(d.m, 'short')}</small><em class="${d.i - d.e >= 0 ? 'pm-good' : 'pm-bad'}">${d.i || d.e ? (d.i - d.e >= 0 ? '+' : '−') + money(Math.abs(d.i - d.e)) : '—'}</em></div>`).join('')}</div>
+    <div class="pm-key"><span><i class="inc"></i>הכנסות</span><span><i class="exp"></i>הוצאות</span><span>המספר למטה: כמה נשאר</span></div>`;
+}
+function pmFacts(items) { return `<div class="pm-facts">${items.filter(Boolean).map((f, k) => `<div class="pm-fact" style="--d:${k * 90}ms"><span class="pm-fi">${f[0]}</span><small>${f[1]}</small><b>${f[2]}</b>${f[3] ? `<em>${f[3]}</em>` : ''}</div>`).join('')}</div>`; }
+function pmTopPlace(txs) {
+  const recN = new Set(S.recurring.map(r => (r.note || '').trim())), c = {};
+  txs.forEach(t => { const n = (t.note || '').trim(); if (n && !t.recurringId && !recN.has(n)) { c[n] = c[n] || { n, k: 0, s: 0 }; c[n].k++; c[n].s += t.amount; } });
+  const best = Object.values(c).sort((a, b) => b.k - a.k || b.s - a.s)[0];
+  return best && best.k >= 2 ? best : null;
+}
+function pmSavings() {
+  const funds = S.funds || [], s = [];
+  if (S.assets.length) {
+    const nw = netWorth(), d = debtProjection();
+    s.push(`<div class="pm-tiles"><div class="pm-tile"><small>שווי נקי</small><b>${money(nw.n)}</b></div><div class="pm-tile"><small>נכסים וחסכונות</small><b>${money(nw.a)}</b></div>
+      <div class="pm-tile"><small>חובות</small><b class="pm-bad">${money(nw.l)}</b>${d && d.zero ? `<span>צפוי להיגמר ב${monthName(d.zero)}</span>` : ''}</div></div>`);
+  }
+  if (funds.length) s.push(`<div class="pm-rows pm-goals">${funds.slice(0, 5).map((f, k) => { const b = fundBal(f), p = f.target ? Math.min(100, b / f.target * 100) : 0;
+    return `<div class="pm-row"><span>🎯 ${esc(f.name)}</span><div class="pm-bar"><i class="goal" style="--w:${p.toFixed(1)}%;--d:${k * 80}ms"></i></div><b>${money(b)}${f.target ? ` / ${money(f.target)}` : ''}</b></div>`; }).join('')}</div>`);
+  return s.length ? `<h2>🏦 חסכונות, יעדים וחובות</h2>${s.join('')}` : '';
+}
+
+function pmMonthSlides(m) {
+  const prev = shiftMonth(m, -1), inc = sumMonth(m, 'income'), exp = sumMonth(m, 'expense'), left = inc - exp;
+  const txs = S.transactions.filter(t => t.date.startsWith(m)), exps = txs.filter(t => t.type === 'expense' && !skipAsExpense(t));
+  const rate = pmPct(left, inc), s = [];
+  const mood = !inc && !exp ? 'עוד לא נרשמו נתונים לחודש הזה' : left >= 0 ? (rate >= 15 ? 'חודש מצוין – נשאר גם לחיסכון 🌟' : 'החודש נסגר ביתרה חיובית 👍') : 'החודש יצא יותר ממה שנכנס – בואו נבין יחד למה';
+  s.push(`<div class="pm-cover"><div class="pm-kicker">סיכום החודש · כספי הבית</div><h1>${monthName(m)}</h1><div class="pm-sub">${esc(pmHebSpan(m + '-01', pmLastDay(m)))}</div>
+    <div class="pm-chips"><span style="--d:150ms"><small>${left >= 0 ? 'נשאר' : 'חסר'}</small><b class="${left >= 0 ? 'pm-good' : 'pm-bad'}">${money(Math.abs(left))}</b></span>
+      <span style="--d:250ms"><small>נשאר מההכנסות</small><b>${inc ? rate + '%' : '—'}</b></span><span style="--d:350ms"><small>פעולות שנרשמו</small><b>${txs.length}</b></span></div>
+    <p class="pm-mood">${mood}</p></div>`);
+  s.push(`<h2>💰 מה נכנס ומה יצא</h2><div class="pm-tiles"><div class="pm-tile inc"><small>הכנסות</small><b>${money(inc)}</b>${pmCmp(inc, sumMonth(prev, 'income'), true, 'מהחודש הקודם')}</div>
+    <div class="pm-tile exp"><small>הוצאות</small><b>${money(exp)}</b>${pmCmp(exp, sumMonth(prev, 'expense'), false, 'מהחודש הקודם')}</div>
+    <div class="pm-tile"><small>${left >= 0 ? 'נשאר' : 'חסר'}</small><b class="${left >= 0 ? 'pm-good' : 'pm-bad'}">${money(Math.abs(left))}</b></div></div>
+    ${inc ? `<div class="pm-split" aria-hidden="true"><i style="--w:${Math.min(100, exp / inc * 100).toFixed(1)}%"></i></div><p class="pm-note">מכל <b>100 ₪</b> שנכנסו החודש, יצאו <b>${Math.round(exp / inc * 100)} ₪</b>${left > 0 ? ` ונשארו <b>${Math.round(left / inc * 100)} ₪</b>` : ''}.</p>` : ''}`);
+  const cats = pmExpByCat(m);
+  if (cats.length) {
+    const avg = catAvg3(m, 'expense');
+    const up = cats.slice(0, 7).filter(([c, v]) => avg[c] > 0 && v > avg[c] * 1.1).map(([c, v]) => `${esc(c)} (+${Math.round((v / avg[c] - 1) * 100)}%)`);
+    s.push(`<h2>🧭 לאן הלך הכסף</h2>${pmDonut(cats)}<p class="pm-note">${up.length ? `מעל הממוצע של 3 החודשים הקודמים: ${up.join(' · ')}` : 'אף קטגוריה לא עברה משמעותית את הממוצע של 3 החודשים הקודמים 👍'}</p>`);
+  }
+  const six = []; for (let i = 5; i >= 0; i--) six.push(shiftMonth(m, -i));
+  s.push(`<h2>📈 חצי השנה האחרונה</h2>${pmTrend(six, m)}`);
+  if (exps.length) {
+    const big = [...exps].sort((a, b) => b.amount - a.amount)[0], place = pmTopPlace(exps);
+    const isCur = m === monthKey(new Date()), days = isCur ? new Date().getDate() : +pmLastDay(m).slice(8);
+    const avg = catAvg3(m, 'expense'), down = cats.filter(([c, v]) => avg[c] > 0 && v < avg[c] * 0.85).sort((a, b) => (a[1] / avg[a[0]]) - (b[1] / avg[b[0]]))[0];
+    s.push(`<h2>✨ החודש במספרים</h2>${pmFacts([
+      ['🧾', 'ההוצאה הגדולה', money(big.amount), esc(big.note || big.category) + ' · ' + gregDate(big.date)],
+      ['📅', 'ממוצע הוצאות ליום', money(Math.round(exp / Math.max(1, days))), isCur ? `לפי ${days} הימים שעברו` : `לפי ${days} ימים`],
+      place ? ['🛒', 'המקום הקבוע', esc(place.n), `${place.k} פעמים · ${money(place.s)}`] : ['🔢', 'הוצאות שנרשמו', String(exps.length), ''],
+      down ? ['🌱', 'הוצאנו פחות על', esc(down[0]), `${Math.round((1 - down[1] / avg[down[0]]) * 100)}% פחות מהממוצע`] : ['🏷️', 'הקטגוריה הגדולה', esc(cats[0][0]), money(cats[0][1])]
+    ])}`);
+  }
+  const bud = Object.entries(S.budgets || {}).filter(([c, b]) => b > 0 && c !== S.settings.loanCategory).map(([c, b]) => ({ c, b, s: sumMonth(m, 'expense', c) })).sort((a, b) => b.s / b.b - a.s / a.b).slice(0, 7);
+  if (bud.length) {
+    const over = bud.filter(x => x.s > x.b);
+    s.push(`<h2>🎯 תקציב מול ביצוע</h2><div class="pm-rows">${bud.map((x, k) => `<div class="pm-row"><span>${esc(x.c)}</span><div class="pm-bar"><i class="${x.s > x.b ? 'over' : ''}" style="--w:${Math.min(100, x.s / x.b * 100).toFixed(1)}%;--d:${k * 70}ms"></i></div><b class="${x.s > x.b ? 'pm-bad' : ''}">${money(x.s)} / ${money(x.b)}</b></div>`).join('')}</div>
+      <p class="pm-note">${over.length ? `חריגה ב: ${over.map(x => `${esc(x.c)} (${money(x.s - x.b)})`).join(' · ')}` : 'כל הקטגוריות בתוך התקציב 👏'}</p>`);
+  }
+  const mc = maaserCalc(m), all = maaserCalc(''), cum = all.bal + (+S.settings.maaserOpening || 0);
+  if (mc.due || mc.given) s.push(`<h2>🤲 מעשרות</h2><div class="pm-tiles"><div class="pm-tile"><small>נדרש החודש</small><b>${money(mc.due)}</b></div><div class="pm-tile"><small>ניתן החודש</small><b>${money(mc.given)}</b></div>
+    <div class="pm-tile"><small>יתרה מצטברת</small><b class="${cum >= 0 ? 'pm-good' : 'pm-bad'}">${cum >= 0 ? '+' : '−'}${money(Math.abs(cum))}</b><span>${cum >= 0 ? 'עודף' : 'נותר לתת'}</span></div></div>
+    <p class="pm-note">"עשר תעשר – עשר בשביל שתתעשר" 💛</p>`);
+  const sv = pmSavings(); if (sv) s.push(sv);
+  const next = shiftMonth(m, 1), nm = +next.slice(5);
+  const nrec = S.recurring.filter(r => r.active && r.type === 'expense' && !(r.endMonth && r.endMonth < next) && !(r.startMonth && r.startMonth > next) && (!r.months || r.months.includes(nm))).sort((a, b) => b.amount - a.amount);
+  s.push(`<h2>📅 מה מחכה ב${monthName(next)}</h2>${nrec.length ? `<div class="pm-rows">${nrec.slice(0, 6).map(r => `<div class="pm-row pm-row3"><span>${esc(r.note || r.category)}</span><span class="pm-dim">${r.day} בחודש</span><b>${money(r.amount)}</b></div>`).join('')}</div>
+    <p class="pm-note">סה״כ הוצאות קבועות צפויות: <b>${money(nrec.reduce((a, r) => a + r.amount, 0))}</b></p>` : '<p class="pm-note">לא הוגדרו הוצאות קבועות</p>'}
+    <div class="pm-ask">💬 שאלה לשיחה: על מה נרצה לשמור – ומה נרצה לשפר – בחודש הבא?</div>`);
+  return s;
+}
+
+function pmYearSlides(y) {
+  const Y = String(y), PY = String(y - 1), inc = sumMonth(Y, 'income'), exp = sumMonth(Y, 'expense'), left = inc - exp, rate = pmPct(left, inc);
+  const months = []; for (let i = 1; i <= 12; i++) months.push(Y + '-' + String(i).padStart(2, '0'));
+  const md = months.map(m => ({ m, i: sumMonth(m, 'income'), e: sumMonth(m, 'expense') })).filter(d => d.i || d.e);
+  const txs = S.transactions.filter(t => t.date.startsWith(Y)), exps = txs.filter(t => t.type === 'expense' && !skipAsExpense(t)), s = [];
+  s.push(`<div class="pm-cover"><div class="pm-kicker">סיכום שנתי · כספי הבית</div><h1>שנת ${Y}</h1><div class="pm-sub">${esc(pmHebSpan(Y + '-01-01', Y + '-12-31'))}</div>
+    <div class="pm-chips"><span style="--d:150ms"><small>${left >= 0 ? 'נשאר בשנה' : 'חסר בשנה'}</small><b class="${left >= 0 ? 'pm-good' : 'pm-bad'}">${money(Math.abs(left))}</b></span>
+      <span style="--d:250ms"><small>נשאר מההכנסות</small><b>${inc ? rate + '%' : '—'}</b></span><span style="--d:350ms"><small>חודשים עם נתונים</small><b>${md.length}</b></span></div>
+    <p class="pm-mood">${!md.length ? 'עוד לא נרשמו נתונים לשנה הזו' : left >= 0 ? 'שנה של ברכה – תודה לה׳ 🙏' : 'שנה מאתגרת – ויש ממה ללמוד לשנה הבאה'}</p></div>`);
+  s.push(`<h2>💰 השנה במבט אחד</h2><div class="pm-tiles"><div class="pm-tile inc"><small>הכנסות</small><b>${money(inc)}</b>${pmCmp(inc, sumMonth(PY, 'income'), true, 'משנה שעברה')}</div>
+    <div class="pm-tile exp"><small>הוצאות</small><b>${money(exp)}</b>${pmCmp(exp, sumMonth(PY, 'expense'), false, 'משנה שעברה')}</div>
+    <div class="pm-tile"><small>${left >= 0 ? 'נשאר' : 'חסר'}</small><b class="${left >= 0 ? 'pm-good' : 'pm-bad'}">${money(Math.abs(left))}</b>${md.length ? `<span>בממוצע ${money(Math.round(Math.abs(left) / md.length))} בחודש</span>` : ''}</div></div>
+    ${inc ? `<div class="pm-split" aria-hidden="true"><i style="--w:${Math.min(100, exp / inc * 100).toFixed(1)}%"></i></div><p class="pm-note">מכל <b>100 ₪</b> שנכנסו השנה, יצאו <b>${Math.round(exp / inc * 100)} ₪</b>.</p>` : ''}`);
+  s.push(`<h2>📈 חודש אחרי חודש</h2>${pmTrend(months, monthKey(new Date()))}`);
+  const cats = pmExpByCat(Y);
+  if (cats.length) s.push(`<h2>🧭 לאן הלך הכסף השנה</h2>${pmDonut(cats)}`);
+  if (md.length) {
+    const best = [...md].sort((a, b) => (b.i - b.e) - (a.i - a.e))[0], heavy = [...md].sort((a, b) => b.e - a.e)[0];
+    const big = exps.length ? [...exps].sort((a, b) => b.amount - a.amount)[0] : null, place = pmTopPlace(exps);
+    s.push(`<h2>🏆 שיאי השנה</h2>${pmFacts([
+      ['🌟', 'החודש הטוב ביותר', monthName(best.m), `נשאר ${money(best.i - best.e)}`],
+      ['🛍️', 'החודש היקר ביותר', monthName(heavy.m), `הוצאות ${money(heavy.e)}`],
+      big ? ['🧾', 'ההוצאה הגדולה', money(big.amount), esc(big.note || big.category) + ' · ' + gregDate(big.date)] : null,
+      place ? ['🛒', 'המקום הקבוע', esc(place.n), `${place.k} פעמים · ${money(place.s)}`] : ['📊', 'ממוצע הוצאות לחודש', money(Math.round(exp / md.length)), '']
+    ])}`);
+  }
+  const mc = maaserCalc(Y);
+  if (mc.due || mc.given) s.push(`<h2>🤲 מעשרות השנה</h2><div class="pm-tiles"><div class="pm-tile"><small>נדרש</small><b>${money(mc.due)}</b></div><div class="pm-tile"><small>ניתן</small><b>${money(mc.given)}</b></div>
+    <div class="pm-tile"><small>${mc.given >= mc.due ? 'נתנו יותר' : 'נותר לתת'}</small><b class="${mc.given >= mc.due ? 'pm-good' : 'pm-bad'}">${money(Math.abs(mc.given - mc.due))}</b></div></div>
+    <p class="pm-note">"עשר תעשר – עשר בשביל שתתעשר" 💛</p>`);
+  const sv = pmSavings(); if (sv) s.push(sv);
+  s.push(`<div class="pm-cover pm-end"><div class="pm-kicker">לסיום</div><h1>שנה טובה ומבורכת</h1>
+    <div class="pm-ask">💬 שאלות לשיחה: מה הצלחנו השנה? מה היעד הגדול שלנו לשנה הבאה? על איזו הוצאה נוכל לוותר?</div></div>`);
+  return s;
+}
+
+function pmTitle() { return pmMode === 'year' ? 'מצגת שנתית · ' + pmKey : 'מצגת ' + monthName(pmKey); }
+function pmBuildAll() { pmList = pmMode === 'year' ? pmYearSlides(+pmKey) : pmMonthSlides(pmKey); }
+pmShow = function (i) {
+  const el = document.getElementById('pm'); if (!el) return;
+  pmIdx = Math.max(0, Math.min(pmList.length - 1, i));
+  const sl = el.querySelector('.pm-slide');
+  sl.classList.remove('pm-in'); sl.innerHTML = pmList[pmIdx]; void sl.offsetWidth; sl.classList.add('pm-in');
+  el.querySelector('[data-action="pmPrev"]').disabled = pmIdx === 0;
+  el.querySelector('[data-action="pmNext"]').disabled = pmIdx === pmList.length - 1;
+  el.querySelector('.pm-num').textContent = (pmIdx + 1) + ' מתוך ' + pmList.length;
+  el.querySelector('.pm-prog i').style.width = ((pmIdx + 1) / pmList.length * 100).toFixed(1) + '%';
+  el.querySelectorAll('.pm-dots button').forEach((b, k) => b.classList.toggle('on', k === pmIdx));
+};
+function pmPaint(keepIdx) {
+  const el = document.getElementById('pm'); if (!el) return;
+  pmBuildAll();
+  el.querySelector('.pm-ttl').textContent = pmTitle();
+  el.querySelectorAll('[data-action="pmMode"]').forEach(b => b.classList.toggle('on', b.dataset.mode === pmMode));
+  el.querySelector('.pm-per').textContent = pmMode === 'year' ? pmKey : monthName(pmKey);
+  const nxt = pmMode === 'year' ? +pmKey >= new Date().getFullYear() : pmKey >= monthKey(new Date());
+  el.querySelector('[data-action="pmPer"][data-d="1"]').disabled = nxt;
+  el.querySelector('.pm-dots').innerHTML = pmList.map((_, k) => `<button type="button" data-action="pmGo" data-n="${k}" aria-label="שקופית ${k + 1}"></button>`).join('');
+  pmShow(keepIdx ? Math.min(pmIdx, pmList.length - 1) : 0);
+}
+pmOpen = function (mode) {
+  if (document.getElementById('pm')) return;
+  pmMode = mode === 'year' ? 'year' : 'month';
+  const m = ui.month && ui.month.length === 7 ? ui.month : monthKey(new Date());
+  pmKey = pmMode === 'year' ? m.slice(0, 4) : m;
+  const el = document.createElement('div');
+  el.className = 'pm'; el.id = 'pm';
+  el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'מצגת');
+  el.innerHTML = `<div class="pm-prog" aria-hidden="true"><i></i></div>
+    <div class="pm-head"><b class="pm-ttl"></b>
+      <div class="pm-seg" role="group" aria-label="סוג המצגת"><button type="button" data-action="pmMode" data-mode="month">חודשית</button><button type="button" data-action="pmMode" data-mode="year">שנתית</button></div>
+      <div class="pm-pernav"><button type="button" data-action="pmPer" data-d="-1" dir="ltr" aria-label="התקופה הקודמת" title="התקופה הקודמת">›</button><span class="pm-per"></span><button type="button" data-action="pmPer" data-d="1" dir="ltr" aria-label="התקופה הבאה" title="התקופה הבאה">‹</button></div>
+      <button type="button" class="pm-hb" data-action="pmPrint" title="הדפסה או שמירה כ-PDF – כל שקופית בעמוד" aria-label="הדפסת המצגת">🖨️</button>
+      <button type="button" class="pm-hb" data-action="pmFull" title="מסך מלא" aria-label="מסך מלא">⛶</button>
+      <button type="button" class="pm-hb" data-action="pmClose" title="סגירה (Esc)" aria-label="סגירת המצגת">✕</button></div>
+    <div class="pm-stage"><div class="pm-slide" aria-live="polite"></div></div>
+    <div class="pm-foot"><button type="button" class="pm-nav" dir="ltr" data-action="pmPrev" aria-label="השקופית הקודמת">›</button>
+      <div class="pm-dots"></div><span class="pm-num"></span>
+      <button type="button" class="pm-nav" dir="ltr" data-action="pmNext" aria-label="השקופית הבאה">‹</button></div>`;
+  document.body.appendChild(el); document.body.style.overflow = 'hidden';
+  pmPaint();
+  try { if (el.requestFullscreen) el.requestFullscreen().catch(() => {}); } catch (e) {}
+  el.querySelector('[data-action="pmNext"]').focus();
+};
+function pmPrint() {
+  const old = document.getElementById('pmPrint'); if (old) old.remove();
+  const box = document.createElement('div'); box.id = 'pmPrint';
+  box.innerHTML = pmList.map((h, k) => `<section class="pp"><div class="pp-head"><span>₪ כספי הבית · ${esc(pmTitle())}</span><span>${k + 1} / ${pmList.length}</span></div><div class="pp-body pm-slide">${h}</div></section>`).join('');
+  document.body.appendChild(box); document.body.classList.add('print-pm');
+  const done = () => { document.body.classList.remove('print-pm'); box.remove(); window.removeEventListener('afterprint', done); };
+  window.addEventListener('afterprint', done);
+  try { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); } catch (e) {}
+  setTimeout(() => { window.print(); setTimeout(() => { if (document.body.classList.contains('print-pm') && !matchMedia('print').matches) done(); }, 1500); }, 120);
+}
+Object.assign(ACTIONS, {
+  pmOpen: el => pmOpen(el && el.dataset && el.dataset.mode),
+  pmMode: el => { if (pmMode === el.dataset.mode) return; pmMode = el.dataset.mode; const cur = monthKey(new Date()); pmKey = pmMode === 'year' ? (pmKey || cur).slice(0, 4) : (pmKey.length === 4 ? (pmKey === cur.slice(0, 4) ? cur : pmKey + '-12') : pmKey); pmPaint(); },
+  pmPer: el => { const d = +el.dataset.d; pmKey = pmMode === 'year' ? String(+pmKey + d) : shiftMonth(pmKey, d); pmPaint(); },
+  pmPrint: () => pmPrint(),
+  pmFull: () => { const el = document.getElementById('pm'); try { if (document.fullscreenElement) document.exitFullscreen(); else if (el && el.requestFullscreen) el.requestFullscreen().catch(() => {}); } catch (e) {} }
+});
+// כפתור "מצגת שנתית" ליד "מצגת החודש" בדשבורד
+const _topbarP9 = topbar;
+topbar = function (title, extra = '') {
+  const h = _topbarP9(title, extra);
+  return title === 'דשבורד' ? h.replace('🖥️ מצגת החודש</button>', '🖥️ מצגת החודש</button><button type="button" class="btn sm" data-action="pmOpen" data-mode="year" title="סיכום השנה במסך מלא">📅 מצגת שנתית</button>') : h;
+};
+
+/* ---------- שלב 9: לוח השנה – הזזת קבועות, קבוצות חיובים ותזכורות ----------
+   בכל קבועה אפשר לשמור: group (שם קבוצה, למשל "אשראי כאל") ו-remind (כמה ימים לפני להזכיר: 0 = ביום עצמו).
+   גרירה ביום אחר בלוח משנה את יום החיוב בכל חודש. לחיצה פותחת חלון עריכה (גם בלי עכבר) */
+const HC_REMIND = [['', 'בלי תזכורת'], ['0', 'ביום עצמו'], ['1', 'יום לפני'], ['3', '3 ימים לפני'], ['7', 'שבוע לפני']];
+const hcGroupsOf = () => [...new Set((S.recurring || []).map(r => (r.group || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'he'));
+const hcName = r => r.note || r.category;
+function hcItems(rs) {
+  // קבועות מאותה קבוצה ומאותו סוג באותו יום – שורה אחת עם הסכום הכולל
+  const out = [], g = {};
+  rs.forEach(r => { const n = (r.group || '').trim(); if (!n) return out.push({ one: r }); const k = n + '|' + r.type; if (!g[k]) out.push(g[k] = { name: n, type: r.type, list: [] }); g[k].list.push(r); });
+  return out.map(x => {
+    if (x.one) { const r = x.one; return `<div class="hc-r ${r.type === 'income' ? 'inc' : 'exp'}" draggable="true" data-action="hcEdit" data-id="${r.id}" role="button" tabindex="0" title="${esc(hcName(r) + ' · ' + money(r.amount) + ' · לחיצה לעריכה, או גרירה ליום אחר')}">${r.remind != null && r.remind !== '' ? '🔔' : ''}${esc(hcName(r))} <b>${money(r.amount)}</b></div>`; }
+    if (x.list.length === 1) { const r = x.list[0]; return `<div class="hc-r hc-g ${r.type === 'income' ? 'inc' : 'exp'}" draggable="true" data-action="hcEdit" data-id="${r.id}" role="button" tabindex="0" title="${esc(x.name + ': ' + hcName(r) + ' · ' + money(r.amount))}">${x.list.some(r => r.remind != null && r.remind !== '') ? '🔔' : '📦'}${esc(x.name)} <b>${money(r.amount)}</b></div>`; }
+    const sum = x.list.reduce((a, r) => a + r.amount, 0);
+    return `<div class="hc-r hc-g ${x.type === 'income' ? 'inc' : 'exp'}" draggable="true" data-action="hcEdit" data-g="${esc(x.name)}" data-ids="${x.list.map(r => r.id).join(',')}" role="button" tabindex="0" title="${esc(x.name + ' (' + x.list.length + '): ' + x.list.map(r => hcName(r) + ' ' + money(r.amount)).join(' · '))}">${x.list.some(r => r.remind != null && r.remind !== '') ? '🔔' : '📦'}${esc(x.name)} (${x.list.length}) <b>${money(sum)}</b></div>`;
+  }).join('');
+}
+const _hcalCardP8 = hcalCard;
+hcalCard = function () {
+  let h = _hcalCardP8();
+  if (!h) return h;
+  // כל תא מקבל את התאריך שלו (לגרירה), והקבועות מוצגות מחדש: קבוצות, תזכורות, גרירה ולחיצה
+  const greg = (S.settings || {}).hcalMode === 'greg', off = ui.hcal || 0, days = greg ? hcalGregDays(off) : hcalMonth(off);
+  let k = 0;
+  h = h.replace(/<div class="hc-cell(?! hc-empty)([^"]*)" title="([^"]*)"><div class="hc-d">([\s\S]*?)<\/small><\/div>[\s\S]*?(?=<div class="hc-cell|<\/div><\/section>)/g, (m, cls, title, d) => {
+    const iso = days[k++]; if (!iso) return m;
+    return `<div class="hc-cell${cls}" data-iso="${iso}" title="${title}"><div class="hc-d">${d}</small></div>${hcItems(recOnDate(iso))}</div>`;
+  });
+  const groups = hcGroupsOf();
+  const gsum = groups.map(n => { const l = S.recurring.filter(r => (r.group || '').trim() === n && r.active && !recEnded(r)); return { n, l, sum: l.reduce((a, r) => a + (r.type === 'income' ? r.amount : -r.amount), 0), days: [...new Set(l.map(r => r.day))].sort((a, b) => a - b) }; }).filter(x => x.l.length);
+  const extra = `<p class="sub hc-help">💡 אפשר <b>לגרור</b> הוצאה או הכנסה קבועה ליום אחר – היא תעבור לשם בכל חודש. <b>לחיצה</b> פותחת חלון: יום החיוב, שם קבוצה (למשל "אשראי כאל") ותזכורת.</p>
+    ${gsum.length ? `<div class="hc-groups"><b>📦 קבוצות חיובים:</b>${gsum.map(x => `<button type="button" class="tag hc-gtag" data-action="hcEdit" data-g="${esc(x.n)}" data-ids="${x.l.map(r => r.id).join(',')}">${esc(x.n)} · ${x.l.length} חיובים · ${money(Math.abs(x.sum))} בחודש · ${x.days.length === 1 ? 'ב־' + x.days[0] : 'ימים ' + x.days.join(', ')}</button>`).join('')}</div>` : ''}`;
+  const i = h.lastIndexOf('</section>');
+  return h.slice(0, i) + extra + h.slice(i);
+};
+
+// הזזה: משנים את יום החיוב בכל חודש, עם אפשרות לבטל
+function hcMove(ids, day, label) {
+  const rs = S.recurring.filter(r => ids.includes(r.id)); if (!rs.length) return;
+  const before = rs.map(r => [r.id, r.day]);
+  if (rs.every(r => +r.day === day)) return;
+  rs.forEach(r => { r.day = day; });
+  save(); render();
+  undoToast(`${label} הועבר ל־${day} בכל חודש`, () => { before.forEach(([id, d]) => { const r = S.recurring.find(x => x.id === id); if (r) r.day = d; }); save(); render(); });
+}
+let hcDrag = null;
+document.addEventListener('dragstart', e => {
+  const it = e.target.closest && e.target.closest('.hcal .hc-r[draggable]'); if (!it) return;
+  hcDrag = { ids: it.dataset.ids ? it.dataset.ids.split(',') : [it.dataset.id], label: it.dataset.g || (S.recurring.find(r => r.id === it.dataset.id) || {}).note || 'החיוב' };
+  e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', hcDrag.label); } catch (x) {}
+  it.classList.add('hc-dragging');
+});
+document.addEventListener('dragend', () => { hcDrag = null; document.querySelectorAll('.hc-dragging,.hc-over').forEach(x => x.classList.remove('hc-dragging', 'hc-over')); });
+document.addEventListener('dragover', e => {
+  if (!hcDrag) return; const c = e.target.closest && e.target.closest('.hcal .hc-cell[data-iso]'); if (!c) return;
+  e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.hc-over').forEach(x => x !== c && x.classList.remove('hc-over')); c.classList.add('hc-over');
+});
+document.addEventListener('drop', e => {
+  if (!hcDrag) return; const c = e.target.closest && e.target.closest('.hcal .hc-cell[data-iso]'); if (!c) return;
+  e.preventDefault(); const d = hcDrag; hcDrag = null;
+  hcMove(d.ids, +c.dataset.iso.slice(8), d.label);
+});
+document.addEventListener('keydown', e => {
+  const it = e.target.closest && e.target.closest('.hcal .hc-r[data-action="hcEdit"]');
+  if (it && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); it.click(); }
+  if (e.key === 'Escape' && document.getElementById('hcDlg')) { e.preventDefault(); hcDlgClose(); }
+});
+
+// חלון עריכה: יום, קבוצה, תזכורת (לחיוב אחד או לכל הקבוצה)
+function hcDlgClose() { ['hcDlg', 'hcDlgBack'].forEach(id => { const x = document.getElementById(id); if (x) x.remove(); }); }
+function hcEditOpen(ids, gname) {
+  hcDlgClose();
+  const rs = S.recurring.filter(r => ids.includes(r.id)); if (!rs.length) return;
+  const r0 = rs[0], isG = !!gname && rs.length > 1, rem = r0.remind == null ? '' : String(r0.remind);
+  const back = document.createElement('div'); back.className = 'lk-back'; back.id = 'hcDlgBack'; back.dataset.action = 'hcDlgClose';
+  const el = document.createElement('div'); el.className = 'qa'; el.id = 'hcDlg';
+  el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'עריכת חיוב קבוע');
+  el.innerHTML = `<div class="lk-head"><b>${isG ? '📦 ' + esc(gname) : '🔁 ' + esc(hcName(r0))}</b><button type="button" data-action="hcDlgClose" aria-label="סגירה" title="סגירה (Esc)">✕</button></div>
+    <form class="qa-body" id="hcForm">
+      ${isG ? `<div class="hc-mem">${rs.map(r => `<span>${esc(hcName(r))} · <b>${money(r.amount)}</b> · ב־${r.day}</span>`).join('')}<span class="hc-tot">סה״כ: <b>${money(rs.reduce((a, r) => a + r.amount, 0))}</b></span></div>`
+        : `<p class="sub" style="margin:0">${r0.type === 'income' ? 'הכנסה' : 'הוצאה'} קבועה · ${money(r0.amount)} · ${esc(r0.category)}</p>`}
+      <label>יום החיוב בכל חודש<select name="day">${Array.from({ length: 31 }, (_, i) => `<option value="${i + 1}"${+r0.day === i + 1 ? ' selected' : ''}>${i + 1}</option>`).join('')}</select></label>
+      <label>${isG ? 'שם הקבוצה' : 'קבוצה (רשות) – למשל "אשראי כאל"'}<input name="group" maxlength="30" list="hcGroupList" value="${esc(isG ? gname : (r0.group || ''))}" placeholder="בלי קבוצה"><datalist id="hcGroupList">${hcGroupsOf().map(n => `<option value="${esc(n)}">`).join('')}</datalist></label>
+      <label>🔔 תזכורת<select name="remind">${HC_REMIND.map(([v, l]) => `<option value="${v}"${v === rem ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
+      <p class="sub" style="margin:0">התזכורת מופיעה בדשבורד ובמבט מהיר${isG ? ', פעם אחת לכל הקבוצה' : ''}.</p>
+    </form>
+    <div class="lk-foot"><button type="button" class="btn" data-action="hcDlgClose">ביטול</button><button type="button" class="btn primary" data-action="hcSave" data-ids="${rs.map(r => r.id).join(',')}">שמירה</button></div>`;
+  document.body.append(back, el);
+  el.querySelector('select[name=day]').focus();
+}
+Object.assign(ACTIONS, {
+  hcEdit: el => { if (hcDragJust) return; hcEditOpen(el.dataset.ids ? el.dataset.ids.split(',') : [el.dataset.id], el.dataset.g || ''); },
+  hcDlgClose: () => hcDlgClose(),
+  hcSave: el => {
+    const f = document.getElementById('hcForm'); if (!f) return;
+    const ids = el.dataset.ids.split(','), day = +f.elements.day.value, group = f.elements.group.value.trim(), rem = f.elements.remind.value;
+    S.recurring.filter(r => ids.includes(r.id)).forEach(r => { r.day = day; if (group) r.group = group; else delete r.group; if (rem === '') delete r.remind; else r.remind = +rem; });
+    save(); hcDlgClose(); render(); toast('נשמר');
+  },
+  hcRemDone: el => { const L = S.settings.remDone = (S.settings.remDone || []).filter(k => k.slice(-10) >= plAdd(today(), -40)); if (!L.includes(el.dataset.k)) L.push(el.dataset.k); save(); render(); }
+});
+let hcDragJust = false;
+document.addEventListener('drop', () => { hcDragJust = true; setTimeout(() => { hcDragJust = false; }, 300); }, true);
+
+// תזכורות: מה יורד (או נכנס) בימים הקרובים, לפי ההגדרה של כל קבועה
+function hcRemList() {
+  const t = today(), done = S.settings.remDone || [], out = [];
+  for (let i = 0; i <= 7; i++) {
+    const iso = plAdd(t, i), seen = {};
+    recOnDate(iso).filter(r => r.remind != null && r.remind !== '' && i <= +r.remind).forEach(r => {
+      const g = (r.group || '').trim(), key = (g ? 'g:' + g + '|' + r.type : r.id) + '|' + iso;
+      if (done.includes(key)) return;
+      if (seen[key]) { seen[key].sum += r.amount; seen[key].n++; return; }
+      out.push(seen[key] = { key, iso, i, name: g || hcName(r), sum: r.amount, n: 1, inc: r.type === 'income' });
+    });
+  }
+  return out;
+}
+function hcRemCard(simple) {
+  const L = hcRemList(); if (!L.length) return '';
+  const when = x => x.i === 0 ? 'היום' : x.i === 1 ? 'מחר' : `בעוד ${x.i} ימים (${gregDate(x.iso).slice(0, 5)})`;
+  return `<section class="card hc-rem${simple ? ' sm-rem' : ''}"><h2>🔔 תזכורות</h2>${L.map(x => `<div class="hc-row hc-remrow"><span><b>${when(x)}</b> ${x.inc ? 'נכנס' : 'יורד'}: ${esc(x.name)}${x.n > 1 ? ` (${x.n})` : ''} · <b class="${x.inc ? 'pos' : 'neg'}">${money(x.sum)}</b></span><button type="button" class="btn sm" data-action="hcRemDone" data-k="${esc(x.key)}">✓ טופל</button></div>`).join('')}</section>`;
+}
+const _dashP9 = VIEWS.dash;
+VIEWS.dash = (...a) => { const h = _dashP9(...a), c = hcRemCard(false); if (!c) return h; const i = h.indexOf('<div class="stats">'); return i >= 0 ? h.slice(0, i) + c + h.slice(i) : c + h; };
+const _simpleP9 = VIEWS.simple;
+VIEWS.simple = (...a) => { const h = _simpleP9(...a), c = hcRemCard(true); if (!c) return h; const i = h.indexOf('<div class="sm-btns">'); return i >= 0 ? h.slice(0, i) + c + h.slice(i) : h; };
+
+const SHARE_IS_DIRA = false;
+/* ---------- שלב 10: "שתפו חבר" – שליחת קישור לחברים, לזיכוי הרבים ----------
+   חלון עם הודעה מוכנה (אפשר לערוך), ושליחה במייל או העתקת ההודעה.
+   שום נתון אישי לא נשלח: רק הקישור לדף הנחיתה והטקסט שהמשתמש רואה */
+const SHARE_URL = 'https://aa0504168687-dotcom.github.io/kaspei-habayit/welcome.html';
+const SHARE_TEXT = SHARE_IS_DIRA
+  ? `שלום! 👋\nמצאתי תוכנה נהדרת למי שקונה דירה – "דירה חדשה": חוזה ותשלומים לקבלן, משכנתא, ציוד לדירה ורשימת ליקויים למסירה. הכל בעברית, בחינם ובלי פרסומות, והנתונים נשארים אצלך ומוצפנים בסיסמה.\nיש שם גם את "כספי הבית" לניהול הכסף של הבית.\nשווה לנסות 👇\n${SHARE_URL}`
+  : `שלום! 👋\nמצאתי תוכנה נהדרת לניהול כספי הבית – "כספי הבית": רואים כל חודש מה נכנס, מה יצא וכמה נשאר, כולל מעשרות, תכנון לחגים ולשמחות וייבוא ישיר מהבנק. הכל בעברית, בחינם ובלי פרסומות, והנתונים נשארים אצלך ומוצפנים בסיסמה.\nשווה לנסות 👇\n${SHARE_URL}`;
+function shareClose() { ['shDlg', 'shBack'].forEach(id => { const x = document.getElementById(id); if (x) x.remove(); }); }
+function shareMsg() { const t = document.getElementById('shText'); return (t ? t.value : SHARE_TEXT).trim(); }
+function shareOpen() {
+  shareClose();
+  const back = document.createElement('div'); back.className = 'lk-back'; back.id = 'shBack'; back.dataset.action = 'shareClose';
+  const el = document.createElement('div'); el.className = 'qa sh-dlg'; el.id = 'shDlg';
+  el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'שתפו חבר');
+  el.innerHTML = `<div class="lk-head"><b>💝 שתפו חבר – זיכוי הרבים</b><button type="button" data-action="shareClose" aria-label="סגירה" title="סגירה (Esc)">✕</button></div>
+    <div class="qa-body">
+      <p class="sh-lead">נהניתם מהתוכנה? שלחו את הקישור לחברים ולמשפחה – <b>בחינם וללא עלות</b>, ותזכו גם אתם בזיכוי הרבים 🙏</p>
+      <label>ההודעה שתישלח (אפשר לשנות)<textarea id="shText" rows="7">${esc(SHARE_TEXT)}</textarea></label>
+      <div class="sh-btns">
+        <button type="button" class="btn sh-mail" data-action="shareGo" data-to="mail">✉️ מייל</button>
+        <button type="button" class="btn" data-action="shareGo" data-to="copy">📋 העתקת ההודעה</button>
+      </div>
+      <p class="sub" style="margin:0">🔒 נשלח רק הקישור וההודעה שלמעלה – אף נתון שלכם לא נשלח.</p>
+    </div>`;
+  document.body.append(back, el);
+  el.querySelector('.sh-mail').focus();
+}
+function shareCopy(text) {
+  const done = () => toast('ההודעה הועתקה – אפשר להדביק בכל מקום');
+  if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text).then(done, () => shareCopyOld(text, done));
+  shareCopyOld(text, done);
+}
+function shareCopyOld(text, done) { const t = document.getElementById('shText') || document.createElement('textarea'); if (!t.parentNode) { t.value = text; document.body.appendChild(t); } t.select(); try { document.execCommand('copy'); done(); } catch (e) { toast('לא הצלחנו להעתיק – אפשר לסמן ולהעתיק ידנית'); } if (t.id !== 'shText') t.remove(); }
+Object.assign(ACTIONS, {
+  shareOpen: () => shareOpen(),
+  shareClose: () => shareClose(),
+  shareGo: el => {
+    const text = shareMsg(), to = el.dataset.to;
+    if (to === 'mail') window.open('mailto:?subject=' + encodeURIComponent(SHARE_IS_DIRA ? 'תוכנה מומלצת למי שקונה דירה' : 'תוכנה מומלצת לניהול כספי הבית') + '&body=' + encodeURIComponent(text), '_self');
+    else shareCopy(text);
+    try { localStorage.setItem('sai_shared', '1'); } catch (e) {}
+  }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.getElementById('shDlg')) { e.preventDefault(); shareClose(); } });
+// כרטיס קטן בסוף הדשבורד (אפשר להסתיר ל-30 יום)
+const SHARE_HIDE_KEY = 'kaspei_share_hide';
+function shareCardHidden() { try { const d = localStorage.getItem(SHARE_HIDE_KEY); return d && d > today(); } catch (e) { return false; } }
+const _dashP10 = VIEWS.dash;
+VIEWS.dash = (...a) => {
+  const h = _dashP10(...a);
+  if (shareCardHidden()) return h;
+  return h + `<section class="card sh-card"><div class="sh-ico">💝</div><div class="sh-body"><h2>נהניתם? שתפו חבר</h2>
+    <p class="sub">התוכנה חינמית לגמרי. שליחת קישור לחברים ולמשפחה עוזרת גם להם לנהל את הכסף בראש שקט – זיכוי הרבים ללא עלות.</p>
+    <div class="actions"><button type="button" class="btn primary" data-action="shareOpen">💝 שליחת קישור לחבר</button><button type="button" class="btn" data-action="shareLater">לא עכשיו</button></div></div></section>`;
+};
+Object.assign(ACTIONS, { shareLater: () => { try { localStorage.setItem(SHARE_HIDE_KEY, plAdd(today(), 30)); } catch (e) {} render(); toast('הכרטיס יחזור בעוד חודש. אפשר לשתף תמיד מהתפריט'); } });
+
+/* ---------- שלב 11: מצגת בהירה – צבע אחר לכל שקופית ---------- */
+const _pmShowP11 = pmShow;
+pmShow = function (i) { _pmShowP11(i); const sl = document.querySelector('#pm .pm-slide'); if (sl) sl.dataset.k = pmIdx % 6; };
+const _pmPrintP11 = pmPrint;
+pmPrint = function () { _pmPrintP11(); document.querySelectorAll('#pmPrint .pp-body').forEach((b, k) => { b.dataset.k = k % 6; }); };
+
 /* ---------- חלון "התאמת מראה" ---------- */
 const LOOK_OPTS = [
   ['mode', 'מצב תצוגה', [['light', '☀️ בהיר'], ['dark', '🌙 כהה'], ['auto', '🖥️ לפי המחשב']]],
@@ -5762,6 +6500,7 @@ const QR = (() => {
           <label style="align-self:center"><span><input type="checkbox" name="saved" required> רשמתי את קוד השחזור</span></label>
           <div class="actions"><button class="btn primary">אישור והפעלה</button><button type="button" class="btn" id="tfaCancel">ביטול</button></div></form></section>`;
     }
+    return ''; /* שלב 12: המשתמשים עם טלפונים כשרים – לא מציעים להפעיל אימות כפול */
     return `<section class="card" id="tfaCard"><h2>🔐 אימות כפול</h2>
       <p class="sub">הגנה נוספת מעבר לסיסמה: בכל כניסה מבקשים גם קוד בן 6 ספרות מאפליקציית אימות בטלפון (Google Authenticator או Microsoft Authenticator). הקוד נוצר בטלפון עצמו, בלי SMS ובלי לשלוח שום פרט לשום מקום. מתאים לטלפון חכם.</p>
       <div class="actions"><button type="button" class="btn primary" id="tfaStart">הפעלת אימות כפול</button></div></section>`;
@@ -5932,7 +6671,7 @@ const QR = (() => {
 
   /* סקר קצר: מוצג פעם אחת אחרי 10 ימי שימוש, ואפשר לפתוח אותו מחלון הפניות */
   const FEAT = APPN === 'כספי הבית'
-    ? ['לוח הבקרה', 'רישום הוצאות והכנסות', 'ייבוא מהבנק והאשראי', 'תקציב', 'מעשרות', 'דוחות', 'תכנון וחיסכון', 'מצב פשוט']
+    ? ['לוח הבקרה', 'רישום הוצאות והכנסות', 'ייבוא מהבנק והאשראי', 'תקציב', 'מעשרות', 'דוחות', 'תכנון וחיסכון', 'מבט מהיר']
     : ['משימות', 'חוזה ותשלומים', 'הוצאות', 'הלוואות ומימון', 'אנשי קשר', 'מיילים וקבצים', 'ציוד לדירה', 'ליקויים למסירה'];
   function openSurvey() {
     if (document.getElementById('svyBox')) return;

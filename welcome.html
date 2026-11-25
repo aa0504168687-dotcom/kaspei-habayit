@@ -75,6 +75,10 @@
   .final{background:linear-gradient(135deg,#1e1b4b,#4c1d95);color:#fff;text-align:center;border-radius:26px;padding:44px 20px}
   .final h2{color:#fff}
   .final .cta{justify-content:center;margin-top:18px}
+  .share{background:linear-gradient(135deg,#fdf2f8,#f5f3ff);border:1px solid var(--line);border-radius:26px;padding:34px 24px;text-align:center}
+  .share .cta{justify-content:center;margin-top:18px}
+  .btn.wa{background:#25d366;color:#fff;box-shadow:0 10px 26px rgba(37,211,102,.3)}
+  .btn.ml{background:#fff;color:#312e81;border:1px solid var(--line)}
   footer{padding:30px 0 40px;text-align:center;color:var(--dim);font-size:15px}
   footer b{color:var(--ink)}
   @media (max-width:860px){
@@ -89,7 +93,7 @@
   <div class="wrap">
     <div class="top">
       <div class="brand"><img src="assets/icon-kaspei-192.png" alt="" width="40" height="40">כספי הבית · דירה חדשה</div>
-      <nav aria-label="ניווט בדף"><a href="#kaspei">כספי הבית</a><a href="#dira">דירה חדשה</a><a href="#privacy">פרטיות</a><a href="#faq">שאלות נפוצות</a><a href="videos.html">🎬 סרטוני הדרכה</a></nav>
+      <nav aria-label="ניווט בדף"><a href="#kaspei">כספי הבית</a><a href="#dira">דירה חדשה</a><a href="#privacy">פרטיות</a><a href="#faq">שאלות נפוצות</a><a href="videos.html">🎬 סרטוני הדרכה</a><a href="#share">💝 שתפו חבר</a></nav>
     </div>
     <div class="hero-grid">
       <div>
@@ -126,7 +130,7 @@
       <div class="shot-wrap"><img class="shot" src="assets/land-plan.jpg" alt="מסך תכנון וחיסכון: מנויים שחוזרים כל חודש ויעדי חיסכון" width="1280" height="800" loading="lazy"></div>
     </div>
     <div class="gal">
-      <figure><img class="shot" src="assets/land-simple.jpg" alt="מצב פשוט: שלושה כפתורים גדולים – הכנסה, הוצאה, כמה נשאר" width="1280" height="800" loading="lazy"><figcaption>🟢 <b>מצב פשוט</b> – שלושה כפתורים גדולים, מתאים גם להורים ולסבים</figcaption></figure>
+      <figure><img class="shot" src="assets/land-simple.jpg" alt="מבט מהיר: שלושה כפתורים גדולים – הכנסה, הוצאה, כמה נשאר" width="1280" height="800" loading="lazy"><figcaption>🟢 <b>מבט מהיר</b> – שלושה כפתורים גדולים, מתאים גם להורים ולסבים</figcaption></figure>
       <figure><img class="shot" src="assets/land-dash.jpg" alt="לוח הבקרה של כספי הבית" width="1280" height="800" loading="lazy"><figcaption>📊 <b>לוח בקרה</b> – תחזית לסוף החודש ותזכורות חכמות</figcaption></figure>
     </div>
   </div>
@@ -158,7 +162,7 @@
     <h2>הפרטיות שלכם – קודם כל</h2>
     <p class="sub">הנתונים הכספיים שלכם לא עוברים לשום מקום.</p>
     <div class="cards">
-      <div class="card"><div class="ico">💻</div><h3>נשמר רק אצלכם</h3><p>הנתונים נשמרים בדפדפן במחשב או בטלפון שלכם – לא בשרת ולא אצל אף אחד אחר.</p></div>
+      <div class="card"><div class="ico">💻</div><h3>נשמר רק אצלכם</h3><p>הנתונים נשמרים בדפדפן במחשב שלכם – לא בשרת ולא אצל אף אחד אחר.</p></div>
       <div class="card"><div class="ico">🔒</div><h3>מוצפן בסיסמה</h3><p>בכניסה הראשונה בוחרים סיסמה, וכל הנתונים נשמרים מוצפנים.</p></div>
       <div class="card"><div class="ico">💾</div><h3>גיבוי בלחיצה</h3><p>שומרים קובץ גיבוי מדי פעם, ואפשר לשחזר ממנו גם במחשב אחר.</p></div>
       <div class="card"><div class="ico">🚫</div><h3>בלי פרסומות</h3><p>בלי פרסומות ובלי מכירת מידע. תוכנה נקייה לעבודה.</p></div>
@@ -171,7 +175,7 @@
     <h2>מתחילים בשלוש דקות</h2>
     <p class="sub">לא צריך להתקין כלום ולא צריך להירשם.</p>
     <div class="steps">
-      <div class="card"><h3>לוחצים "לפתיחה"</h3><p>התוכנה נפתחת ישר בדפדפן – במחשב או בטלפון.</p></div>
+      <div class="card"><h3>לוחצים "לפתיחה"</h3><p>התוכנה נפתחת ישר בדפדפן במחשב.</p></div>
       <div class="card"><h3>בוחרים סיסמה</h3><p>הסיסמה שומרת על הנתונים. כדאי לרשום אותה במקום בטוח.</p></div>
       <div class="card"><h3>מתחילים לרשום</h3><p>רושמים הכנסות והוצאות, או מייבאים קובץ מהבנק. אפשר גם להתקין כאפליקציה על המסך.</p></div>
     </div>
@@ -182,11 +186,22 @@
   <div class="wrap">
     <h2>שאלות נפוצות</h2>
     <p class="sub">ואם יש עוד שאלה – כפתור 💬 "שאלות, בקשות והצעות" נמצא בתחתית כל תוכנה.</p>
-    <details><summary>האם זה עובד בטלפון?</summary><p>כן. התוכנות מותאמות למסך קטן, ואפשר להוסיף אותן למסך הבית כמו אפליקציה.</p></details>
     <details><summary>איפה נשמרים הנתונים?</summary><p>בדפדפן שבו עובדים, במכשיר שלכם, ומוצפנים בסיסמה. לכן חשוב לשמור קובץ גיבוי מדי פעם – בעיקר לפני החלפת מחשב או ניקוי הדפדפן.</p></details>
-    <details><summary>אפשר לעבור ממחשב לטלפון?</summary><p>כן: שומרים קובץ גיבוי במכשיר אחד ומשחזרים אותו במכשיר השני (בהגדרות וגיבוי).</p></details>
+    <details><summary>אפשר לעבור למחשב אחר?</summary><p>כן: שומרים קובץ גיבוי במחשב אחד ומשחזרים אותו במחשב השני (בהגדרות וגיבוי).</p></details>
     <details><summary>איך מייבאים מהבנק?</summary><p>נכנסים לאתר של הבנק או של חברת האשראי, מורידים את פירוט התנועות לקובץ (אקסל או CSV), וגוררים אותו למסך "הגדרות וגיבוי". התוכנה מזהה את הבנק ומסדרת את העמודות לבד – נשאר רק לבדוק ולאשר.</p></details>
     <details><summary>מה ההבדל בין שתי התוכנות?</summary><p>כספי הבית – לניהול השוטף של הבית, כל חודש. דירה חדשה – לתקופה של קניית דירה: חוזה, תשלומים לקבלן, משכנתא, ציוד וליקויים. אפשר להשתמש בשתיהן.</p></details>
+  </div>
+</section>
+
+<section id="share">
+  <div class="wrap">
+    <div class="share">
+      <h2>💝 נהניתם? שתפו חבר</h2>
+      <p class="sub" style="margin:0">התוכנות חינמיות לגמרי. שליחת הקישור לחברים ולמשפחה עוזרת גם להם לנהל את הכסף בראש שקט – <b>זיכוי הרבים, ללא עלות</b>.</p>
+      <div class="cta">
+        <a class="btn ml" href="mailto:?subject=%D7%AA%D7%95%D7%9B%D7%A0%D7%94%20%D7%9E%D7%95%D7%9E%D7%9C%D7%A6%D7%AA%20%D7%9C%D7%A0%D7%99%D7%94%D7%95%D7%9C%20%D7%9B%D7%A1%D7%A4%D7%99%20%D7%94%D7%91%D7%99%D7%AA&amp;body=%D7%A9%D7%9C%D7%95%D7%9D!%20%F0%9F%91%8B%0A%D7%9E%D7%A6%D7%90%D7%AA%D7%99%20%D7%AA%D7%95%D7%9B%D7%A0%D7%95%D7%AA%20%D7%A0%D7%94%D7%93%D7%A8%D7%95%D7%AA%20%D7%91%D7%A2%D7%91%D7%A8%D7%99%D7%AA%3A%20%22%D7%9B%D7%A1%D7%A4%D7%99%20%D7%94%D7%91%D7%99%D7%AA%22%20%D7%9C%D7%A0%D7%99%D7%94%D7%95%D7%9C%20%D7%94%D7%9B%D7%A1%D7%A3%20%D7%A9%D7%9C%20%D7%94%D7%91%D7%99%D7%AA%20(%D7%9E%D7%A2%D7%A9%D7%A8%D7%95%D7%AA%2C%20%D7%AA%D7%9B%D7%A0%D7%95%D7%9F%20%D7%9C%D7%97%D7%92%D7%99%D7%9D%20%D7%95%D7%9C%D7%A9%D7%9E%D7%97%D7%95%D7%AA%2C%20%D7%99%D7%99%D7%91%D7%95%D7%90%20%D7%9E%D7%94%D7%91%D7%A0%D7%A7)%2C%20%D7%95%22%D7%93%D7%99%D7%A8%D7%94%20%D7%97%D7%93%D7%A9%D7%94%22%20%D7%9C%D7%9E%D7%99%20%D7%A9%D7%A7%D7%95%D7%A0%D7%94%20%D7%93%D7%99%D7%A8%D7%94.%20%D7%91%D7%97%D7%99%D7%A0%D7%9D%2C%20%D7%91%D7%9C%D7%99%20%D7%A4%D7%A8%D7%A1%D7%95%D7%9E%D7%95%D7%AA%2C%20%D7%95%D7%94%D7%A0%D7%AA%D7%95%D7%A0%D7%99%D7%9D%20%D7%A0%D7%A9%D7%90%D7%A8%D7%99%D7%9D%20%D7%90%D7%A6%D7%9C%D7%9A%20%D7%95%D7%9E%D7%95%D7%A6%D7%A4%D7%A0%D7%99%D7%9D.%0A%D7%A9%D7%95%D7%95%D7%94%20%D7%9C%D7%A0%D7%A1%D7%95%D7%AA%20%F0%9F%91%87%0Ahttps%3A%2F%2Faa0504168687-dotcom.github.io%2Fkaspei-habayit%2Fwelcome.html">✉️ שליחה במייל</a>
+      </div>
+    </div>
   </div>
 </section>
 
