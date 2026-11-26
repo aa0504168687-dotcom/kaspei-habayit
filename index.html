@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- אבטחה: חוסם כל חיבור לאינטרנט וכל טעינת קוד או קבצים מבחוץ. החריג היחיד: שרת הצ'אט שרץ במחשב הזה (127.0.0.1), שמעביר שאלות לשירות SAI -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; manifest-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob: https://kaspei-habayit.goatcounter.com; font-src data:; connect-src https://formsubmit.co; media-src 'self'; object-src 'none'; frame-src 'none'; worker-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; manifest-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob: https://kaspei-habayit.goatcounter.com; font-src data:; connect-src 'self' https://formsubmit.co; media-src 'self'; object-src 'none'; frame-src 'none'; worker-src 'none'; form-action 'none'; base-uri 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%234f46e5%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%237c3aed%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22url(%23g)%22%2F%3E%3Ctext%20x%3D%2232%22%20y%3D%2245%22%20font-size%3D%2238%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22700%22%20text-anchor%3D%22middle%22%20fill%3D%22%23fff%22%3E%E2%82%AA%3C%2Ftext%3E%3C%2Fsvg%3E">
@@ -1023,6 +1023,17 @@ html.clean .side-mini>button{flex:1;justify-content:center;padding:9px 0;margin:
 html.clean .side-mini .sm-txt{display:none}
 html.clean .side-mini .sm-i{font-size:19px}
 @media print{.cl-inbox,.tb-more{display:none!important}.cl-more>summary{display:none}.cl-more:not([open])>.cl-more-body{display:block}}
+/* שלב 18 */
+.p18-bar{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:24;display:flex;flex-wrap:wrap;align-items:center;gap:10px;max-width:min(760px,calc(100vw - 32px));padding:12px 16px;border-radius:14px;background:var(--card,#fff);color:var(--text,#222);border:2px solid var(--accent,#5b5bd6);box-shadow:0 10px 30px rgba(0,0,0,.22);font-size:15px}
+.p18-bar.p18-bad{border-color:var(--warn,#e8a317)}
+.p18-bar > span{flex:1 1 260px;line-height:1.5}
+.p18-bar .p18-x{background:none;border:0;font-size:16px;cursor:pointer;color:var(--muted,#777);padding:4px 6px}
+.qa-give{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:600;cursor:pointer}
+.qa-give input{width:auto;margin:0}
+.rcpt-sum{display:flex;flex-wrap:wrap;gap:22px;margin:6px 0 12px;font-size:15px}
+.rcpt-list > summary{cursor:pointer;font-weight:600;margin-bottom:8px}
+.rcpt-no td{opacity:.8}
+@media print{.p18-bar{display:none!important}}
 </style>
 <script>
 /* ---------- התאמת מראה: רץ לפני שהדף מצויר, כדי שלא יהבהב בצבעים הקודמים ----------
@@ -4381,7 +4392,7 @@ function qaOpen() {
 function qaClose() { ['qa', 'qaBack'].forEach(id => { const e = document.getElementById(id); if (e) e.remove(); }); }
 
 // 2. מה חדש: מוצג פעם אחת אחרי עדכון, רק למי שכבר השתמש בתוכנה
-const WN_VER = '2026-11-26';
+const WN_VER = '2026-11-26b';
 const WN_ITEMS = [
   ['➕', 'רישום מהיר', 'הכפתור + פותח חלון קטן: סכום, הערה ושמירה, בלי לעזוב את המסך.'],
   ['💡', 'הצעת קטגוריה', 'כשמקלידים הערה שכבר הופיעה בעבר, הקטגוריה מוצעת לבד.'],
@@ -6431,6 +6442,160 @@ Element.prototype.scrollIntoView = function (...a) {
   return _sivP13.apply(this, a);
 };
 
+/* ---------- שלב 18: הגנה מתקיעות, דיווח תקלה, גרסה חדשה, גיבוי במבט מהיר, נתינה ברישום מהיר, קבלות לסעיף 46 ---------- */
+const P18_BUILD = '202611260858';
+const P18_IS_DIRA = typeof SHARE_IS_DIRA !== 'undefined' && SHARE_IS_DIRA;
+const P18_LINK = !!document.getElementById('reqOpen');
+let p18Shown = false, p18Times = [], p18Depth = 0, p18Hold = 0, p18Strict = false, p18User = 0;
+['click', 'keydown', 'change', 'input', 'submit', 'pointerdown', 'dragover', 'drop', 'wheel'].forEach(ev => document.addEventListener(ev, () => { p18User = performance.now(); }, true));
+// ציור "בלי משתמש": יותר משנייה אחרי הפעולה האחרונה. לולאה אינסופית מציירת כך שוב ושוב, גם במחשב איטי
+let p18Idle = [];
+function p18Bar(id, html, cls) {
+  if (document.getElementById(id)) return;
+  const b = document.createElement('div'); b.id = id; b.className = 'p18-bar ' + (cls || ''); b.setAttribute('role', 'alert');
+  b.innerHTML = html + '<button type="button" class="p18-x" data-p18="x" aria-label="סגירה" title="סגירה">✕</button>';
+  document.body.appendChild(b);
+}
+// תקלה: רושמים אותה ל"פרטי המסך" ומציגים פס אחד בלבד בכל כניסה
+function p18Trouble(msg) {
+  try { console.error('תקלה:', msg); } catch (e) {}
+  try { window.dispatchEvent(new ErrorEvent('error', { message: msg })); } catch (e) {}
+  if (p18Shown) return; p18Shown = true; window.__p18Msg = msg;
+  p18Bar('p18Bar', `<span>⚠️ משהו השתבש בתוכנה. כדאי לרענן את הדף${P18_LINK ? ', ואם זה חוזר – לדווח לנו בלחיצה' : ''}.</span>
+    <button type="button" class="btn sm primary" data-p18="reload">🔄 רענון הדף</button>${P18_LINK ? '<button type="button" class="btn sm" data-p18="report">✉️ דיווח על התקלה</button>' : ''}`, 'p18-bad');
+}
+// הגנה: ציור חוזר בלי הפסקה (כמו התקלה של 26/11) או ציור בתוך ציור – עוצרים ומודיעים
+const _renderP18 = render;
+render = function (...a) {
+  const now = performance.now();
+  if (now < p18Hold) return;
+  if (p18Strict && now - p18User > 1200) return;
+  if (p18Depth > 4) { p18Trouble('ציור בתוך ציור'); return; }
+  p18Times.push(now); while (p18Times.length && now - p18Times[0] > 2000) p18Times.shift();
+  if (now - p18User > 1000) { p18Idle.push(now); while (p18Idle.length && now - p18Idle[0] > 4000) p18Idle.shift(); } else p18Idle = [];
+  if (p18Times.length > 60 || p18Idle.length >= 12) {
+    p18Times = []; p18Idle = []; p18Hold = now + 1500; p18Strict = true;
+    p18Trouble('המסך צויר שוב ושוב [' + (typeof clTab === 'function' ? clTab() : (ui && ui.tab) || '') + ']');
+    return;
+  }
+  p18Depth++;
+  try { const r = _renderP18.apply(this, a); try { p18After(); } catch (e) {} return r; } finally { p18Depth--; }
+};
+window.addEventListener('error', e => {
+  const m = String((e && e.message) || '');
+  if (!e || !e.error || /^Script error|ResizeObserver/.test(m)) return; // רק שגיאות אמיתיות של התוכנה
+  p18Trouble(m.slice(0, 140));
+});
+window.addEventListener('unhandledrejection', e => {
+  const r = e && e.reason, m = String((r && r.message) || r || '');
+  if (!m || /AbortError|NetworkError|Failed to fetch|Load failed/i.test(m)) return;
+  p18Trouble(m.slice(0, 140));
+});
+document.addEventListener('click', e => {
+  const b = e.target.closest && e.target.closest('[data-p18]'); if (!b) return;
+  const bar = b.closest('.p18-bar'), k = b.dataset.p18;
+  if (k === 'x') { if (bar) bar.remove(); return; }
+  if (k === 'reload') { setTimeout(() => location.reload(), 300); return; }
+  if (k === 'report') {
+    if (bar) bar.remove();
+    const ro = document.getElementById('reqOpen'); if (!ro) return; ro.click();
+    setTimeout(() => { const f = document.getElementById('reqForm'); if (!f) return; const m = f.elements.message;
+      if (m && !m.value) m.value = 'דיווח על תקלה: ' + (window.__p18Msg || '') + '\nמה עשיתי לפני שזה קרה: ';
+      const s = f.elements.snap; if (s) s.checked = true; if (m) { m.focus(); m.setSelectionRange(m.value.length, m.value.length); } }, 60);
+  }
+});
+
+// גרסה חדשה: רק באתר עצמו. בודקים את version.json – בפתיחה, כל חצי שעה וכשחוזרים לחלון
+async function p18CheckVer() {
+  try {
+    const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' }); if (!r.ok) return;
+    const j = await r.json();
+    if (j && j.build && j.build !== P18_BUILD) p18Bar('p18Upd', '<span>🔄 יש גרסה חדשה של התוכנה, עם תיקונים ושיפורים.</span><button type="button" class="btn sm primary" data-p18="reload">לרענן עכשיו</button>', 'p18-upd');
+  } catch (e) {}
+}
+if (/\.github\.io$/.test(location.hostname) && P18_BUILD.indexOf('__') !== 0) {
+  setTimeout(p18CheckVer, 20000); setInterval(p18CheckVer, 30 * 60000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) p18CheckVer(); });
+}
+
+// אחרי כל ציור: תזכורת הגיבוי גם במסכים שנפתחים ראשונים (מבט מהיר, ובדירה חדשה – המסך הראשי)
+function p18After() {
+  if (!P18_LINK || typeof backupDue !== 'function' || !backupDue()) return;
+  const v = document.getElementById('view'); if (!v || v.querySelector('.backup-alert')) return;
+  const tab = typeof clTab === 'function' ? clTab() : ui.tab;
+  if (!(P18_IS_DIRA ? ['all', 'tasks', 'home'].includes(tab) : tab === 'simple')) return;
+  const w = document.createElement('div'); w.innerHTML = backupBanner(); const el = w.firstElementChild; if (!el) return;
+  const anchor = v.querySelector(':scope > .topbar, :scope > .simple > .sm-head');
+  if (anchor) anchor.after(el); else v.prepend(el);
+}
+
+// רישום מהיר: סימון "נתינה" שבוחר את קטגוריית המעשרות
+if (!P18_IS_DIRA && typeof qaOpen === 'function') {
+  const _qaP18 = qaOpen;
+  qaOpen = function (...a) {
+    const r = _qaP18.apply(this, a);
+    try {
+      const el = document.getElementById('qa'); if (!el || el.querySelector('.qa-give')) return r;
+      const form = el.querySelector('form'), fCat = form.elements.category, catLbl = fCat.closest('label');
+      const lab = document.createElement('label'); lab.className = 'qa-give';
+      lab.innerHTML = `<input type="checkbox" name="give"> 🤲 נתינה – נספר במעשרות <span class="sub" style="margin:0">(בקטגוריה "${esc(S.settings.maaserCategory)}")</span>`;
+      catLbl.before(lab);
+      const cb = lab.querySelector('input'), isGive = c => typeof maaserIsGive === 'function' ? maaserIsGive(c) : c === S.settings.maaserCategory;
+      const sync = () => { lab.hidden = ui.qaType !== 'expense'; if (lab.hidden) cb.checked = false; };
+      cb.addEventListener('change', () => { if (cb.checked) { fCat.value = S.settings.maaserCategory; fCat.dataset.auto = ''; } else if (isGive(fCat.value)) fCat.value = ''; });
+      fCat.addEventListener('input', () => { cb.checked = isGive(fCat.value.trim()); });
+      el.querySelectorAll('[data-qt]').forEach(b => b.addEventListener('click', () => setTimeout(sync, 0)));
+      sync();
+    } catch (e) { console.warn('נתינה ברישום מהיר:', e); }
+    return r;
+  };
+}
+
+// מעשרות: קבלות לזיכוי ממס (סעיף 46)
+if (!P18_IS_DIRA && VIEWS.maaser && typeof maaserIsGive === 'function') {
+  const _maaserP18 = VIEWS.maaser;
+  VIEWS.maaser = (...a) => {
+    const h = _maaserP18(...a), Y = ui.maaserYear || String(new Date().getFullYear());
+    const gifts = S.transactions.filter(t => t.type === 'expense' && maaserIsGive(t.category) && t.date.startsWith(Y)).sort((x, y) => x.date.localeCompare(y.date));
+    if (!gifts.length) return h;
+    const yes = gifts.filter(t => t.receipt), no = gifts.filter(t => !t.receipt), sum = l => l.reduce((s, t) => s + t.amount, 0);
+    const card = `<section class="card" id="rcptCard"><h2>🧾 קבלות לזיכוי ממס (סעיף 46) · ${Y}</h2>
+      <p class="sub">מסמנים כל נתינה שיש עליה קבלה ממוסד מוכר לעניין סעיף 46. בסוף השנה הרשימה מוכנה להגשה לרשות המסים. את התנאים לזיכוי (מוסד מאושר, סכום מינימלי) כדאי לבדוק באתר רשות המסים.</p>
+      <div class="rcpt-sum"><span class="pos">✓ עם קבלה: <b>${money(sum(yes))}</b> (${yes.length})</span><span>בלי קבלה: <b>${money(sum(no))}</b> (${no.length})</span></div>
+      <details class="rcpt-list"${gifts.length <= 12 ? ' open' : ''}><summary>${gifts.length} נתינות בשנת ${Y}</summary>
+      <div class="table-wrap"><table><thead><tr><th style="width:70px">יש קבלה</th><th>תאריך</th><th>למי</th><th>סכום</th></tr></thead><tbody>
+      ${gifts.map(t => `<tr${t.receipt ? '' : ' class="rcpt-no"'}><td><input type="checkbox" data-rcpt="${t.id}"${t.receipt ? ' checked' : ''} style="width:auto" aria-label="יש קבלה על ${esc(t.note || 'הנתינה')}"></td><td>${gregDate(t.date)}</td><td>${esc(t.note || 'ללא פירוט')}</td><td class="amount">${money(t.amount)}</td></tr>`).join('')}
+      </tbody></table></div></details>
+      <div class="actions" style="margin-top:10px"><button type="button" class="btn sm" data-action="rcptCopy" data-y="${Y}"${yes.length ? '' : ' disabled'}>📋 העתקת רשימת הקבלות</button></div></section>`;
+    const i = h.indexOf('<section class="card"><h2>הגדרות החישוב');
+    return i >= 0 ? h.slice(0, i) + card + h.slice(i) : h + card;
+  };
+  document.addEventListener('change', e => {
+    const c = e.target; if (!c || !c.dataset || !c.dataset.rcpt) return;
+    const t = S.transactions.find(x => x.id === c.dataset.rcpt); if (!t) return;
+    if (c.checked) t.receipt = true; else delete t.receipt;
+    save(); render(); toast(c.checked ? 'סומן: יש קבלה' : 'הסימון הוסר');
+  });
+  Object.assign(ACTIONS, {
+    rcptCopy: el => {
+      const Y = el.dataset.y, L = S.transactions.filter(t => t.type === 'expense' && maaserIsGive(t.category) && t.date.startsWith(Y) && t.receipt).sort((x, y) => x.date.localeCompare(y.date));
+      const tot = L.reduce((s, t) => s + t.amount, 0);
+      const text = `קבלות על תרומות (סעיף 46) – שנת ${Y}\n` + L.map(t => `${gregDate(t.date)} · ${t.note || 'ללא פירוט'} · ${money(t.amount)}`).join('\n') + `\nסה"כ: ${money(tot)} (${L.length} קבלות)`;
+      const done = () => toast('הרשימה הועתקה – אפשר להדביק במסמך או במייל');
+      const fallback = () => { const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) { toast('ההעתקה לא הצליחה'); } ta.remove(); };
+      if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
+    }
+  });
+}
+// "מה חדש" לעדכון הזה
+if (!P18_IS_DIRA && typeof WN_ITEMS !== 'undefined' && Array.isArray(WN_ITEMS)) {
+  WN_ITEMS.splice(0, WN_ITEMS.length,
+    ['🤲', 'צדקה נספרת במעשרות', 'במסך המעשרות אפשר לסמן כמה קטגוריות שנספרות כנתינה, למשל גם "צדקה" וגם "תרומות".'],
+    ['➕', 'נתינה ברישום מהיר', 'בחלון הרישום המהיר יש סימון "נתינה", והסכום נספר מיד במעשרות.'],
+    ['🧾', 'קבלות לסעיף 46', 'במסך המעשרות מסמנים על אילו נתינות יש קבלה, ובסוף השנה הרשימה מוכנה לזיכוי ממס.'],
+    ['🛡️', 'יציבות', 'התוכנה מזהה תקלה בעצמה, ממשיכה לעבוד ומאפשרת לדווח עליה בלחיצה.']);
+}
+
 /* ---------- חלון "התאמת מראה" ---------- */
 const LOOK_OPTS = [
   ['mode', 'מצב תצוגה', [['light', '☀️ בהיר'], ['dark', '🌙 כהה'], ['auto', '🖥️ לפי המחשב']]],
@@ -6823,7 +6988,7 @@ const QR = (() => {
     el.innerHTML = `<div class="auth-card"><form id="reqForm"><h2>💬 שאלות, בקשות והצעות</h2>
       <p class="sub" style="text-align:center;margin:0">ההודעה תגיע ישירות לישעיה גליק</p>
       <label>שם<input name="name" required maxlength="60" autocomplete="name"></label>
-      <label>טלפון או מייל לחזרה (רשות)<input name="contact" maxlength="80" dir="ltr" autocomplete="email"></label>
+      <label>מייל לחזרה (רשות)<input name="contact" maxlength="80" dir="ltr" autocomplete="email"></label>
       <label>ההודעה<textarea name="message" required maxlength="2000" rows="5" placeholder="מה תרצו לשאול, לבקש או להציע?"></textarea></label>
       <div class="auth-msg" id="reqMsg" hidden></div>
       <button class="btn primary">שליחה</button><button type="button" class="btn" data-x>סגירה</button></form></div>`;
