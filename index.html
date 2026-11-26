@@ -1034,6 +1034,95 @@ html.clean .side-mini .sm-i{font-size:19px}
 .rcpt-list > summary{cursor:pointer;font-weight:600;margin-bottom:8px}
 .rcpt-no td{opacity:.8}
 @media print{.p18-bar{display:none!important}}
+/* שלב 19: פרסומת – בצבעי הלוגו: ירוק כהה #1f4847 וכתום #d97f3f */
+.ad-back{position:fixed;inset:0;background:radial-gradient(circle at 50% 40%,rgba(31,72,71,.35),rgba(10,28,27,.62));backdrop-filter:blur(3px);z-index:26;animation:adFade .3s ease}
+.ad-box{position:fixed;z-index:27;top:50%;left:50%;width:min(580px,calc(100vw - 28px));max-height:calc(100vh - 36px);overflow-y:auto;overflow-x:hidden;background:#fbf7f2;color:#15302f;border-radius:24px;box-shadow:0 30px 80px rgba(10,40,38,.5),0 0 0 4px rgba(217,127,63,.35);font-size:16px;line-height:1.6;transform:translate(-50%,-50%);animation:adPop .7s cubic-bezier(.2,1.6,.4,1) both}
+.ad-box.ad-out{animation:adOut .22s ease forwards}
+/* פס עליון ירוק עם זוהר כתום וצורות שנוסעות */
+.ad-top{position:relative;height:124px;overflow:hidden;border-radius:24px 24px 0 0;background:linear-gradient(120deg,#122e2d,#1f4847,#2e6260,#1f4847,#122e2d);background-size:300% 300%;animation:adGrad 9s ease infinite}
+.ad-top::before{content:"";position:absolute;width:260px;height:260px;border-radius:50%;top:-120px;left:-80px;background:radial-gradient(circle,rgba(233,162,106,.55),transparent 65%);animation:adSun 7s ease-in-out infinite}
+.ad-top::after{content:"";position:absolute;inset:auto 0 -1px 0;height:34px;background:#fbf7f2;border-radius:50% 50% 0 0/100% 100% 0 0}
+.ad-fx span{position:absolute;bottom:-30px;font-size:22px;opacity:.95;animation:adFloat var(--d,6s) linear infinite;animation-delay:var(--w,0s);filter:drop-shadow(0 3px 4px rgba(0,0,0,.25))}
+.ad-fx i{position:absolute;width:var(--s,10px);height:var(--s,10px);border-radius:50%;background:var(--b,rgba(244,200,158,.7));animation:adBob 3s ease-in-out infinite;animation-delay:var(--w,0s)}
+.ad-fx b{position:absolute;width:var(--s,14px);height:var(--s,14px);border:3px solid rgba(217,127,63,.75);border-top-color:transparent;animation:adSpin 6s linear infinite;animation-delay:var(--w,0s)}
+.ad-ico{position:absolute;z-index:2;right:26px;bottom:6px;width:78px;height:78px;border-radius:22px;background:#fff;display:grid;place-items:center;font-size:38px;box-shadow:0 10px 24px rgba(10,40,38,.45);border:3px solid #d97f3f;animation:adBounce 2.4s ease-in-out infinite}
+.ad-ico::before{content:"";position:absolute;inset:-9px;border-radius:28px;border:3px solid rgba(233,162,106,.9);animation:adRing 2s ease-out infinite}
+/* סמל הלוגו: המסגרת הירוקה והפס הכתום שנופל פנימה */
+.ad-logo{width:50px;height:50px;overflow:visible}
+.ad-logo .bar{animation:adDrop 2.4s cubic-bezier(.3,1.6,.5,1) infinite;transform-box:fill-box}
+.ad-badge{position:absolute;z-index:2;left:58px;top:16px;background:linear-gradient(145deg,#e9a26a,#d97f3f 45%,#b9622a);color:#fff;font-weight:800;font-size:17px;padding:8px 15px;border-radius:999px;box-shadow:0 6px 14px rgba(0,0,0,.3);text-shadow:0 1px 2px rgba(0,0,0,.25);transform:rotate(-12deg);animation:adStamp .8s .5s cubic-bezier(.2,1.8,.4,1) both,adWiggle 3s 1.5s ease-in-out infinite}
+.ad-body{padding:8px 26px 16px}
+.ad-box h2{margin:0 0 6px;font-size:24px;line-height:1.3;color:#1f4847;animation:adUp .5s .25s ease both}
+.ad-box h2 em{font-style:normal;color:#d97f3f;background:linear-gradient(transparent 62%,rgba(244,200,158,.7) 62%);padding:0 2px}
+.ad-box p{margin:0 0 6px;animation:adUp .5s .35s ease both}
+.ad-box a:not(.btn){color:#b9622a;font-weight:700}
+.ad-list{list-style:none;padding:0;margin:14px 0 4px;display:grid;gap:9px}
+.ad-list li{position:relative;background:#fff;border-radius:14px;padding:10px 14px;border-right:5px solid var(--c);box-shadow:0 2px 8px rgba(31,72,71,.08);animation:adSlide .55s cubic-bezier(.2,1.4,.4,1) both;animation-delay:calc(.45s + var(--i) * .15s);transition:transform .2s}
+.ad-list li:hover{transform:translateX(-6px) scale(1.02)}
+.ad-list li b{color:#1f4847}
+.ad-list li .e{display:inline-block;animation:adJiggle 2.6s ease-in-out infinite;animation-delay:calc(var(--i) * .4s)}
+.ad-acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;animation:adUp .5s .9s ease both}
+.ad-acts .btn{text-decoration:none;transition:transform .2s;background:#fff;border-color:#cfdedc;color:#1f4847}
+.ad-acts .btn:hover{transform:translateY(-3px)}
+.ad-box .ad-acts .btn.primary,.ad-box .ad-acts .btn.primary:hover{position:relative;overflow:hidden;background:linear-gradient(145deg,#e9a26a,#d97f3f 45%,#b9622a)!important;border-color:transparent!important;color:#fff!important;font-weight:700;animation:adGlow 2s ease-in-out infinite}
+.ad-box .ad-acts .btn.primary::after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-60%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);transform:skewX(-20deg);animation:adShine 2.6s 1.2s ease-in-out infinite}
+.ad-box .ad-acts .btn.ad-green{background:linear-gradient(145deg,#2e6260,#1f4847)!important;color:#fff!important;border-color:transparent!important}
+.ad-acts .ad-tel .e{display:inline-block;animation:adRingTel 2.5s 1.5s ease-in-out infinite}
+/* טופס הפנייה */
+.ad-form{display:grid;gap:10px;margin-top:12px;animation:adUp .35s ease both}
+.ad-form label{display:grid;gap:4px;font-weight:600;color:#1f4847;font-size:14px}
+.ad-form input,.ad-form textarea{font:inherit;padding:9px 12px;border:2px solid #e5d9c7;border-radius:12px;background:#fff;color:#15302f}
+.ad-form input:focus,.ad-form textarea:focus{outline:none;border-color:#d97f3f;box-shadow:0 0 0 4px rgba(217,127,63,.18)}
+.ad-form .ad-acts{margin-top:4px;animation:none}
+.ad-alt{font-size:13px;color:#4a615f;margin:0}
+.ad-alt .linkbtn{color:#b9622a;font-weight:700}
+.ad-msg{min-height:1.2em;margin:0;font-size:14px;color:#b02a2a}
+.ad-done{text-align:center;padding:10px 0 4px;animation:adUp .4s ease both}
+.ad-done .big{font-size:54px;display:inline-block;animation:adBounce 1.6s ease-in-out infinite}
+.ad-confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:4}
+.ad-confetti i{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;animation:adFall 1.8s ease-in forwards}
+.ad-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:14px 26px 0;padding:12px 0 16px;border-top:1px dashed #e5d9c7;font-size:13px;color:#4a615f}
+.ad-foot b{color:#1f4847}
+.ad-x{position:absolute;z-index:3;top:10px;left:12px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.9);border:0;font-size:16px;cursor:pointer;color:#1f4847;transition:transform .2s}
+.ad-x:hover{transform:rotate(90deg)}
+@keyframes adFade{from{opacity:0}to{opacity:1}}
+@keyframes adPop{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@keyframes adOut{to{opacity:0;transform:translate(-50%,-45%) scale(.85)}}
+@keyframes adGrad{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes adSun{0%,100%{transform:translate(0,0)}50%{transform:translate(380px,30px)}}
+@keyframes adFloat{0%{transform:translateY(0) rotate(0)}50%{transform:translateY(-75px) translateX(14px) rotate(20deg)}100%{transform:translateY(-160px) translateX(-6px) rotate(-10deg);opacity:0}}
+@keyframes adBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes adSpin{to{transform:rotate(360deg)}}
+@keyframes adBounce{0%,100%{transform:translateY(0)}20%{transform:translateY(-12px) rotate(-6deg)}40%{transform:translateY(0) rotate(0)}55%{transform:translateY(-5px)}70%{transform:translateY(0)}}
+@keyframes adRing{0%{transform:scale(1);opacity:.9}100%{transform:scale(1.3);opacity:0}}
+@keyframes adDrop{0%{transform:translateY(-40px);opacity:0}25%{transform:translateY(0);opacity:1}80%{transform:translateY(0);opacity:1}100%{transform:translateY(0);opacity:1}}
+@keyframes adStamp{from{opacity:0;transform:scale(3) rotate(25deg)}to{opacity:1;transform:scale(1) rotate(-12deg)}}
+@keyframes adWiggle{0%,80%,100%{transform:rotate(-12deg)}85%{transform:rotate(4deg) scale(1.1)}90%{transform:rotate(-20deg)}95%{transform:rotate(-6deg)}}
+@keyframes adJiggle{0%,75%,100%{transform:none}80%{transform:translateY(-6px) scale(1.25) rotate(-10deg)}88%{transform:translateY(0) scale(1) rotate(8deg)}94%{transform:rotate(-4deg)}}
+.ad-list li .e,.ad-tel .e{transform-origin:50% 60%}
+@keyframes adUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes adSlide{from{opacity:0;transform:translateX(-60px)}to{opacity:1;transform:none}}
+@keyframes adGlow{0%,100%{box-shadow:0 4px 14px rgba(217,127,63,.35)}50%{box-shadow:0 6px 26px rgba(217,127,63,.8)}}
+@keyframes adShine{0%{left:-60%}60%,100%{left:130%}}
+@keyframes adRingTel{0%,70%,100%{transform:rotate(0)}75%{transform:rotate(-18deg)}80%{transform:rotate(18deg)}85%{transform:rotate(-12deg)}90%{transform:rotate(10deg)}}
+@keyframes adFall{to{transform:translateY(520px) rotate(540deg);opacity:.2}}
+/* לחצן קבוע בראש המסך */
+:is(.topbar,.sm-head) .ad-head{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:8px;margin-inline:auto 10px;padding:9px 18px 9px 14px;border:0;border-radius:999px;cursor:pointer;font:inherit;font-size:15px;color:#fff;background:linear-gradient(120deg,#122e2d,#1f4847,#2e6260,#1f4847);background-size:250% 100%;box-shadow:0 6px 18px rgba(31,72,71,.35),inset 0 0 0 2px rgba(233,162,106,.7);animation:adGrad 6s ease infinite,adHeadIn .8s cubic-bezier(.2,1.6,.4,1) both,adHeadHop 5s 1.5s ease-in-out infinite;white-space:nowrap;align-self:center}
+:is(.topbar,.sm-head) .ad-head b{color:#f4c89e}
+:is(.topbar,.sm-head) .ad-head .ah-ico{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:linear-gradient(145deg,#e9a26a,#d97f3f 45%,#b9622a);font-size:16px;box-shadow:0 0 0 0 rgba(217,127,63,.7);animation:adJiggle 2.6s ease-in-out infinite,adPulse 2s ease-out infinite}
+:is(.topbar,.sm-head) .ad-head .ah-sp{position:absolute;top:2px;left:8px;font-size:12px;animation:adTwinkle 1.8s ease-in-out infinite}
+:is(.topbar,.sm-head) .ad-head::after{content:"";position:absolute;top:0;bottom:0;width:35%;left:-50%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-20deg);animation:adShine 3.2s 1s ease-in-out infinite}
+:is(.topbar,.sm-head) .ad-head:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 10px 24px rgba(31,72,71,.45),inset 0 0 0 2px #e9a26a}
+@keyframes adHeadIn{from{opacity:0;transform:translateY(-30px) scale(.7)}to{opacity:1;transform:none}}
+@keyframes adHeadHop{0%,86%,100%{transform:none}90%{transform:translateY(-6px)}94%{transform:translateY(0)}97%{transform:translateY(-2px)}}
+@keyframes adPulse{0%{box-shadow:0 0 0 0 rgba(217,127,63,.7)}100%{box-shadow:0 0 0 12px rgba(217,127,63,0)}}
+@keyframes adTwinkle{0%,100%{opacity:.2;transform:scale(.6) rotate(0)}50%{opacity:1;transform:scale(1.2) rotate(90deg)}}
+@media (max-width:760px){:is(.topbar,.sm-head) .ad-head{font-size:13px;padding:7px 12px 7px 10px;margin-inline:0}:is(.topbar,.sm-head) .ad-head .ah-ico{width:24px;height:24px;font-size:13px}}
+@media (prefers-reduced-motion:reduce){.ad-box,.ad-box *,.ad-back,.ad-head,.ad-head *{animation:none!important}.ad-box{transform:translate(-50%,-50%)}.ad-fx,.ad-confetti{display:none}}
+@media print{.ad-back,.ad-box,.ad-head{display:none!important}}
+/* כשיש הודעת תקלה – הפרסומת לא מסתירה אותה */
+body:has(#p18Bar) .ad-back,body:has(#p18Bar) .ad-box{display:none!important}
+/* סוף שלב 19 */
 </style>
 <script>
 /* ---------- התאמת מראה: רץ לפני שהדף מצויר, כדי שלא יהבהב בצבעים הקודמים ----------
@@ -6443,7 +6532,7 @@ Element.prototype.scrollIntoView = function (...a) {
 };
 
 /* ---------- שלב 18: הגנה מתקיעות, דיווח תקלה, גרסה חדשה, גיבוי במבט מהיר, נתינה ברישום מהיר, קבלות לסעיף 46 ---------- */
-const P18_BUILD = '202611260925';
+const P18_BUILD = '202611261041';
 const P18_IS_DIRA = typeof SHARE_IS_DIRA !== 'undefined' && SHARE_IS_DIRA;
 const P18_LINK = !!document.getElementById('reqOpen');
 let p18Shown = false, p18Times = [], p18Depth = 0, p18Hold = 0, p18Strict = false, p18User = 0;
@@ -6596,6 +6685,168 @@ if (!P18_IS_DIRA && typeof WN_ITEMS !== 'undefined' && Array.isArray(WN_ITEMS)) 
     ['🛡️', 'יציבות', 'התוכנה מזהה תקלה בעצמה, ממשיכה לעבוד ומאפשרת לדווח עליה בלחיצה.']);
 }
 
+/* ---------- שלב 19: פרסומת – בדיקת ביטוח ופנסיה ---------- */
+// שום נתון כספי לא נשלח: ההצעה מוצגת לפי מה שנכתב במסך. נשלח רק מה שהמשתמש כתב בעצמו בטופס הפנייה
+const AD = {
+  name: 'ישעיה גליק – ביטוחים ופנסיה', tag: 'בטוח בשבילך',
+  phone: '03-528-6264', email: 'G4167868@gmail.com', site: 'https://shayaglick.co.il/', contact: 'https://shayaglick.co.il/#contact',
+  delay: 4000, everyDays: 7, dira: /דירה/.test(document.title)
+};
+const AD_TOPICS = [
+  { k: 'mort', re: /ביטוח\s*משכנתא|משכנתא/, ico: '🏠', title: 'משלמים על ביטוח משכנתא?', text: 'אותו כיסוי בדיוק – לפעמים בחצי מחיר. ר\' שילם 124 ₪ בחודש, והיום הוא משלם 49 ₪.', page: 'https://shayaglick.co.il/mortgage' },
+  { k: 'pension', re: /פנסי/, ico: '📈', title: 'בדיקת קרן הפנסיה – חינם', text: 'דמי ניהול של אחוז אחד יכולים להיות שווים מאות אלפי שקלים עד הפרישה. בודקים דמי ניהול, מסלול וכשרות.', page: 'https://shayaglick.co.il/pension' },
+  { k: 'gemel', re: /גמל|השתלמות|קופת/, ico: '💼', title: 'גמל והשתלמות – בדיקה חינם', text: 'בודקים דמי ניהול ומסלול השקעה, ומה ההבדל בין גמל להשתלמות – כדי שהחיסכון יעבוד בשבילך.', page: 'https://shayaglick.co.il/articles/investment-gemel-and-study-fund' },
+  { k: 'ins', re: /ביטוח|ביטוחים|פוליס/, ico: '🛡️', title: 'אולי אתה משלם יותר מדי על ביטוח?', text: 'רוב המשפחות משלמות פעמיים על אותו כיסוי. בודקים את כל הביטוחים ומוזילים – בלי לפגוע בכיסוי.', page: 'https://shayaglick.co.il/' }
+];
+const AD_LOGO = `<svg class="ad-logo" viewBox="0 0 100 100" aria-hidden="true"><path d="M10 34V90H90V34" fill="none" stroke="#1f4847" stroke-width="11"/><path d="M30 34V70H70V34" fill="none" stroke="#2e6260" stroke-width="6"/><g class="bar"><rect x="42" y="2" width="16" height="44" fill="#d97f3f"/><rect x="42" y="52" width="16" height="12" fill="#d97f3f"/></g></svg>`;
+const adSeen = k => { try { return sessionStorage.getItem('ad_' + k) === '1'; } catch (e) { return false; } };
+const adMark = k => { try { sessionStorage.setItem('ad_' + k, '1'); } catch (e) {} };
+const adEsc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function adClose() {
+  const box = document.getElementById('adBox'), back = document.getElementById('adBack');
+  if (box) { box.id = ''; box.classList.add('ad-out'); setTimeout(() => box.remove(), 230); }
+  if (back) { back.id = ''; back.style.transition = 'opacity .2s'; back.style.opacity = '0'; setTimeout(() => back.remove(), 230); }
+}
+const adGmail = subject => `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(AD.email)}&su=${encodeURIComponent(subject)}`;
+function adContacts() {
+  return `<div class="ad-acts">
+    <button type="button" class="btn primary" data-ad="form">✉️ השאר פרטים – נחזור אליך</button>
+    <a class="btn ad-tel" href="tel:${AD.phone.replace(/\D/g, '')}"><span class="e">📞</span> ${AD.phone}</a>
+    <a class="btn" href="${AD.site}" target="_blank" rel="noopener">🌐 לאתר</a></div>`;
+}
+// טופס קצר בתוך החלון – נשלח ישר למייל, בלי תוכנת מייל במחשב
+function adFormHtml(subject) {
+  return `<form class="ad-form" novalidate>
+    <label>שם<input name="n" autocomplete="name" required></label>
+    <label>טלפון או מייל לחזרה<input name="c" autocomplete="tel" required></label>
+    <label>מה לבדוק? (לא חובה)<textarea name="m" rows="2" placeholder="למשל: ביטוח בריאות וביטוח משכנתא"></textarea></label>
+    <p class="ad-msg" role="alert"></p>
+    <div class="ad-acts"><button type="submit" class="btn primary">📨 שליחה</button><button type="button" class="btn" data-ad="back">חזרה</button></div>
+    <p class="ad-alt">אפשר גם: <a href="${adGmail(subject)}" target="_blank" rel="noopener">לכתוב בג'ימייל</a> · <button type="button" class="linkbtn" data-ad="copy">להעתיק את כתובת המייל</button> · <a href="${AD.contact}" target="_blank" rel="noopener">טופס באתר</a></p>
+  </form>`;
+}
+function adConfetti(box) {
+  const c = document.createElement('div'); c.className = 'ad-confetti';
+  const cols = ['#d97f3f', '#e9a26a', '#1f4847', '#2e6260', '#f4c89e'];
+  c.innerHTML = Array.from({ length: 36 }, (_, i) => `<i style="left:${Math.random() * 100}%;background:${cols[i % 5]};animation-delay:${Math.random() * .5}s"></i>`).join('');
+  box.append(c); setTimeout(() => c.remove(), 2600);
+}
+async function adSend(form) {
+  const box = form.closest('.ad-box'), msg = form.querySelector('.ad-msg'), btn = form.querySelector('button[type=submit]');
+  const n = form.n.value.trim(), c = form.c.value.trim(), m = form.m.value.trim();
+  if (!n || !c) { msg.textContent = 'צריך לכתוב שם וטלפון או מייל לחזרה'; (n ? form.c : form.n).focus(); return; }
+  if (typeof window.reqPost !== 'function') { msg.innerHTML = `השליחה מכאן לא זמינה. אפשר <a href="${adGmail(box.dataset.subj)}" target="_blank" rel="noopener">לכתוב בג'ימייל</a> או להתקשר ${AD.phone}.`; return; }
+  btn.disabled = true; btn.textContent = 'שולח…'; msg.textContent = '';
+  try {
+    const app = /דירה/.test(document.title) ? 'דירה חדשה' : 'כספי הבית';
+    const r = await window.reqPost({ 'שם': n, 'טלפון או מייל לחזרה': c, 'מה לבדוק': m || '—', 'נושא הפרסומת': box.dataset.subj, 'מאיפה': app, _subject: 'פנייה חדשה מהפרסומת – ' + box.dataset.subj, _template: 'table', _captcha: 'false' });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok || String(d.success) === 'false') throw new Error('status ' + r.status + ' ' + JSON.stringify(d));
+    box.querySelector('.ad-body').innerHTML = `<div class="ad-done"><div class="big">🎉</div><h2>הפרטים נשלחו!</h2><p>תודה ${adEsc(n)}, ניצור איתך קשר בקרוב.</p>
+      <div class="ad-acts" style="justify-content:center"><button type="button" class="btn primary" data-ad="x">סגירה</button></div></div>`;
+    adConfetti(box);
+  } catch (e) {
+    console.warn('ad-send-failed', e && e.message);
+    btn.disabled = false; btn.textContent = '📨 שליחה';
+    msg.innerHTML = `השליחה לא הצליחה (אולי אין חיבור לאינטרנט). אפשר <a href="${adGmail(box.dataset.subj)}" target="_blank" rel="noopener">לכתוב בג'ימייל</a> או להתקשר ${AD.phone}.`;
+  }
+}
+// צורות שנוסעות בפס העליון
+function adFx(icons) {
+  const spans = icons.map((e, i) => `<span style="right:${6 + i * 13}%;--d:${5 + (i % 3) * 1.5}s;--w:${-i * 1.1}s">${e}</span>`).join('');
+  const dots = [[12, 30, 14], [30, 60, 8], [48, 20, 18], [64, 55, 10], [80, 25, 12], [92, 65, 7]]
+    .map(([x, y, s], i) => `<i style="left:${x}%;top:${y}%;--s:${s}px;--w:${-i * .5}s;--b:${i % 2 ? 'rgba(217,127,63,.75)' : 'rgba(244,200,158,.6)'}"></i>`).join('');
+  const rings = [[22, 18, 16], [56, 62, 12], [86, 12, 18]].map(([x, y, s], i) => `<b style="left:${x}%;top:${y}%;--s:${s}px;--w:${-i * 2}s"></b>`).join('');
+  return `<div class="ad-fx" aria-hidden="true">${spans}${dots}${rings}</div>`;
+}
+function adShow(html, cls, ico, badge, fx, subj) {
+  if (document.getElementById('adBox') || document.getElementById('p18Bar')) return;
+  const lock = document.getElementById('lock'); if (lock && !lock.hidden) return;
+  const back = document.createElement('div'); back.id = 'adBack'; back.className = 'ad-back'; back.addEventListener('click', adClose);
+  const box = document.createElement('div'); box.id = 'adBox'; box.className = 'ad-box ' + (cls || ''); box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true');
+  box.dataset.subj = subj || 'בדיקת ביטוח ופנסיה';
+  box.innerHTML = `<div class="ad-top">${adFx(fx || ['🪙', '🛡️', '⭐', '📈', '💼', '✨', '🪙'])}<div class="ad-ico">${ico || AD_LOGO}</div>${badge ? `<span class="ad-badge">${badge}</span>` : ''}</div>
+    <div class="ad-body">${html}</div>
+    <div class="ad-foot"><span class="ad-brand"><b>${AD.name}</b> · ${AD.tag}</span><button type="button" class="linkbtn" data-ad="x">לא עכשיו</button></div>
+    <button type="button" class="ad-x" data-ad="x" aria-label="סגירה" title="סגירה">✕</button>`;
+  let saved = '';
+  box.addEventListener('click', e => {
+    const a = e.target.closest('[data-ad]'); if (!a) return;
+    const k = a.dataset.ad;
+    if (k === 'x') adClose();
+    else if (k === 'form') { const acts = a.closest('.ad-acts'); saved = acts.outerHTML; acts.outerHTML = adFormHtml(box.dataset.subj); box.querySelector('.ad-form [name=n]').focus(); }
+    else if (k === 'back') { box.querySelector('.ad-form').outerHTML = saved; }
+    else if (k === 'copy') {
+      const done = () => { a.textContent = '✓ הכתובת הועתקה'; };
+      try { navigator.clipboard.writeText(AD.email).then(done, () => { a.textContent = AD.email; }); } catch (err) { a.textContent = AD.email; }
+    }
+  });
+  box.addEventListener('submit', e => { e.preventDefault(); adSend(e.target); });
+  document.body.append(back, box);
+  setTimeout(() => box.querySelector('.btn.primary')?.focus(), 50);
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.getElementById('adBox')) adClose(); });
+// 1. החלון הראשי – בפתיחה (פעם בשבוע) ובלחיצה על הלחצן הקבוע למעלה
+function adMain() {
+  if (AD.dira) return adShow(`<h2>קונים דירה? <em>אל תשלמו יותר מדי</em> על ביטוח המשכנתא</h2>
+      <p>אותו כיסוי בדיוק – לפעמים בחצי מחיר. בדיקה חינם ובלי התחייבות, מול כל חברות הביטוח.</p>
+      <ul class="ad-list"><li style="--i:0;--c:#d97f3f"><span class="e">🏠</span> <b>ביטוח משכנתא</b> – ביטוח חיים וביטוח מבנה, בהשוואה בין כל החברות</li>
+        <li style="--i:1;--c:#1f4847"><span class="e">🛡️</span> <b>בדיקת כל הביטוחים</b> – בריאות וחיים, בלי כפילויות</li>
+        <li style="--i:2;--c:#e9a26a"><span class="e">📈</span> <b>פנסיה, גמל והשתלמות</b> – דמי ניהול, מסלול וכשרות</li></ul>
+      ${adContacts()}`, 'ad-open', '', 'חינם!', ['🏠', '🪙', '🔑', '⭐', '🏠', '✨', '🪙'], 'בדיקת ביטוח משכנתא');
+  adShow(`<h2>רוצה לבדוק אם אתה <em>משלם יותר מדי?</em></h2>
+      <p>בדיקה חינם ובלי התחייבות – עובדים עם כל חברות הביטוח, בשווה.</p>
+      <ul class="ad-list"><li style="--i:0;--c:#d97f3f"><span class="e">🛡️</span> <b>הוזלת דמי ביטוח</b> – ביטוחי בריאות, חיים ומשכנתא, בלי כפילויות</li>
+        <li style="--i:1;--c:#1f4847"><span class="e">📈</span> <b>בדיקת תיק פנסיה</b> – דמי ניהול, מסלול וכשרות</li>
+        <li style="--i:2;--c:#e9a26a"><span class="e">💼</span> <b>גמל והשתלמות</b> – דמי ניהול ומסלול השקעה</li></ul>
+      ${adContacts()}`, 'ad-open', '', 'חינם!', null, 'בדיקת ביטוח ופנסיה');
+}
+const adOpenKey = 'ad_open_at_' + (AD.dira ? 'dira' : 'kaspei');
+function adOpening() {
+  let last = 0; try { last = +localStorage.getItem(adOpenKey) || 0; } catch (e) {}
+  if (Date.now() - last < AD.everyDays * 864e5) return;
+  const tryShow = () => {
+    const lock = document.getElementById('lock');
+    if ((lock && !lock.hidden) || document.getElementById('wn') || document.getElementById('qa') || document.getElementById('adBox')) return setTimeout(tryShow, 1500);
+    try { localStorage.setItem(adOpenKey, String(Date.now())); } catch (e) {}
+    adMain();
+  };
+  setTimeout(tryShow, AD.delay);
+}
+// 3. לחצן קבוע בראש כל מסך
+function adHead() {
+  const bar = document.querySelector('#view .topbar, #view .sm-head'); if (!bar || bar.querySelector('.ad-head')) return;
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'ad-head no-print';
+  b.innerHTML = AD.dira
+    ? '<span class="ah-ico">🏠</span><span class="ah-t">בדיקת ביטוח משכנתא <b>חינם</b></span><span class="ah-sp" aria-hidden="true">✨</span>'
+    : '<span class="ah-ico">🛡️</span><span class="ah-t">בדיקה <b>חינם</b> לתיק הביטוח שלך</span><span class="ah-sp" aria-hidden="true">✨</span>';
+  b.title = 'בדיקה חינם ובלי התחייבות – ' + AD.name;
+  b.addEventListener('click', adMain);
+  const tools = bar.querySelector(':scope > .tb-tools, :scope > button'); tools ? bar.insertBefore(b, tools) : bar.append(b);
+}
+const _renderP19 = render;
+render = function (...a) { const r = _renderP19.apply(this, a); try { adHead(); } catch (e) {} return r; };
+// 2. הצעה לפי נושא – כשבוחרים או כותבים ביטוח / פנסיה / גמל / השתלמות, או לוחצים על שורה כזו
+function adTopic(text) {
+  const t = AD_TOPICS.find(x => x.re.test(text || '')); if (!t || adSeen('t_' + t.k) || document.getElementById('adBox')) return;
+  adMark('t_' + t.k);
+  adShow(`<h2>${t.title}</h2><p>${t.text}</p>
+    <p><a href="${t.page}" target="_blank" rel="noopener">לקריאה באתר ←</a></p>${adContacts()}`, 'ad-topic', t.ico, 'בדיקה חינם', [t.ico, '🪙', '⭐', t.ico, '✨', '🪙', t.ico], t.title);
+}
+let adTimer = null;
+const adFieldSel = AD.dira
+  ? '#view input[type=text]:not([name=q]), #view input:not([type]):not([name=q]), #view textarea'
+  : '#txForm [name=category], #txForm [name=note], #qa [name=category], #qa [name=note], #assetForm [name=name], #assetForm [name=category], #recForm [name=category], #recForm [name=note]';
+document.addEventListener('change', e => { if (e.target.matches && e.target.matches(adFieldSel)) adTopic(e.target.value); });
+document.addEventListener('input', e => { if (!(e.target.matches && e.target.matches(adFieldSel))) return; clearTimeout(adTimer); const v = e.target.value; adTimer = setTimeout(() => adTopic(v), 1200); });
+document.addEventListener('click', e => {
+  if (e.target.closest('#adBox, button, a, input, select, textarea, summary')) return;
+  const row = e.target.closest('#view tbody tr, #view .legend > li, #view .budget-item, #view .hc-r'); if (!row) return;
+  adTopic(row.textContent);
+});
+adOpening();
+setTimeout(adHead, 0);
+/* ---------- סוף שלב 19 ---------- */
 /* ---------- חלון "התאמת מראה" ---------- */
 const LOOK_OPTS = [
   ['mode', 'מצב תצוגה', [['light', '☀️ בהיר'], ['dark', '🌙 כהה'], ['auto', '🖥️ לפי המחשב']]],
