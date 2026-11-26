@@ -1390,7 +1390,7 @@ VIEWS.dash = () => {
     <ul class="legend" style="display:flex;gap:18px"><li><span class="dot" style="background:var(--inc)"></span>הכנסות</li><li><span class="dot" style="background:var(--exp)"></span>הוצאות</li></ul></section>
   <section class="card"><h2>סיכום לפי חודשים · שנת ${Y}</h2><p class="sub">לחיצה על חודש מציגה את הנתונים שלו בתצוגה חודשית</p>${yearSummary(Y)}</section>
   <div class="row">
-    <section class="card maaser"><h2>מעשרות</h2><p class="sub">${mPct}% מההכנסות שנרשמו ${word}, מול מה שנרשם בקטגוריה "${esc(S.settings.maaserCategory)}". <button class="linkbtn" data-tab="maaser">לפירוט המלא</button></p>
+    <section class="card maaser"><h2>מעשרות</h2><p class="sub">${mPct}% מההכנסות שנרשמו ${word}, מול מה שנרשם ${maaserCatsLabel()}. <button class="linkbtn" data-tab="maaser">לפירוט המלא</button></p>
       <div class="budget-item"><div class="top"><span>${word}: ניתן ${money(mPaid)} מתוך ${money(mDue)}</span><b class="${mBal >= 0 ? 'pos' : 'neg'}">${signed(mBal)} ${mBal >= 0 ? 'עודף' : 'חסר'}</b></div>
       <div class="bar ${mLeft <= 0 ? 'done' : ''}"><span style="width:${mDue ? Math.min(100, mPaid / mDue * 100) : 0}%"></span></div></div>
       <div class="maaser-total"><div><div class="lbl">יתרה מצטברת מכל התקופה</div>
@@ -2926,6 +2926,10 @@ function hebMonthsInData() {
 
 /* ---------- 7. מעשרות מפורט ---------- */
 // בסיס החישוב: הכנסות (בלי קטגוריות שהוחרגו) פחות הוצאות שהוגדרו כמנוכות
+// שלב 14: הנתינות נספרות מהקטגוריה הראשית ועוד קטגוריות שהמשתמש סימן (למשל "צדקה")
+function maaserIsGive(c) { const st = S.settings; return c === st.maaserCategory || (st.maaserGiveExtra || []).includes(c); }
+function maaserGiveCats() { return [S.settings.maaserCategory, ...(S.settings.maaserGiveExtra || []).filter(c => c !== S.settings.maaserCategory)]; }
+function maaserCatsLabel() { const l = maaserGiveCats(); return (l.length > 1 ? 'בקטגוריות ' : 'בקטגוריה ') + l.map(c => '"' + esc(c) + '"').join(', '); }
 function maaserCalc(prefix) {
   const st = S.settings, exInc = st.maaserExcludeInc || [], ded = st.maaserDeduct || [];
   const inTx = t => !prefix || t.date.startsWith(prefix);
@@ -2934,7 +2938,7 @@ function maaserCalc(prefix) {
   // תוספת מרצון מעבר לאחוז: סכום שנרשם לכל חודש ומתווסף לנדרש באותו חודש
   const extra = Object.entries(st.maaserExtra || {}).filter(([m]) => !prefix || m.startsWith(prefix)).reduce((a, [, v]) => a + (+v || 0), 0);
   const base = Math.max(0, inc - deduct), pctDue = base * st.maaserPct / 100, due = pctDue + extra;
-  const given = S.transactions.filter(t => t.type === 'expense' && inTx(t) && t.category === st.maaserCategory).reduce((a, t) => a + t.amount, 0);
+  const given = S.transactions.filter(t => t.type === 'expense' && inTx(t) && maaserIsGive(t.category)).reduce((a, t) => a + t.amount, 0);
   return { inc, deduct, base, pctDue, extra, due, given, bal: given - due };
 }
 VIEWS.maaser = () => {
@@ -2942,14 +2946,19 @@ VIEWS.maaser = () => {
   const all = maaserCalc(''), opening = +st.maaserOpening || 0, cum = all.bal + opening, yr = maaserCalc(Y);
   const signed = v => `${v >= 0 ? '+' : '−'}${money(Math.abs(v))}`;
   const years = [...new Set([String(new Date().getFullYear()), ...S.transactions.map(t => t.date.slice(0, 4))])].sort().reverse();
-  const gifts = S.transactions.filter(t => t.type === 'expense' && t.category === st.maaserCategory && t.date.startsWith(Y));
+  const gifts = S.transactions.filter(t => t.type === 'expense' && maaserIsGive(t.category) && t.date.startsWith(Y));
   const byWho = {}; gifts.forEach(t => { const k = t.note || 'ללא פירוט'; (byWho[k] = byWho[k] || { sum: 0, n: 0 }); byWho[k].sum += t.amount; byWho[k].n++; });
   const checks = (list, key) => `<div class="cats">${list.map(c => `<label class="mchip"><input type="checkbox" data-mlist="${key}" value="${esc(c)}"${(st[key] || []).includes(c) ? ' checked' : ''}>${esc(c)}</label>`).join('') || '<span class="sub">אין קטגוריות</span>'}</div>`;
   // אזהרה: הקטגוריה שנבחרה לנתינות ריקה, אבל יש קטגוריה אחרת שנראית כמו מעשרות
-  const hasGiven = S.transactions.some(t => t.type === 'expense' && t.category === st.maaserCategory);
-  const likely = [...new Set(S.transactions.filter(t => t.type === 'expense' && t.category !== st.maaserCategory && /מעשר|צדק|תרומ|חומש/.test(t.category || '')).map(t => t.category))];
-  const catWarn = !hasGiven && likely.length ? `<div class="tip bad" style="margin-bottom:18px"><span class="tip-ico">⚠️</span><span>בקטגוריה שנבחרה לנתינות, "${esc(st.maaserCategory)}", אין אף עסקה, ולכן הנתינות שלך לא נספרות.
-    נראה שהנתינות רשומות בקטגוריה אחרת: ${likely.map(c => `<button class="btn sm primary" data-action="maaserSetCat" data-cat="${esc(c)}">לספור את "${esc(c)}"</button>`).join(' ')}</span></div>` : '';
+  const hasGiven = S.transactions.some(t => t.type === 'expense' && maaserIsGive(t.category));
+  const likely = [...new Set(S.transactions.filter(t => t.type === 'expense' && !maaserIsGive(t.category) && !(st.maaserDeduct || []).includes(t.category) && /מעשר|צדק|תרומ|חומש/.test(t.category || '')).map(t => t.category))];
+  const dedGive = (st.maaserDeduct || []).filter(c => /מעשר|צדק|תרומ|חומש/.test(c));
+  const catWarn = (dedGive.length ? `<div class="tip bad" style="margin-bottom:18px"><span class="tip-ico">⚠️</span><span>${dedGive.map(c => '"' + esc(c) + '"').join(', ')} מסומנת כ"הוצאה שמנוכה מההכנסה", ולכן היא מקטינה את הסכום הנדרש ולא נספרת כנתינה.
+    ${dedGive.map(c => `<button class="btn sm primary" data-action="maaserMoveGive" data-cat="${esc(c)}">לספור את "${esc(c)}" כנתינה</button>`).join(' ')}</span></div>` : '') +
+    (hasGiven && likely.length ? `<div class="tip" style="margin-bottom:18px"><span class="tip-ico">💡</span><span>יש הוצאות בקטגוריות שנראות כמו נתינה ולא נספרות במעשרות:
+    ${likely.map(c => `<button class="btn sm primary" data-action="maaserAddGive" data-cat="${esc(c)}">לספור גם את "${esc(c)}"</button>`).join(' ')}</span></div>` : '') +
+    (!hasGiven && likely.length ? `<div class="tip bad" style="margin-bottom:18px"><span class="tip-ico">⚠️</span><span>בקטגוריה שנבחרה לנתינות, "${esc(st.maaserCategory)}", אין אף עסקה, ולכן הנתינות שלך לא נספרות.
+    נראה שהנתינות רשומות בקטגוריה אחרת: ${likely.map(c => `<button class="btn sm primary" data-action="maaserAddGive" data-cat="${esc(c)}">לספור את "${esc(c)}"</button>`).join(' ')}</span></div>` : '');
   // פירוט ההכנסות של השנה: מה נכנס לחישוב ומה לא
   const exInc = st.maaserExcludeInc || [], incByCat = {};
   S.transactions.filter(t => t.type === 'income' && t.date.startsWith(Y)).forEach(t => { const c = t.category || 'ללא קטגוריה'; incByCat[c] = (incByCat[c] || 0) + t.amount; });
@@ -2976,7 +2985,7 @@ VIEWS.maaser = () => {
         <td>${money(c.due)}</td><td>${money(c.given)}</td><td class="${c.bal >= 0 ? 'pos' : 'neg'}">${signed(c.bal)}</td></tr>`; }).join('')}
     </tbody><tfoot><tr><td>סה״כ</td><td>${money(yr.inc)}</td><td>${money(yr.deduct)}</td><td>${money(yr.base)}</td><td>${money(yr.pctDue)}</td><td>${money(yr.extra)}</td><td>${money(yr.due)}</td><td>${money(yr.given)}</td><td class="${yr.bal >= 0 ? 'pos' : 'neg'}">${signed(yr.bal)}</td></tr></tfoot></table></div></section>
   ${breakdown}
-  <section class="card"><h2>למי ניתן · ${Y}</h2><p class="sub">לפי ההערה שנרשמה בעסקה בקטגוריה "${esc(st.maaserCategory)}". כדי שהרשימה תהיה מסודרת, כדאי לכתוב בהערה את שם המוסד או האדם.</p>
+  <section class="card"><h2>למי ניתן · ${Y}</h2><p class="sub">לפי ההערה שנרשמה בעסקה ${maaserCatsLabel()}. כדי שהרשימה תהיה מסודרת, כדאי לכתוב בהערה את שם המוסד או האדם.</p>
     ${Object.keys(byWho).length ? `<div class="table-wrap"><table><thead><tr><th>למי</th><th>פעמים</th><th>סכום</th><th style="width:30%">חלק</th></tr></thead><tbody>
       ${Object.entries(byWho).sort((a, b) => b[1].sum - a[1].sum).map(([k, v], i) => `<tr><td>${esc(k)}</td><td>${v.n}</td><td class="amount">${money(v.sum)}</td><td><div class="bar"><span style="width:${(v.sum / yr.given * 100).toFixed(1)}%;background:${COLORS[i % COLORS.length]}"></span></div></td></tr>`).join('')}
       </tbody></table></div>` : '<p class="empty">לא נרשמו נתינות בשנה הזו</p>'}
@@ -2987,7 +2996,8 @@ VIEWS.maaser = () => {
       <label>אחוז<select id="mPct2"><option value="10"${st.maaserPct == 10 ? ' selected' : ''}>מעשר (10%)</option><option value="20"${st.maaserPct == 20 ? ' selected' : ''}>חומש (20%)</option></select></label>
       <label>קטגוריית הנתינות<select id="mCat2">${catOptions('expense', st.maaserCategory)}</select></label>
       <label>יתרת פתיחה (₪)<input id="mOpen2" type="number" step="1" value="${opening}"></label></div>
-    <p class="sub" style="margin-top:14px"><b>הוצאות שמנוכות מההכנסה לפני החישוב</b></p>${checks(S.categories.expense.filter(c => c !== st.maaserCategory), 'maaserDeduct')}</section>`;
+    <p class="sub" style="margin-top:14px"><b>הוצאות שמנוכות מההכנסה לפני החישוב</b></p>${checks(S.categories.expense.filter(c => !maaserIsGive(c)), 'maaserDeduct')}
+    <p class="sub" style="margin-top:14px"><b>קטגוריות נוספות שנספרות כנתינה</b> (בנוסף ל"${esc(st.maaserCategory)}"), למשל צדקה או תרומות</p>${checks(S.categories.expense.filter(c => c !== st.maaserCategory && !(st.maaserDeduct || []).includes(c)), 'maaserGiveExtra')}</section>`;
 };
 BIND.maaser = () => {
   $('#mYear').addEventListener('change', e => { ui.maaserYear = e.target.value; render(); });
@@ -3002,6 +3012,7 @@ BIND.maaser = () => {
   }));
   document.querySelectorAll('[data-mlist]').forEach(c => c.addEventListener('change', () => {
     const k = c.dataset.mlist, set = new Set(S.settings[k] || []); c.checked ? set.add(c.value) : set.delete(c.value);
+    if (c.checked) { const other = k === 'maaserDeduct' ? 'maaserGiveExtra' : k === 'maaserGiveExtra' ? 'maaserDeduct' : null; if (other) S.settings[other] = (S.settings[other] || []).filter(x => x !== c.value); }
     S.settings[k] = [...set]; save(); render();
   }));
   // סימון "נכלל" בטבלת ההכנסות: הסרת הסימון מוסיפה את הקטגוריה להכנסות שלא נכללות
@@ -3201,6 +3212,8 @@ Object.assign(ACTIONS, {
   },
   clearTxFilters: () => { Object.assign(ui.filters, { type: 'all', cat: 'all', q: '', min: '', max: '', sort: 'date-desc' }); ui.txView = 'exp'; render(); },
   maaserSetCat: el => { S.settings.maaserCategory = el.dataset.cat; save(); render(); toast(`הנתינות נספרות עכשיו מהקטגוריה "${el.dataset.cat}"`); },
+  maaserAddGive: el => { const c = el.dataset.cat, st = S.settings; st.maaserGiveExtra = [...new Set([...(st.maaserGiveExtra || []), c])]; st.maaserDeduct = (st.maaserDeduct || []).filter(x => x !== c); save(); render(); toast(`"${c}" נספרת עכשיו כנתינה`); },
+  maaserMoveGive: el => ACTIONS.maaserAddGive(el),
   maaserAdd: () => { ui.homeTab = 'exp'; ui.txType = 'expense'; ui.prefillCat = S.settings.maaserCategory; render(); },
   lockNow: () => lockNowAndReload(),
   lockOff: async () => {
@@ -3301,14 +3314,14 @@ function buildReport(id) {
     const rows = monthsOf(periodTx).map(m => { const ml = periodTx.filter(t => t.date.startsWith(m));
       const i = ml.filter(t => t.type === 'income' && !ex.includes(t.category)).reduce((a, t) => a + t.amount, 0);
       const d = ml.filter(t => t.type === 'expense' && ded.includes(t.category)).reduce((a, t) => a + t.amount, 0);
-      const due = Math.max(0, i - d) * pct + (+(st.maaserExtra || {})[m] || 0), given =ml.filter(t => t.type === 'expense' && t.category === st.maaserCategory).reduce((a, t) => a + t.amount, 0);
+      const due = Math.max(0, i - d) * pct + (+(st.maaserExtra || {})[m] || 0), given =ml.filter(t => t.type === 'expense' && maaserIsGive(t.category)).reduce((a, t) => a + t.amount, 0);
       return [monthName(m), { v: i, k: 'inc' }, d, due, { v: given, k: 'exp' }, given - due]; });
     const tot = k => rows.reduce((a, r) => a + (typeof r[k] === 'object' ? r[k].v : r[k]), 0), dueT = tot(3), givenT = tot(4);
     const all = maaserCalc(''), cum = all.bal + (+st.maaserOpening || 0);
     doc.kpis = [[`נדרש (${st.maaserPct}%${Object.keys(st.maaserExtra || {}).length ? ' ותוספת' : ''})`, dueT, 'money'], ['ניתן', givenT, 'exp'], ['הפרש בתקופה', givenT - dueT, 'money'], ['יתרה מצטברת (כל התקופה)', cum, 'money']];
     doc.note = `קטגוריית הנתינות: "${st.maaserCategory}"${ex.length ? ` · הכנסות שלא נכללות: ${ex.join(', ')}` : ''}${ded.length ? ` · ניכויים: ${ded.join(', ')}` : ''}. את אופן החישוב כדאי לברר אצל הרב.`;
     doc.sections.push({ h: 'חודש אחרי חודש', table: { cols: [['חודש', 'text'], ['הכנסות לחישוב', 'inc'], ['ניכויים', 'money'], ['נדרש', 'money'], ['ניתן', 'exp'], ['הפרש', 'money']], rows, total: ['סה״כ', tot(1), tot(2), dueT, givenT, givenT - dueT] } });
-    const gifts = periodTx.filter(t => t.type === 'expense' && t.category === st.maaserCategory), g = groupSum(gifts, t => t.note);
+    const gifts = periodTx.filter(t => t.type === 'expense' && maaserIsGive(t.category)), g = groupSum(gifts, t => t.note);
     if (g.length) doc.sections.push({ h: 'למי ניתן', table: { cols: [['למי', 'text'], ['פעמים', 'num'], ['סכום', 'exp'], ['חלק', 'bar']], rows: g.map(([w, v]) => [w, v.n, v.s, givenT ? v.s / givenT : 0]), total: ['סה״כ', gifts.length, givenT, 1] } });
   }
   if (id === 'business') {
@@ -3346,7 +3359,7 @@ function buildReport(id) {
     const ex = st.maaserExcludeInc || [], ded = st.maaserDeduct || [];
     const mInc = periodTx.filter(t => t.type === 'income' && !ex.includes(t.category)).reduce((a, t) => a + t.amount, 0), mDed = periodTx.filter(t => t.type === 'expense' && ded.includes(t.category)).reduce((a, t) => a + t.amount, 0);
     const mExtra = monthsOf(periodTx).reduce((a, m) => a + (+(st.maaserExtra || {})[m] || 0), 0);
-    const mDue = Math.max(0, mInc - mDed) * st.maaserPct / 100 + mExtra, mGiven = periodTx.filter(t => t.type === 'expense' && t.category === st.maaserCategory).reduce((a, t) => a + t.amount, 0);
+    const mDue = Math.max(0, mInc - mDed) * st.maaserPct / 100 + mExtra, mGiven = periodTx.filter(t => t.type === 'expense' && maaserIsGive(t.category)).reduce((a, t) => a + t.amount, 0);
     doc.kpis = [['הכנסות', inc, 'inc'], ['הוצאות', exp, 'exp'], ['יתרה', inc - exp, 'money'], ['שיעור חיסכון', inc ? (inc - exp) / inc : 0, 'pct'],
       ['הוצאות קבועות', fixed, 'exp'], [`מעשרות: נדרש (${st.maaserPct}%)`, mDue, 'money'], ['מעשרות: ניתן', mGiven, 'money'], ['ממוצע הוצאות לחודש', exp / nM, 'exp']];
     const rows = monthRows(list);
@@ -6061,7 +6074,8 @@ function cleanDash(v) {
   blocks[0].before(d);
   const body = d.querySelector('.cl-more-body'); blocks.forEach(b => body.appendChild(b));
   // גרפים מצוירים לפי רוחב – כשפותחים, מציירים מחדש
-  d.addEventListener('toggle', () => { cleanSave(key, d.open); if (d.open) render(); });
+  // הדפדפן שולח toggle גם כשהקוד פותח את התיבה לפי המצב השמור. בלי הבדיקה הזו – ציור אינסופי
+  d.addEventListener('toggle', () => { if (d.open === !!cleanState()[key]) return; cleanSave(key, d.open); if (d.open) render(); });
 }
 
 function cleanAccordion(v) {
