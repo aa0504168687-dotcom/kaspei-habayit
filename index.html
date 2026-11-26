@@ -4089,7 +4089,7 @@ function render() {
    השקופיות הן תמונות בתיקייה assets שליד הקובץ. מדיניות האבטחה מתירה תמונות רק מהאתר עצמו ('self'),
    כך ששום דבר לא נטען מבחוץ. החלון נפתח מעל הדשבורד ומתחת למסך הנעילה. */
 const GUIDE = {
-  n: 32, pdf: 'מדריך-למשתמש-כספי-הבית.pdf',
+  n: 33, pdf: 'מדריך-למשתמש-כספי-הבית.pdf',
   img: k => 'assets/' + (k < 10 ? '0' : '') + k + '.jpg'
 };
 const GUIDE_PDF = () => GUIDE.pdf;
@@ -6443,7 +6443,7 @@ Element.prototype.scrollIntoView = function (...a) {
 };
 
 /* ---------- שלב 18: הגנה מתקיעות, דיווח תקלה, גרסה חדשה, גיבוי במבט מהיר, נתינה ברישום מהיר, קבלות לסעיף 46 ---------- */
-const P18_BUILD = '202611260858';
+const P18_BUILD = '202611260925';
 const P18_IS_DIRA = typeof SHARE_IS_DIRA !== 'undefined' && SHARE_IS_DIRA;
 const P18_LINK = !!document.getElementById('reqOpen');
 let p18Shown = false, p18Times = [], p18Depth = 0, p18Hold = 0, p18Strict = false, p18User = 0;
